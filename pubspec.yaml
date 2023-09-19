@@ -37,6 +37,13 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_riverpod: ^2.4.0
   google_fonts: ^5.1.0
+  firebase_core: ^2.15.1
+  firebase_auth: ^4.6.3
+  google_sign_in: ^6.1.5
+  shared_preferences: ^2.2.1
+  api_cache_manager: ^1.0.2
+  qr_code_scanner: ^1.0.1
+  flutter_barcode_scanner: ^2.0.0
 
 dev_dependencies:
   flutter_test:

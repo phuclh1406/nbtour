@@ -35,7 +35,7 @@ class ButtonLogoWidget extends StatelessWidget {
         ),
         Positioned(
             top: kDefaultPadding,
-            left: kDefaultPadding * 2,
+            left: width / 22,
             child: ImageHelper.loadFromAsset(AssetHelper.googleLogo,
                 width: kDefaultIconSize * 2, fit: BoxFit.fitWidth)),
       ]),
