@@ -4,6 +4,7 @@ import 'package:nbtour/constant/text_style.dart';
 import 'package:nbtour/helper/asset_helper.dart';
 import 'package:nbtour/helper/image_helper.dart';
 import 'package:nbtour/screens/login_screen.dart';
+import 'package:nbtour/screens/tour_guide/schedule_screen.dart';
 import 'package:nbtour/screens/tour_guide/tour_screen.dart';
 import 'package:nbtour/widgets/action_category_widget.dart';
 import 'package:nbtour/widgets/announcement_widget.dart';
@@ -21,6 +22,7 @@ class TourGuideHomeScreen extends StatefulWidget {
 class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
   String avatar = '';
   String userName = '';
+
   @override
   void initState() {
     // TODO: implement initState
@@ -108,7 +110,14 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                             size: kDefaultIconSize * 1.2,
                             color: Colors.white,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const TourGuideScheduleScreen(),
+                                ));
+                          },
                           title: 'Your Schedule'),
                       const SizedBox(width: kItemPadding / 1.5),
                       ActionCategoryWidget(

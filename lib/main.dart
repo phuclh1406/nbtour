@@ -15,7 +15,6 @@ import 'firebase_options.dart';
 final theme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      brightness: Brightness.light,
       seedColor: ColorPalette.primaryColor,
     ),
     dividerTheme: const DividerThemeData(color: Colors.transparent),

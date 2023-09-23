@@ -13,7 +13,10 @@ class AssetHelper {
   static const String tour4 = 'assets/images/tour_4.png';
   static const String tour5 = 'assets/images/tour_5.png';
   static const String tour6 = 'assets/images/tour_6.png';
+  static const String tourImage1 = 'assets/images/nhatrang.jpg';
 
   static const String notificationIcon = 'assets/icons/notification_icon.png';
   static const String arrowRightCirlce = 'assets/icons/arrow_right_circle.png';
+  static const String calendarIcon = 'assets/icons/calendar_icon.png';
+  static const String locationPinIcon = 'assets/icons/location_pin_icon.png';
 }

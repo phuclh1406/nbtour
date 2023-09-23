@@ -8,15 +8,15 @@ class TourListWidget extends StatelessWidget {
     required this.onTap,
     required this.announcementImage,
     required this.title,
-    required this.author,
-    required this.dateOfPublic,
+    required this.departureDate,
+    required this.departureStation,
   }) : super(key: key);
 
   final void Function() onTap;
   final Widget announcementImage;
   final String title;
-  final String author;
-  final String dateOfPublic;
+  final String departureDate;
+  final String departureStation;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class TourListWidget extends StatelessWidget {
                           height: kDefaultPadding,
                         ),
                         Text(
-                          author,
+                          departureDate,
                           style: const TextStyle(
                             fontSize: 15,
                             color: ColorPalette.primaryColor,
@@ -87,7 +87,7 @@ class TourListWidget extends StatelessWidget {
                             ),
                             Flexible(
                               child: Text(
-                                dateOfPublic,
+                                departureStation,
                                 style: const TextStyle(
                                     fontSize: 15,
                                     color: ColorPalette.subTitleColor,

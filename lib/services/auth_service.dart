@@ -4,11 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:nbtour/models/login_request_model.dart';
+import 'package:nbtour/services/config.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthServices {
+  static var client = http.Client();
   final _auth = FirebaseAuth.instance;
   final _googleSignIn = GoogleSignIn();
   static void printWrapped(String text) =>
@@ -69,7 +71,7 @@ class AuthServices {
 
   Future<int> signInWithUserNameAndPassword(
       String emailInput, String password) async {
-    const url = 'https://nbtour-fc9f59891cf4.herokuapp.com/api/v1/auth/login';
+    var url = Uri.https(Config.apiURL, Config.login);
     final headers = {
       'Content-Type': 'application/json',
     };
@@ -77,8 +79,7 @@ class AuthServices {
       'email': emailInput,
       'password': password,
     });
-    final response =
-        await http.post(Uri.parse(url), headers: headers, body: body);
+    final response = await client.post(url, headers: headers, body: body);
     final responseData = json.decode(response.body);
     print(responseData);
     print(response.statusCode);
@@ -157,8 +158,8 @@ class AuthServices {
   }
 
   Future<void> sendTokenToApi(String token) async {
-    const url =
-        'https://nbtour-fc9f59891cf4.herokuapp.com/api/v1/auth/login-google';
+    var url = Uri.https(Config.apiURL, Config.loginGoogle);
+
     // ignore: non_constant_identifier_names
     final headers = {
       'Content-Type': 'application/json',
@@ -167,8 +168,7 @@ class AuthServices {
     final body = json.encode({
       'tokenfirebase': token,
     });
-    final response =
-        await http.post(Uri.parse(url), headers: headers, body: body);
+    final response = await client.post(url, headers: headers, body: body);
     final responseData = json.decode(response.body);
     final accesstoken = responseData['accessToken'];
     printWrapped('AcessToken: $accesstoken');
