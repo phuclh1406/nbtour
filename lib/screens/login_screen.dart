@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
       String roleName = await getUser();
       String userId = await getUserId();
       print('12312312321321321321321 $roleName');
-      if (roleName == 'TourGuild' || roleName == 'Driver') {
+      if (roleName == 'TourGuide' || roleName == 'Driver') {
         Navigator.push(
             context, MaterialPageRoute(builder: (ctx) => const TabsScreen()));
       } else {
@@ -217,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (signInSuccessful) {
                   String roleName = await getUser();
                   String userId = await getUserId();
-                  if (roleName == 'TourGuild' || roleName == 'Driver') {
+                  if (roleName == 'TourGuide' || roleName == 'Driver') {
                     Navigator.push(
                       context,
                       MaterialPageRoute(

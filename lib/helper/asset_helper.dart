@@ -14,6 +14,8 @@ class AssetHelper {
   static const String tour5 = 'assets/images/tour_5.png';
   static const String tour6 = 'assets/images/tour_6.png';
   static const String tourImage1 = 'assets/images/nhatrang.jpg';
+  static const String person = 'assets/images/person.jpg';
+  static const String sportCar = 'assets/images/sport-car.png';
 
   static const String notificationIcon = 'assets/icons/notification_icon.png';
   static const String arrowRightCirlce = 'assets/icons/arrow_right_circle.png';
