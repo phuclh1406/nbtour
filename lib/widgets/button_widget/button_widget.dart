@@ -36,7 +36,7 @@ class ButtonWidget extends StatelessWidget {
         ),
         if (isIcon)
           Positioned(
-              top: kDefaultPadding,
+              top: kDefaultPadding + kDefaultIconSize / 6,
               right: kDefaultPadding,
               child: ImageHelper.loadFromAsset(AssetHelper.arrowRightCirlce))
       ]),
