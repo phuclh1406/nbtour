@@ -24,8 +24,8 @@ import 'package:nbtour/widgets/button_widget/oval_button_widget.dart';
 String userId = '';
 String tourId = '';
 
-class TourGuideTourDetailScreen extends StatelessWidget {
-  const TourGuideTourDetailScreen({super.key, required this.scheduleTour});
+class DriverTourDetailScreen extends StatelessWidget {
+  const DriverTourDetailScreen({super.key, required this.scheduleTour});
   final Schedules scheduleTour;
 
   // final String tourId;

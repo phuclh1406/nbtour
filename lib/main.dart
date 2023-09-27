@@ -12,7 +12,6 @@ import 'package:nbtour/screens/qr_scanner.dart';
 import 'package:nbtour/screens/splash_screen.dart';
 import 'package:nbtour/screens/tab_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:nbtour/screens/ui/splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
@@ -20,9 +19,10 @@ late SharedPreferences sharedPreferences;
 final theme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
+      brightness: Brightness.light,
       seedColor: ColorPalette.primaryColor,
     ),
-    dividerTheme: const DividerThemeData(color: Colors.transparent),
+    primaryColor: ColorPalette.primaryColor,
     textTheme: GoogleFonts.latoTextTheme(),
     appBarTheme: const AppBarTheme(
         color: ColorPalette.primaryColor,
@@ -47,7 +47,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: theme,
       debugShowCheckedModeBanner: false,
-      home: const Splash(),
+      home: const LoginScreen(),
     );
   }
 }

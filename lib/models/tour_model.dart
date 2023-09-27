@@ -12,7 +12,7 @@ class Tour {
     required this.tourId,
     required this.tourName,
     required this.description,
-    this.note,
+    required this.note,
     required this.beginBookingDate,
     required this.endBookingDate,
     required this.departureDate,
@@ -101,7 +101,7 @@ class Tour {
       };
     }
     if (tourRoute != null) {
-      _data['departure_station'] = {
+      _data['tour_route'] = {
         'routeId': tourRoute!.routeId,
         'routeName': tourRoute!.routeName,
         'distance': tourRoute!.distance,

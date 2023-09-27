@@ -30,16 +30,18 @@ class Routes {
     status = json['status'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    json['route_detail'] == null
-        ? null
-        : (json['route_detail'] as List)
-            .map((i) => Routes.fromJson(i))
-            .toList();
-    json['route_poi_detail'] == null
-        ? null
-        : (json['route_poi_detail'] as List)
-            .map((i) => Routes.fromJson(i))
-            .toList();
+
+    if (json['route_detail'] != null && json['route_detail'] is List) {
+      routeDetail = List<RouteDetail>.from(
+        json['route_detail'].map((x) => RouteDetail.fromJson(x)),
+      );
+    }
+
+    if (json['route_poi_detail'] != null && json['route_poi_detail'] is List) {
+      routePoiDetail = List<RoutePoiDetail>.from(
+        json['route_poi_detail'].map((x) => RoutePoiDetail.fromJson(x)),
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -51,13 +53,26 @@ class Routes {
     _data['createdAt'] = createdAt;
     _data['updatedAt'] = updatedAt;
 
-    if (routeDetail != null) {
-      _data['route_detail'] = routeDetail!.map((x) => x.toJson()).toList();
+    if (routeDetail != null && routeDetail!.isNotEmpty) {
+      _data['route_detail'] = routeDetail!.map((routeDetail) {
+        return {
+          'routeDetailId': routeDetail.routeDetailId,
+          'index': routeDetail.index,
+          'stopoverTime': routeDetail.stopoverTime,
+          'route_detail_station': routeDetail.routeDetailStation,
+          'route_detail_step': routeDetail.routeDetailStep,
+        };
+      }).toList();
     }
 
-    if (routePoiDetail != null) {
-      _data['route_poi_detail'] =
-          routePoiDetail!.map((e) => e.toJson()).toList();
+    if (routePoiDetail != null && routePoiDetail!.isNotEmpty) {
+      _data['route_poi_detail'] = routePoiDetail!.map((routePoiDetail) {
+        return {
+          'routepoiId': routePoiDetail.routepoiId,
+          'index': routePoiDetail.index,
+          'route_poi_detail_poi': routePoiDetail.routePoiDetailPoi,
+        };
+      }).toList();
     }
 
     return _data;
@@ -69,23 +84,29 @@ class RouteDetail {
     required this.routeDetailId,
     required this.index,
     required this.stopoverTime,
-    this.routeDetailStation,
+    required this.routeDetailStation,
     required this.routeDetailStep,
   });
   late final String? routeDetailId;
   late final int? index;
   late final String? stopoverTime;
   late final Stations? routeDetailStation;
-  late final List<RouteDetailStep> routeDetailStep;
+  late final List<RouteDetailStep>? routeDetailStep;
 
   RouteDetail.fromJson(Map<String, dynamic> json) {
     routeDetailId = json['routeDetailId'];
     index = json['index'];
     stopoverTime = json['stopoverTime'];
-    routeDetailStation = null;
-    routeDetailStep = List.from(json['route_detail_step'])
-        .map((e) => RouteDetailStep.fromJson(e))
-        .toList();
+    routeDetailStation = json['route_detail_station'] != null
+        ? Stations.fromJson(json['route_detail_station'])
+        : null;
+    print('This is route detail station $routeDetailStation');
+    if (json['route_detail_step'] != null &&
+        json['route_detail_step'] is List) {
+      routeDetailStep = List<RouteDetailStep>.from(
+        json['route_detail_step'].map((x) => RouteDetailStep.fromJson(x)),
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -93,10 +114,19 @@ class RouteDetail {
     _data['routeDetailId'] = routeDetailId;
     _data['index'] = index;
     _data['stopoverTime'] = stopoverTime;
-    _data['route_detail_station'] = routeDetailStation;
+    if (routeDetailStation != null) {
+      _data['route_detail_station'] = {
+        'stationId': routeDetailStation!.stationId,
+        'stationName': routeDetailStation!.stationName,
+        'description': routeDetailStation!.description,
+        'address': routeDetailStation!.address,
+        'latitude': routeDetailStation!.latitude,
+        'longitude': routeDetailStation!.longitude,
+      };
+    }
     if (routeDetailStep != null) {
       _data['route_detail_step'] =
-          routeDetailStep.map((e) => e.toJson()).toList();
+          routeDetailStep!.map((e) => e.toJson()).toList();
     }
 
     return _data;

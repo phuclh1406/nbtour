@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:nbtour/helper/shared_prefs.dart';
-import 'package:nbtour/screens/ui/rate_ride.dart';
 
 class TurnByTurn extends StatefulWidget {
   const TurnByTurn({Key? key}) : super(key: key);
@@ -74,7 +73,7 @@ class _TurnByTurnState extends State<TurnByTurn> {
 
   @override
   Widget build(BuildContext context) {
-    return const RateRide();
+    return const Text('');
   }
 
   Future<void> _onRouteEvent(e) async {

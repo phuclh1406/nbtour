@@ -3,6 +3,9 @@ import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
 import 'package:nbtour/helper/asset_helper.dart';
 import 'package:nbtour/helper/image_helper.dart';
+import 'package:nbtour/screens/driver/schedule_screen.dart';
+import 'package:nbtour/screens/driver/tour_detail_screen.dart';
+import 'package:nbtour/screens/driver/tour_screen.dart';
 import 'package:nbtour/screens/login_screen.dart';
 import 'package:nbtour/widgets/action_category_widget.dart';
 import 'package:nbtour/widgets/announcement_widget.dart';
@@ -56,12 +59,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 250, 250, 250),
       appBar: AppBar(
-        title: const SearchFieldWidget(),
+        title: const Center(
+          child: Text(
+            'Welcome to NBTour',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: <Widget>[
           IconButton(
             onPressed: () {},
-            icon: ImageHelper.loadFromAsset(AssetHelper.notificationIcon),
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.white,
+            ),
           )
         ],
       ),
@@ -107,7 +118,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                             size: kDefaultIconSize * 1.2,
                             color: Colors.white,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (ctx) =>
+                                        const DriverScheduleScreen()));
+                          },
                           title: 'Your Schedule'),
                       const SizedBox(width: kItemPadding / 1.5),
                       ActionCategoryWidget(
@@ -116,7 +133,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                             size: kDefaultIconSize * 1.2,
                             color: Colors.white,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (ctx) =>
+                                        const DriverTourScreen()));
+                          },
                           title: 'Your Activity'),
                       const SizedBox(width: kItemPadding / 1.5),
                       ActionCategoryWidget(

@@ -7,15 +7,14 @@ import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
 import 'package:nbtour/widgets/calendar_widget/calendar_widget.dart';
 
-class TourGuideScheduleScreen extends StatefulWidget {
-  const TourGuideScheduleScreen({super.key});
+class DriverScheduleScreen extends StatefulWidget {
+  const DriverScheduleScreen({super.key});
 
   @override
-  State<TourGuideScheduleScreen> createState() =>
-      _TourGuideScheduleScreenState();
+  State<DriverScheduleScreen> createState() => _DriverScheduleScreenState();
 }
 
-class _TourGuideScheduleScreenState extends State<TourGuideScheduleScreen> {
+class _DriverScheduleScreenState extends State<DriverScheduleScreen> {
   void setupPushNotification() async {
     final fcm = FirebaseMessaging.instance;
     final notificationSettings = await fcm.requestPermission();

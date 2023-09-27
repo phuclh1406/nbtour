@@ -1,3 +1,6 @@
+List<Stations> stationsFromJson(dynamic str) =>
+    List<Stations>.from((str).map((x) => Stations.fromJson(x)));
+
 class Stations {
   Stations({
     required this.stationId,
@@ -7,8 +10,6 @@ class Stations {
     required this.latitude,
     required this.longitude,
     required this.status,
-    required this.createdAt,
-    required this.updatedAt,
   });
   late final String? stationId;
   late final String? stationName;
@@ -17,8 +18,6 @@ class Stations {
   late final String? latitude;
   late final String? longitude;
   late final String? status;
-  late final String? createdAt;
-  late final String? updatedAt;
 
   Stations.fromJson(Map<String, dynamic> json) {
     stationId = json['stationId'];
@@ -28,8 +27,6 @@ class Stations {
     latitude = json['latitude'];
     longitude = json['longitude'];
     status = json['status'];
-    createdAt = json['createdAt'];
-    updatedAt = json['updatedAt'];
   }
 
   Map<String, dynamic> toJson() {
@@ -41,8 +38,6 @@ class Stations {
     _data['latitude'] = latitude;
     _data['longitude'] = longitude;
     _data['status'] = status;
-    _data['createdAt'] = createdAt;
-    _data['updatedAt'] = updatedAt;
     return _data;
   }
 }

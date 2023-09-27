@@ -61,6 +61,7 @@ dependencies:
   flutter_mapbox_navigation: ^0.2.0
   syncfusion_flutter_maps: ^23.1.36
   change_app_package_name: ^1.1.0
+  flutter_polyline_points: ^2.0.0
 
 dev_dependencies:
   flutter_test:

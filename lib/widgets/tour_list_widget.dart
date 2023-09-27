@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
 
@@ -9,14 +10,16 @@ class TourListWidget extends StatelessWidget {
     required this.announcementImage,
     required this.title,
     required this.departureDate,
-    required this.departureStation,
+    required this.startTime,
+    required this.endTime,
   }) : super(key: key);
 
   final void Function() onTap;
   final Widget announcementImage;
   final String title;
   final String departureDate;
-  final String departureStation;
+  final String startTime;
+  final String endTime;
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +58,17 @@ class TourListWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(
-                          height: kDefaultPadding,
+                          height: kDefaultPadding / 2,
                         ),
                         Text(
-                          departureDate,
+                          'Start Date: ${departureDate.substring(0, 10)}',
                           style: const TextStyle(
                             fontSize: 15,
                             color: ColorPalette.primaryColor,
                           ),
+                        ),
+                        const SizedBox(
+                          height: kDefaultPadding / 2,
                         ),
                         Text(
                           title,
@@ -74,20 +80,43 @@ class TourListWidget extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(
-                          height: kItemPadding / 2,
+                          height: kDefaultPadding / 2,
                         ),
                         Row(
                           children: [
                             const Icon(
-                              Icons.location_pin,
+                              FontAwesomeIcons.clock,
+                              size: kDefaultIconSize,
                               color: ColorPalette.subTitleColor,
                             ),
                             const SizedBox(
-                              width: kDefaultIconSize / 5,
+                              width: kDefaultIconSize / 2,
                             ),
                             Flexible(
                               child: Text(
-                                departureStation,
+                                startTime.substring(12, 19),
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    color: ColorPalette.subTitleColor,
+                                    overflow: TextOverflow.ellipsis),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: kDefaultIconSize / 2,
+                            ),
+                            const Text(
+                              '-',
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: ColorPalette.subTitleColor,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                            const SizedBox(
+                              width: kDefaultIconSize / 2,
+                            ),
+                            Flexible(
+                              child: Text(
+                                endTime.substring(12, 19),
                                 style: const TextStyle(
                                     fontSize: 15,
                                     color: ColorPalette.subTitleColor,
@@ -95,6 +124,9 @@ class TourListWidget extends StatelessWidget {
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(
+                          height: kDefaultPadding / 2,
                         ),
                       ],
                     ),

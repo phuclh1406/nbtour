@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
 
@@ -12,6 +13,7 @@ class SearchFieldWidget extends StatelessWidget {
       child: TextField(
         enabled: true,
         autocorrect: false,
+        cursorColor: ColorPalette.primaryColor,
         decoration: const InputDecoration(
           hintText: 'Search....',
           prefixIcon: Padding(

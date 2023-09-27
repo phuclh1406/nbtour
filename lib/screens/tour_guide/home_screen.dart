@@ -39,7 +39,6 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
         userName = fetchUserName;
       });
     }
-    ;
   }
 
   Future<void> fetchUserAvatar() async {
@@ -59,12 +58,20 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 250, 250, 250),
       appBar: AppBar(
-        title: const SearchFieldWidget(),
+        title: const Center(
+          child: Text(
+            'Welcome to NBTour',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: <Widget>[
           IconButton(
             onPressed: () {},
-            icon: ImageHelper.loadFromAsset(AssetHelper.notificationIcon),
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.white,
+            ),
           )
         ],
       ),

@@ -9,9 +9,9 @@ import 'package:nbtour/helper/asset_helper.dart';
 import 'package:nbtour/helper/image_helper.dart';
 import 'package:nbtour/screens/tab_screen.dart';
 import 'package:nbtour/services/auth_service.dart';
-import 'package:nbtour/widgets/button_with_icon_widget.dart';
-import 'package:nbtour/widgets/button_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nbtour/widgets/button_widget/button_widget.dart';
+import 'package:nbtour/widgets/button_widget/button_with_icon_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _firebase = FirebaseAuth.instance;

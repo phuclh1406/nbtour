@@ -4,7 +4,7 @@ import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
 import 'package:nbtour/helper/asset_helper.dart';
 import 'package:nbtour/helper/image_helper.dart';
-import 'package:nbtour/screens/filter_screen.dart';
+import 'package:nbtour/screens/driver/tour_detail_screen.dart';
 import 'package:nbtour/screens/tour_guide/tour_detail_screen.dart';
 import 'package:nbtour/widgets/tour_list_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,15 +15,15 @@ import '../../services/schedule_service.dart';
 String userId = '';
 String tourId = '';
 
-class TourGuideTourScreen extends StatefulWidget {
-  const TourGuideTourScreen({super.key});
+class DriverTourScreen extends StatefulWidget {
+  const DriverTourScreen({super.key});
   @override
-  State<TourGuideTourScreen> createState() => _TourGuideTourScreenState();
+  State<DriverTourScreen> createState() => _DriverTourScreenState();
 }
 
 late Schedules scheduleTour;
 
-class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
+class _DriverTourScreenState extends State<DriverTourScreen> {
   bool isSearching = false;
   List<Schedules> filteredSchedule = [];
   String _searchValue = '';
@@ -46,7 +46,7 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
 
   Widget loadScheduledTour() {
     return FutureBuilder<List<Schedules>?>(
-      future: ScheduleService.getScheduleToursByTourGuideId(userId),
+      future: ScheduleService.getScheduleToursByDriverId(userId),
       builder:
           (BuildContext context, AsyncSnapshot<List<Schedules>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -85,7 +85,7 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (ctx) => TourGuideTourDetailScreen(
+                              builder: (ctx) => DriverTourDetailScreen(
                                     scheduleTour: filteredSchedule[i],
                                   )));
                     },
@@ -140,14 +140,6 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
           return const SizedBox(); // Return an empty container or widget if data is null
         }
       },
-    );
-  }
-
-  void _openAddExpenseOverlay() {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (ctx) => const FilterScreen(),
     );
   }
 
@@ -208,7 +200,7 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                     ),
                   ),
             IconButton(
-                onPressed: _openAddExpenseOverlay,
+                onPressed: () {},
                 icon: const Icon(
                   Icons.menu,
                   color: Colors.black,
