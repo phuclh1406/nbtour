@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:location/location.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
@@ -94,6 +95,7 @@ class TourGuideTourDetailScreen extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                         builder: (ctx) => ReviewRide(
+                                            routeId: tour.tourRoute!.routeId!,
                                             tourId: tour.tourId!,
                                             tourName: tour.tourName!)));
                               },

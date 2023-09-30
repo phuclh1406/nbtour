@@ -102,8 +102,17 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                             loadingBuilder: (context, child, loadingProgress) =>
                                 (loadingProgress == null)
                                     ? child
-                                    : const CircularProgressIndicator(
-                                        color: ColorPalette.primaryColor),
+                                    : const Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Center(
+                                            child: CircularProgressIndicator(
+                                                color:
+                                                    ColorPalette.primaryColor),
+                                          ),
+                                        ],
+                                      ),
                             errorBuilder: (context, error, stackTrace) =>
                                 ImageHelper.loadFromAsset(
                                     AssetHelper.announcementImage,

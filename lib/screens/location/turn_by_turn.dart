@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:nbtour/helper/shared_prefs.dart';
+import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 
 class TurnByTurn extends StatefulWidget {
-  const TurnByTurn({Key? key}) : super(key: key);
+  const TurnByTurn({Key? key, required this.kTripEndPoints}) : super(key: key);
+
+  final List<LatLng> kTripEndPoints;
 
   @override
   State<TurnByTurn> createState() => _TurnByTurnState();
@@ -12,9 +14,10 @@ class TurnByTurn extends StatefulWidget {
 
 class _TurnByTurnState extends State<TurnByTurn> {
   // Waypoints to mark trip start and end
-  LatLng source = getTripLatLngFromSharedPrefs('source');
-  LatLng destination = getTripLatLngFromSharedPrefs('destination');
-  late WayPoint sourceWaypoint, destinationWaypoint;
+  // LatLng source = getTripLatLngFromSharedPrefs('source');
+  // LatLng destination = getTripLatLngFromSharedPrefs('destination');
+  // late WayPoint sourceWaypoint, destinationWaypoint;
+
   var wayPoints = <WayPoint>[];
 
   // Config variables for Mapbox Navigation
@@ -38,7 +41,7 @@ class _TurnByTurnState extends State<TurnByTurn> {
     if (!mounted) return;
 
     // Setup directions and options
-
+    directions = MapBoxNavigation.instance;
     _options = MapBoxOptions(
         zoom: 18.0,
         voiceInstructionsEnabled: true,
@@ -49,26 +52,18 @@ class _TurnByTurnState extends State<TurnByTurn> {
         simulateRoute: true,
         language: "en");
 
-    // Configure waypoints
-    // sourceWaypoint = WayPoint(
-    //     name: "Source", latitude: source.latitude, longitude: source.longitude);
-    sourceWaypoint = WayPoint(
-      name: "Source",
-      latitude: 12.34, // Replace with the desired latitude
-      longitude: 56.78, // Replace with the desired longitude
-    );
-    sourceWaypoint = WayPoint(
-      name: "Destination",
-      latitude: 13.34, // Replace with the desired latitude
-      longitude: 57.78, // Replace with the desired longitude
-    );
-    wayPoints.add(sourceWaypoint);
-    wayPoints.add(destinationWaypoint);
+    for (var i = 0; i < widget.kTripEndPoints.length; i++) {
+      wayPoints.add(WayPoint(
+          name: widget.kTripEndPoints[i].toString(),
+          latitude: widget.kTripEndPoints[i].latitude,
+          longitude: widget.kTripEndPoints[i].longitude));
+    }
+
+    print('This is for testttttttttttttttttttt ${MapBoxNavigation.instance}');
 
     // Start the trip
-    await MapBoxNavigation.instance
-        .startNavigation(wayPoints: wayPoints, options: _options);
     MapBoxNavigation.instance.registerRouteEventListener(_onRouteEvent);
+    await directions.startNavigation(wayPoints: wayPoints, options: _options);
   }
 
   @override

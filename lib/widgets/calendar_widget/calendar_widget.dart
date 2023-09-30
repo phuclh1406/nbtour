@@ -8,6 +8,7 @@ import 'package:nbtour/constant/text_style.dart';
 import 'package:nbtour/main.dart';
 import 'package:nbtour/models/data_source.dart';
 import 'package:nbtour/models/schedule_model.dart';
+import 'package:nbtour/screens/driver/tour_detail_screen.dart';
 import 'package:nbtour/screens/tour_guide/tour_detail_screen.dart';
 import 'package:nbtour/services/schedule_service.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -29,6 +30,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       setState(() {
         _appointments = Future.value(appointments);
       });
+      print('This is appointmentsssssssssssssssssssss $_appointments');
     } catch (error) {
       // Handle any errors that occur during loading.
       print('Error loading appointments: $error');
@@ -41,8 +43,10 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     _loadAppointments();
   }
 
-  Widget appointmentBuilder(BuildContext context,
-      CalendarAppointmentDetails calendarAppointmentDetails) {
+  Widget appointmentBuilder(
+    BuildContext context,
+    CalendarAppointmentDetails calendarAppointmentDetails,
+  ) {
     final Appointment appointment =
         calendarAppointmentDetails.appointments.first;
     return Column(
@@ -88,15 +92,41 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       BuildContext context, CalendarTapDetails calendarTapDetails) {
     if (calendarTapDetails.targetElement == CalendarElement.appointment) {
       String? scheduleJson = sharedPreferences.getString("schedule_tour");
+
       if (scheduleJson != null) {
-        // Parsing the JSON string back to a Schedule object
-        Schedules scheduleTour = Schedules.fromJson(json.decode(scheduleJson));
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) =>
-                TourGuideTourDetailScreen(scheduleTour: scheduleTour),
-          ),
-        );
+        try {
+          // Parsing the JSON string back to a List of Appointment objects
+          Schedules appointments =
+              Schedules.fromJson(json.decode(scheduleJson));
+
+          // Find the tapped appointment based on its properties, e.g., startTime, endTime, subject
+          final tappedAppointment = appointments;
+
+          // Navigate to the detail screen with the tapped appointment data
+          String roleName = sharedPreferences.getString("role_name")!;
+          if (roleName.contains("TourGuide")) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => TourGuideTourDetailScreen(
+                  scheduleTour: tappedAppointment,
+                ),
+              ),
+            );
+          } else {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => DriverTourDetailScreen(
+                  scheduleTour: tappedAppointment,
+                ),
+              ),
+            );
+          }
+
+          // Remove the stored data from SharedPreferences (if needed)
+          sharedPreferences.remove("appointments");
+        } catch (e) {
+          print('Error decoding JSON: $e');
+        }
       }
     }
   }
@@ -113,10 +143,16 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             );
           } else if (snapshot.hasData) {
             final appointments = snapshot.data!;
+            print('This is appointment $appointments');
             return SfCalendar(
-              onTap: (details) => calendarTapped(context, details),
+              // onTap: (details) => calendarTapped(context, details),
               view: CalendarView.day,
               showTodayButton: true,
+              timeSlotViewSettings: const TimeSlotViewSettings(
+                timeInterval:
+                    Duration(hours: 1), // Set your desired time interval
+                timeFormat: 'HH', // Set the time format to 24-hour
+              ),
               initialSelectedDate: DateTime.now(),
               showDatePickerButton: true,
               firstDayOfWeek: 1,

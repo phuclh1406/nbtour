@@ -48,10 +48,10 @@ android {
         applicationId "com.nbtour"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        versionName flutterVersionName                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
         multiDexEnabled true      
     }
 
@@ -74,22 +74,23 @@ dependencies {
     implementation 'com.android.support:multidex:2.0.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "androidx.startup:startup-runtime:1.0.0"
-    implementation('com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.42.6') {
-        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-navigation-ui'
-    }   
-    implementation('com.mapbox.mapboxsdk:mapbox-android-sdk:9.7.1') {
-        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-telemetry'
-    }   
+    implementation "com.google.android.gms:play-services-location:21.0.1"
+    implementation 'com.google.android.gms:play-services:12.0.1'
+    implementation "com.github.niqo01.rxplayservices:rx-play-services-location:0.4.0"
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.0.0-alpha3'
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.3.1'
+    // implementation platform("org.jetbrains.kotlin:kotlin-bom:1.8.0")
 }
 
 
 
-configurations {
-    all {
-        all*.exclude group: 'com.mapbox.common', module: 'common'
-        all*.exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-telemetry'
-        all*.exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-navigation-ui'
-    }
-}
+// configurations {
+//     all {
+//         all*.exclude group: 'com.mapbox.common', module: 'common'
+//         all*.exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-telemetry'
+//         all*.exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-sdk-turf'
+//     }
+// }
 
 

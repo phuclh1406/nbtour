@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:location/location.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
@@ -16,11 +16,17 @@ import 'package:nbtour/models/tour_model.dart';
 import 'package:nbtour/screens/tour_guide/tour_screen.dart';
 import 'package:nbtour/widgets/map_widget/review_ride_bottom_sheet.dart';
 import 'package:nbtour/services/route_service.dart';
+import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 
 class ReviewRide extends StatefulWidget {
-  const ReviewRide({Key? key, required this.tourId, required this.tourName})
+  const ReviewRide(
+      {Key? key,
+      required this.tourId,
+      required this.tourName,
+      required this.routeId})
       : super(key: key);
 
+  final String routeId;
   final String tourId;
   final String tourName;
 
@@ -31,7 +37,7 @@ class ReviewRide extends StatefulWidget {
 List<LatLng> _kTripEndPoints = [];
 
 class _ReviewRideState extends State<ReviewRide> {
-  late MapboxMapController controller;
+  late VietmapController controller;
   LatLng targetPoint = const LatLng(0, 0);
   void initializeLocationAndSave() async {
     // Ensure all permissions are collected for Locations
@@ -55,13 +61,10 @@ class _ReviewRideState extends State<ReviewRide> {
         LatLng(_locationData.latitude!, _locationData.longitude!);
 
     // Get the current user address
-    String currentAddress =
-        (await getParsedReverseGeocoding(currentLocation))['place'];
 
     // Store the user location in sharedPreferences
     sharedPreferences.setDouble('latitude', _locationData.latitude!);
     sharedPreferences.setDouble('longitude', _locationData.longitude!);
-    sharedPreferences.setString('current-address', currentAddress);
   }
 
   // Mapbox Maps SDK related
@@ -80,11 +83,13 @@ class _ReviewRideState extends State<ReviewRide> {
   void initState() {
     super.initState();
     initializeLocationAndSave();
+    _kTripEndPoints = [];
   }
 
   Widget loadRoute() {
+    print(' This is routeIddddddddddddd ${widget.routeId}');
     return FutureBuilder<Routes?>(
-      future: RouteService.getRouteByRouteId(tourId),
+      future: RouteService.getRouteByRouteId(widget.routeId),
       builder: (BuildContext context, AsyncSnapshot<Routes?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -104,18 +109,13 @@ class _ReviewRideState extends State<ReviewRide> {
             if (route.routeDetail != null) {
               for (var detail in route.routeDetail!) {
                 if (detail.routeDetailStation != null) {
-                  _kTripEndPoints.add(
-                    LatLng(double.parse(detail.routeDetailStation!.latitude!),
-                        double.parse(detail.routeDetailStation!.longitude!)),
-                  );
-                }
-
-                for (var step in detail.routeDetailStep!) {
-                  if (step != null) {
-                    _kTripEndPoints.add(
-                      LatLng(double.parse(step.latitude!),
-                          double.parse(step.longitude!)),
-                    );
+                  for (var step in detail.routeDetailStep!) {
+                    if (step != null) {
+                      _kTripEndPoints.add(
+                        LatLng(double.parse(step.latitude!),
+                            double.parse(step.longitude!)),
+                      );
+                    }
                   }
                 }
               }
@@ -128,10 +128,9 @@ class _ReviewRideState extends State<ReviewRide> {
                   children: [
                     SizedBox(
                       height: MediaQuery.of(context).size.height,
-                      child: MapboxMap(
+                      child: VietmapGL(
                         zoomGesturesEnabled: true,
                         trackCameraPosition: true,
-                        accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
                         initialCameraPosition:
                             CameraPosition(target: targetPoint, zoom: 15),
                         onMapCreated: _onMapCreated,
@@ -139,10 +138,11 @@ class _ReviewRideState extends State<ReviewRide> {
                         myLocationTrackingMode:
                             MyLocationTrackingMode.TrackingGPS,
                         minMaxZoomPreference: const MinMaxZoomPreference(6, 25),
+                        styleString: '',
                       ),
                     ),
-                    reviewRideBottomSheet(
-                        context, route.distance.toString(), widget.tourName),
+                    reviewRideBottomSheet(context, route.distance.toString(),
+                        widget.tourName, _kTripEndPoints),
                   ],
                 ),
               );
@@ -166,15 +166,28 @@ class _ReviewRideState extends State<ReviewRide> {
   //   geometry = widget.modifiedResponse['geometry'];
   // }
 
-  _onMapCreated(MapboxMapController controller) async {
+  _onMapCreated(VietmapController controller) async {
     this.controller = controller;
-    controller.addLine(
-      LineOptions(
-        geometry: _kTripEndPoints,
-        lineColor: Colors.indigo.toHexStringRGB(), // Line color
-        lineWidth: 3.0, // Line width
+    List<LatLng> polylineCoordinates = [];
+
+    // Add each coordinate to the `polylineCoordinates` list
+    for (LatLng point in _kTripEndPoints) {
+      polylineCoordinates.add(point);
+    }
+    controller.addPolyline(
+      PolylineOptions(
+        geometry: polylineCoordinates, // List of LatLng coordinates
+        polylineColor: Colors.blue, // Line color
+        polylineWidth: 3.0, // Line width
       ),
     );
+    // controller.addLine(
+    //   LineOptions(
+    //     geometry: _kTripEndPoints,
+    //     lineColor: Colors.indigo.toHexStringRGB(), // Line color
+    //     lineWidth: 3.0, // Line width
+    //   ),
+    // );
   }
 
   _onStyleLoadedCallback() async {
@@ -188,7 +201,7 @@ class _ReviewRideState extends State<ReviewRide> {
     for (int i = 0; i < _kTripEndPoints.length; i++) {
       String iconImage = '';
       if (i == 0) {
-        iconImage = "square";
+        iconImage = "circle";
         await controller.addSymbol(
           SymbolOptions(
             geometry: _kTripEndPoints[i],

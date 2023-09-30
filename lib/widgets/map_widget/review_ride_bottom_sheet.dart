@@ -3,10 +3,12 @@ import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/helper/asset_helper.dart';
 import 'package:nbtour/helper/image_helper.dart';
 import 'package:nbtour/helper/shared_prefs.dart';
+import 'package:nbtour/screens/location/navigation.dart';
 import 'package:nbtour/screens/location/turn_by_turn.dart';
+import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 
-Widget reviewRideBottomSheet(
-    BuildContext context, String distance, String routeName) {
+Widget reviewRideBottomSheet(BuildContext context, String distance,
+    String routeName, List<LatLng> kTripEndPoints) {
   // Get source and destination addresses from sharedPreferences
   // String sourceAddress = getSourceAndDestinationPlaceText('source');
   // String destAddress = getSourceAndDestinationPlaceText('destination');
@@ -38,14 +40,17 @@ Widget reviewRideBottomSheet(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         )),
-                    trailing: Text('$distance m',
+                    trailing: Text('$distance km',
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18)),
                   ),
                 ),
                 ElevatedButton(
-                    onPressed: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const TurnByTurn())),
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => VietMapNavigationScreen(
+                                kTripEndPoints: kTripEndPoints))),
                     style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.all(20),
                         backgroundColor: ColorPalette.primaryColor),

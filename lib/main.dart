@@ -1,16 +1,10 @@
-import 'package:app_settings/app_settings.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/screens/login_screen.dart';
-import 'package:nbtour/screens/qr_scanner.dart';
-import 'package:nbtour/screens/splash_screen.dart';
-import 'package:nbtour/screens/tab_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
@@ -18,11 +12,7 @@ import 'firebase_options.dart';
 late SharedPreferences sharedPreferences;
 final theme = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      brightness: Brightness.light,
-      seedColor: ColorPalette.primaryColor,
-    ),
-    primaryColor: ColorPalette.primaryColor,
+    dividerColor: Colors.white,
     textTheme: GoogleFonts.latoTextTheme(),
     appBarTheme: const AppBarTheme(
         color: ColorPalette.primaryColor,
@@ -35,7 +25,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   sharedPreferences = await SharedPreferences.getInstance();
+
   await dotenv.load(fileName: "assets/config/.env");
+
   runApp(const App());
 }
 

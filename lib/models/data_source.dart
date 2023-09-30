@@ -14,25 +14,28 @@ import '../screens/tour_guide/tour_detail_screen.dart';
 String userId = sharedPreferences.getString("user_id")!;
 
 class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Appointment> appointments) {
-    appointments = appointments;
+  MeetingDataSource(List<Appointment> source) {
+    appointments = source;
   }
-
-  Appointment getAppointment(int index) => appointments![index] as Appointment;
 }
 
 List<Appointment> meetings = <Appointment>[];
 
 Future<List<Appointment>> loadScheduledTour() async {
+  print('This is User Id: $userId');
   String role = sharedPreferences.getString("role_name")!;
+  print('This is roleName $role');
   try {
-    if (role == "Driver") {
+    if (role.contains("TourGuide")) {
       List<Schedules>? listScheduledTour =
-          await ScheduleService.getScheduleToursByDriverId(userId);
+          await ScheduleService.getScheduleToursByTourGuideId(userId);
       if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
+        final listScheduledTourJson = listScheduledTour
+            .map((listScheduledTour) => listScheduledTour.toJson())
+            .toList();
+        sharedPreferences.setString(
+            "schedule_tour", json.encode(listScheduledTourJson));
         for (var i = 0; i < listScheduledTour.length; i++) {
-          sharedPreferences.setString("schedule_tour",
-              json.encode(listScheduledTour[i].scheduleTour!.toJson()));
           final isAlreadyInclude = meetings.any((meetings) =>
               meetings.startTime ==
                   DateTime.parse(listScheduledTour[i].startTime!) &&
@@ -48,6 +51,7 @@ Future<List<Appointment>> loadScheduledTour() async {
               color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0),
             ));
+            print('This is meetings $meetings');
           }
         }
 
@@ -58,18 +62,21 @@ Future<List<Appointment>> loadScheduledTour() async {
       }
     } else {
       List<Schedules>? listScheduledTour =
-          await ScheduleService.getScheduleToursByTourGuideId(userId);
+          await ScheduleService.getScheduleToursByDriverId(userId);
       if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
+        final listScheduledTourJson = listScheduledTour
+            .map((listScheduledTour) => listScheduledTour.toJson())
+            .toList();
+        sharedPreferences.setString(
+            "schedule_tour", json.encode(listScheduledTourJson));
         for (var i = 0; i < listScheduledTour.length; i++) {
-          sharedPreferences.setString("schedule_tour",
-              json.encode(listScheduledTour[i].scheduleTour!.toJson()));
           final isAlreadyInclude = meetings.any((meetings) =>
               meetings.startTime ==
                   DateTime.parse(listScheduledTour[i].startTime!) &&
               (meetings.endTime ==
                   DateTime.parse(listScheduledTour[i].endTime!)) &&
               meetings.subject == listScheduledTour[i].scheduleTour!.tourName);
-
+          print('This is meetings ${listScheduledTour[i]}');
           if (!isAlreadyInclude) {
             meetings.add(Appointment(
               startTime: DateTime.parse(listScheduledTour[i].startTime!),

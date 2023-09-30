@@ -47,7 +47,7 @@ class Tour {
     tourId = json['tourId'];
     tourName = json['tourName'];
     description = json['description'];
-    note = null;
+    note = json['note'];
     beginBookingDate = json['beginBookingDate'];
     endBookingDate = json['endBookingDate'];
     departureDate = json['departureDate'];
@@ -60,6 +60,8 @@ class Tour {
       tourImage = List<ImageModel>.from(
         json['tour_image'].map((x) => ImageModel.fromJson(x)),
       );
+    } else {
+      tourImage = [];
     }
     departureStation = json['departure_station'] != null
         ? Stations.fromJson(json['departure_station'])
@@ -70,6 +72,8 @@ class Tour {
       tourTicket = List<Tickets>.from(
         json['tour_ticket'].map((x) => Tickets.fromJson(x)),
       );
+    } else {
+      tourTicket = [];
     }
   }
 
@@ -88,23 +92,23 @@ class Tour {
     _data['createdAt'] = createdAt;
     _data['updatedAt'] = updatedAt;
     if (tourImage != null) {
-      _data['tour_image'] = tourImage!.map((x) => x.toJson()).toList();
+      _data['tour_image'] = tourImage?.map((x) => x.toJson()).toList();
     }
     if (departureStation != null) {
       _data['departure_station'] = {
-        'stationId': departureStation!.stationId,
-        'stationName': departureStation!.stationName,
-        'description': departureStation!.description,
-        'address': departureStation!.address,
-        'latitude': departureStation!.latitude,
-        'longitude': departureStation!.longitude,
+        'stationId': departureStation?.stationId,
+        'stationName': departureStation?.stationName,
+        'description': departureStation?.description,
+        'address': departureStation?.address,
+        'latitude': departureStation?.latitude,
+        'longitude': departureStation?.longitude,
       };
     }
     if (tourRoute != null) {
       _data['tour_route'] = {
-        'routeId': tourRoute!.routeId,
-        'routeName': tourRoute!.routeName,
-        'distance': tourRoute!.distance,
+        'routeId': tourRoute?.routeId,
+        'routeName': tourRoute?.routeName,
+        'distance': tourRoute?.distance,
       };
     }
     if (tourTicket != null) {

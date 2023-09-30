@@ -10,7 +10,6 @@ class Schedules {
     required this.scheduleId,
     required this.startTime,
     required this.endTime,
-    required this.tourGuildId,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -22,7 +21,6 @@ class Schedules {
   late final String? scheduleId;
   late final String? startTime;
   late final String? endTime;
-  late final String? tourGuildId;
   late final String? status;
   late final String? createdAt;
   late final String? updatedAt;
@@ -35,7 +33,6 @@ class Schedules {
     scheduleId = json['scheduleId'];
     startTime = json['startTime'];
     endTime = json['endTime'];
-    tourGuildId = json['tourGuideId'];
     status = json['status'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
@@ -58,50 +55,50 @@ class Schedules {
     _data['scheduleId'] = scheduleId;
     _data['startTime'] = startTime;
     _data['endTime'] = endTime;
-    _data['tourGuideId'] = tourGuildId;
     _data['status'] = status;
     _data['createdAt'] = createdAt;
     _data['updatedAt'] = updatedAt;
     if (scheduleTour != null) {
       _data['schedule_tour'] = {
-        'tourId': scheduleTour!.tourId,
-        'tourName': scheduleTour!.tourName,
-        'description': scheduleTour!.description,
-        'note': scheduleTour!.note,
-        'beginBookingDate': scheduleTour!.beginBookingDate,
-        'endBookingDate': scheduleTour!.endBookingDate,
-        'departureDate': scheduleTour!.departureDate,
-        'routeId': scheduleTour!.tourRoute!.routeId,
-        'departureStationId': scheduleTour!.departureStation!.stationId,
-        'tourStatus': scheduleTour!.tourStatus,
+        'tourId': scheduleTour?.tourId,
+        'tourName': scheduleTour?.tourName,
+        'description': scheduleTour?.description,
+        if (scheduleTour?.note != null) 'note': scheduleTour?.note,
+        // 'note': scheduleTour!.note,
+        'beginBookingDate': scheduleTour?.beginBookingDate,
+        'endBookingDate': scheduleTour?.endBookingDate,
+        'departureDate': scheduleTour?.departureDate,
+        'routeId': scheduleTour?.tourRoute?.routeId,
+        'departureStationId': scheduleTour?.departureStation?.stationId,
+        'tourStatus': scheduleTour?.tourStatus,
       };
     }
     if (scheduleBus != null) {
       _data['schedule_bus'] = {
-        'busId': scheduleBus!.busId,
-        'busPlate': scheduleBus!.busPlate,
-        'numberSeat': scheduleBus!.numberSeat,
-        'isDoubleDecker': scheduleBus!.isDoubleDecker,
+        'busId': scheduleBus?.busId,
+        'busPlate': scheduleBus?.busPlate,
+        'numberSeat': scheduleBus?.numberSeat,
+        'isDoubleDecker': scheduleBus?.isDoubleDecker,
       };
     }
     if (scheduleTourGuide != null) {
-      _data['schedule_tourguild'] = {
-        'userId': scheduleTourGuide!.id,
-        'userName': scheduleTourGuide!.name,
-        'email': scheduleTourGuide!.email,
-        'avatar': scheduleTourGuide!.avatar,
-        'phone': scheduleTourGuide!.phone,
-        'roleId': scheduleTourGuide!.roleModel!.roleId,
+      _data['schedule_tourguide'] = {
+        'userId': scheduleTourGuide?.id,
+        'userName': scheduleTourGuide?.name,
+        'email': scheduleTourGuide?.email,
+        'avatar': scheduleTourGuide?.avatar,
+        'phone': scheduleTourGuide?.phone,
+        'roleId': scheduleTourGuide?.roleModel?.roleId,
       };
     }
     if (scheduleDriver != null) {
       _data['schedule_driver'] = {
-        'userId': scheduleDriver!.id,
-        'userName': scheduleDriver!.name,
-        'email': scheduleDriver!.email,
-        'avatar': scheduleDriver!.avatar,
-        'phone': scheduleDriver!.phone,
-        'roleId': scheduleDriver!.roleModel!.roleId,
+        'userId': scheduleDriver?.id,
+        'userName': scheduleDriver?.name,
+        'email': scheduleDriver?.email,
+        'avatar': scheduleDriver?.avatar,
+        'phone': scheduleDriver?.phone,
+        'roleId': scheduleDriver?.roleModel?.roleId,
       };
     }
     return _data;

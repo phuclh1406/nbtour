@@ -64,7 +64,7 @@ class Buses {
     _data['createdAt'] = createdAt;
     _data['updatedAt'] = updatedAt;
     if (busImage != null) {
-      _data['bus_image'] = busImage!.map((x) => x.toJson()).toList();
+      _data['bus_image'] = busImage?.map((x) => x.toJson()).toList();
     }
     return _data;
   }
