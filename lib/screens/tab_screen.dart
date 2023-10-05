@@ -4,6 +4,7 @@ import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/helper/asset_helper.dart';
 import 'package:nbtour/helper/image_helper.dart';
 import 'package:nbtour/screens/driver/home_screen.dart';
+import 'package:nbtour/screens/location/search_navigation.dart';
 import 'package:nbtour/screens/tour_guide/home_screen.dart';
 import 'package:nbtour/screens/qr_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,14 +77,16 @@ class _TabsScreenState extends State<TabsScreen> {
           shape: const CircleBorder(),
           child: isTourGuide
               ? const Icon(Icons.qr_code_scanner)
-              : const Icon(Icons.location_pin),
+              : const Icon(Icons.navigation_outlined),
           onPressed: () {
             if (isTourGuide) {
               Navigator.push(context,
                   MaterialPageRoute(builder: (ctx) => const QRScanner()));
             } else {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (ctx) => const QRScanner()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (ctx) => const SearchNavigation()));
             }
           },
         ),

@@ -60,13 +60,21 @@ class TourListWidget extends StatelessWidget {
                         const SizedBox(
                           height: kDefaultPadding / 2,
                         ),
-                        Text(
-                          'Start Date: ${departureDate.substring(0, 10)}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: ColorPalette.primaryColor,
-                          ),
-                        ),
+                        departureDate != ""
+                            ? Text(
+                                'Start Date: ${departureDate.substring(0, 10)}',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: ColorPalette.primaryColor,
+                                ),
+                              )
+                            : const Text(
+                                'Start Date: Not defined',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: ColorPalette.primaryColor,
+                                ),
+                              ),
                         const SizedBox(
                           height: kDefaultPadding / 2,
                         ),

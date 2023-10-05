@@ -6,9 +6,10 @@ import 'package:nbtour/helper/shared_prefs.dart';
 import 'package:nbtour/screens/location/navigation.dart';
 import 'package:nbtour/screens/location/turn_by_turn.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
+import 'package:vietmap_flutter_navigation/models/way_point.dart';
 
 Widget reviewRideBottomSheet(BuildContext context, String distance,
-    String routeName, List<LatLng> kTripEndPoints) {
+    String routeName, List<WayPoint> wayPoints, String tourId) {
   // Get source and destination addresses from sharedPreferences
   // String sourceAddress = getSourceAndDestinationPlaceText('source');
   // String destAddress = getSourceAndDestinationPlaceText('destination');
@@ -40,7 +41,7 @@ Widget reviewRideBottomSheet(BuildContext context, String distance,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         )),
-                    trailing: Text('$distance km',
+                    trailing: Text('$distance m',
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18)),
                   ),
@@ -50,14 +51,14 @@ Widget reviewRideBottomSheet(BuildContext context, String distance,
                         context,
                         MaterialPageRoute(
                             builder: (_) => VietMapNavigationScreen(
-                                kTripEndPoints: kTripEndPoints))),
+                                wayPoints: wayPoints, tourId: tourId))),
                     style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.all(20),
                         backgroundColor: ColorPalette.primaryColor),
                     child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Start tour now',
+                          Text('Get direction',
                               style: TextStyle(color: Colors.white)),
                         ])),
               ]),

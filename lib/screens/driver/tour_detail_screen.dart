@@ -56,26 +56,27 @@ class DriverTourDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      tour.tourImage!.isNotEmpty
-                          ? Image.network(
-                              tour.tourImage![0].image!,
-                              width: size.width,
-                              fit: BoxFit.fitWidth,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) =>
-                                      (loadingProgress == null)
-                                          ? child
-                                          : const CircularProgressIndicator(),
-                              errorBuilder: (context, error, stackTrace) =>
-                                  ImageHelper.loadFromAsset(
-                                      AssetHelper.announcementImage,
-                                      width: size.width,
-                                      fit: BoxFit.fitWidth),
-                            )
-                          : ImageHelper.loadFromAsset(
-                              AssetHelper.announcementImage,
-                              width: size.width,
-                              fit: BoxFit.fitWidth),
+                      if (tour.tourImage != null)
+                        tour.tourImage!.isNotEmpty
+                            ? Image.network(
+                                tour.tourImage![0].image!,
+                                width: size.width,
+                                fit: BoxFit.fitWidth,
+                                loadingBuilder: (context, child,
+                                        loadingProgress) =>
+                                    (loadingProgress == null)
+                                        ? child
+                                        : const CircularProgressIndicator(),
+                                errorBuilder: (context, error, stackTrace) =>
+                                    ImageHelper.loadFromAsset(
+                                        AssetHelper.announcementImage,
+                                        width: size.width,
+                                        fit: BoxFit.fitWidth),
+                              )
+                            : ImageHelper.loadFromAsset(
+                                AssetHelper.announcementImage,
+                                width: size.width,
+                                fit: BoxFit.fitWidth),
                       const SizedBox(
                         height: kMediumPadding / 1.5,
                       ),
@@ -175,16 +176,19 @@ class DriverTourDetailScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                          'Departure date: ${tour.departureDate!.substring(0, 10)}',
-                                          style: TextStyles.defaultStyle.bold),
+                                      if (tour.departureDate != null)
+                                        Text(
+                                            'Departure date: ${tour.departureDate!.substring(0, 10)}',
+                                            style:
+                                                TextStyles.defaultStyle.bold),
                                       const SizedBox(
                                         height: kDefaultIconSize / 4,
                                       ),
-                                      Text(
-                                          'Start time: ${tour.departureDate!.substring(11, 19)}',
-                                          style: TextStyles
-                                              .defaultStyle.subTitleTextColor),
+                                      if (tour.departureDate != null)
+                                        Text(
+                                            'Start time: ${tour.departureDate!.substring(11, 19)}',
+                                            style: TextStyles.defaultStyle
+                                                .subTitleTextColor),
                                     ],
                                   ),
                                 ],
@@ -215,20 +219,22 @@ class DriverTourDetailScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        tour.departureStation!.stationName!,
-                                        style: TextStyles.defaultStyle.bold,
-                                        maxLines: 3,
-                                      ),
+                                      if (tour.departureStation != null)
+                                        Text(
+                                          tour.departureStation!.stationName!,
+                                          style: TextStyles.defaultStyle.bold,
+                                          maxLines: 3,
+                                        ),
                                       const SizedBox(
                                         height: kDefaultIconSize / 4,
                                       ),
-                                      Text(
-                                        tour.departureStation!.description!,
-                                        style: TextStyles
-                                            .defaultStyle.subTitleTextColor,
-                                        overflow: TextOverflow.clip,
-                                      ),
+                                      if (tour.departureStation != null)
+                                        Text(
+                                          tour.departureStation!.description!,
+                                          style: TextStyles
+                                              .defaultStyle.subTitleTextColor,
+                                          overflow: TextOverflow.clip,
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -261,19 +267,22 @@ class DriverTourDetailScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                          'Bus Plate: ${scheduleTour.scheduleBus!.busPlate!}',
-                                          style: TextStyles.defaultStyle.bold),
+                                      if (scheduleTour.scheduleBus != null)
+                                        Text(
+                                            'Bus Plate: ${scheduleTour.scheduleBus!.busPlate!}',
+                                            style:
+                                                TextStyles.defaultStyle.bold),
                                       const SizedBox(
                                         height: kDefaultIconSize / 4,
                                       ),
-                                      Text(
-                                          scheduleTour
-                                                  .scheduleBus!.isDoubleDecker!
-                                              ? 'Double Decker Bus (${scheduleTour.scheduleBus!.numberSeat} seats)'
-                                              : 'One Decker Bus (${scheduleTour.scheduleBus!.numberSeat} seats)',
-                                          style: TextStyles
-                                              .defaultStyle.subTitleTextColor),
+                                      if (scheduleTour.scheduleBus != null)
+                                        Text(
+                                            scheduleTour.scheduleBus!
+                                                    .isDoubleDecker!
+                                                ? 'Double Decker Bus (${scheduleTour.scheduleBus!.numberSeat} seats)'
+                                                : 'One Decker Bus (${scheduleTour.scheduleBus!.numberSeat} seats)',
+                                            style: TextStyles.defaultStyle
+                                                .subTitleTextColor),
                                     ],
                                   ),
                                 ],
@@ -289,10 +298,13 @@ class DriverTourDetailScreen extends StatelessWidget {
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
-                                    child: Image.network(
-                                        scheduleTour.scheduleDriver!.avatar!,
-                                        width: 55,
-                                        fit: BoxFit.fitWidth),
+                                    child: scheduleTour.scheduleDriver != null
+                                        ? Image.network(
+                                            scheduleTour
+                                                .scheduleDriver!.avatar!,
+                                            width: 55,
+                                            fit: BoxFit.fitWidth)
+                                        : const SizedBox.shrink(),
                                   ),
                                   const SizedBox(
                                     width: kMediumPadding,
@@ -301,27 +313,30 @@ class DriverTourDetailScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      scheduleTour.scheduleTourGuide!.name !=
-                                              null
-                                          ? Text(
-                                              'Driver: ${scheduleTour.scheduleDriver!.name!}',
-                                              style:
-                                                  TextStyles.defaultStyle.bold)
-                                          : Text('Not assigned',
-                                              style:
-                                                  TextStyles.defaultStyle.bold),
+                                      if (scheduleTour.scheduleDriver != null)
+                                        scheduleTour.scheduleDriver!.name !=
+                                                null
+                                            ? Text(
+                                                'Driver: ${scheduleTour.scheduleDriver!.name!}',
+                                                style: TextStyles
+                                                    .defaultStyle.bold)
+                                            : Text('Not assigned',
+                                                style: TextStyles
+                                                    .defaultStyle.bold),
                                       const SizedBox(
                                         height: kDefaultIconSize / 4,
                                       ),
-                                      scheduleTour.scheduleDriver!.email != null
-                                          ? Text(
-                                              scheduleTour
-                                                  .scheduleDriver!.email!,
-                                              style: TextStyles.defaultStyle
-                                                  .subTitleTextColor)
-                                          : Text('',
-                                              style:
-                                                  TextStyles.defaultStyle.bold),
+                                      if (scheduleTour.scheduleDriver != null)
+                                        scheduleTour.scheduleDriver!.email !=
+                                                null
+                                            ? Text(
+                                                scheduleTour
+                                                    .scheduleDriver!.email!,
+                                                style: TextStyles.defaultStyle
+                                                    .subTitleTextColor)
+                                            : Text('',
+                                                style: TextStyles
+                                                    .defaultStyle.bold),
                                     ],
                                   ),
                                 ],
@@ -346,26 +361,30 @@ class DriverTourDetailScreen extends StatelessWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    scheduleTour.scheduleTourGuide!.name != null
-                                        ? Text(
-                                            'Tour Guide: ${scheduleTour.scheduleTourGuide!.name!}',
-                                            style: TextStyles.defaultStyle.bold)
-                                        : Text('Not assigned',
-                                            style:
-                                                TextStyles.defaultStyle.bold),
+                                    if (scheduleTour.scheduleTourGuide != null)
+                                      scheduleTour.scheduleTourGuide!.name !=
+                                              null
+                                          ? Text(
+                                              'Tour Guide: ${scheduleTour.scheduleTourGuide!.name!}',
+                                              style:
+                                                  TextStyles.defaultStyle.bold)
+                                          : Text('Not assigned',
+                                              style:
+                                                  TextStyles.defaultStyle.bold),
                                     const SizedBox(
                                       height: kDefaultIconSize / 4,
                                     ),
-                                    scheduleTour.scheduleTourGuide!.email !=
-                                            null
-                                        ? Text(
-                                            scheduleTour
-                                                .scheduleTourGuide!.email!,
-                                            style: TextStyles
-                                                .defaultStyle.subTitleTextColor)
-                                        : Text('',
-                                            style:
-                                                TextStyles.defaultStyle.bold),
+                                    if (scheduleTour.scheduleTourGuide != null)
+                                      scheduleTour.scheduleTourGuide!.email !=
+                                              null
+                                          ? Text(
+                                              scheduleTour
+                                                  .scheduleTourGuide!.email!,
+                                              style: TextStyles.defaultStyle
+                                                  .subTitleTextColor)
+                                          : Text('',
+                                              style:
+                                                  TextStyles.defaultStyle.bold),
                                   ],
                                 ),
                               ],

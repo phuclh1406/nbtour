@@ -127,12 +127,19 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
 
                     // announcementImage: Image.network(),
                     title: filteredSchedule[i].scheduleTour!.tourName!,
-                    departureDate: filteredSchedule[i]
-                        .scheduleTour!
-                        .departureDate!
-                        .toString(),
-                    startTime: filteredSchedule[i].startTime!,
-                    endTime: filteredSchedule[i].endTime!,
+                    departureDate:
+                        filteredSchedule[i].scheduleTour!.departureDate != null
+                            ? filteredSchedule[i]
+                                .scheduleTour!
+                                .departureDate!
+                                .toString()
+                            : "",
+                    startTime: filteredSchedule[i].startTime != null
+                        ? filteredSchedule[i].startTime!
+                        : "",
+                    endTime: filteredSchedule[i].endTime != null
+                        ? filteredSchedule[i].endTime!
+                        : "",
                   ),
                 const SizedBox(
                   height: kDefaultPadding / 2,

@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:geolocator/geolocator.dart';
+
 import 'package:location/location.dart';
 import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
-import 'package:nbtour/helper/commons.dart';
-import 'package:nbtour/helper/map_box_handler.dart';
-import 'package:nbtour/helper/shared_prefs.dart';
 import 'package:nbtour/main.dart';
 import 'package:nbtour/models/route_model.dart';
-import 'package:nbtour/models/schedule_model.dart';
-import 'package:nbtour/models/tour_model.dart';
-import 'package:nbtour/screens/tour_guide/tour_screen.dart';
 import 'package:nbtour/widgets/map_widget/review_ride_bottom_sheet.dart';
 import 'package:nbtour/services/route_service.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
+import 'package:vietmap_flutter_navigation/models/way_point.dart';
 
 class ReviewRide extends StatefulWidget {
   const ReviewRide(
@@ -37,7 +30,8 @@ class ReviewRide extends StatefulWidget {
 List<LatLng> _kTripEndPoints = [];
 
 class _ReviewRideState extends State<ReviewRide> {
-  late VietmapController controller;
+  late VietmapController? controller;
+  List<WayPoint> wayPoints = [];
   LatLng targetPoint = const LatLng(0, 0);
   void initializeLocationAndSave() async {
     // Ensure all permissions are collected for Locations
@@ -109,8 +103,21 @@ class _ReviewRideState extends State<ReviewRide> {
             if (route.routeDetail != null) {
               for (var detail in route.routeDetail!) {
                 if (detail.routeDetailStation != null) {
-                  for (var step in detail.routeDetailStep!) {
-                    if (step != null) {
+                  wayPoints.add(WayPoint(
+                      name: detail.routeDetailStation?.stationName,
+                      latitude:
+                          double.parse(detail.routeDetailStation!.latitude!),
+                      longitude:
+                          double.parse(detail.routeDetailStation!.longitude!)));
+                  _kTripEndPoints.add(
+                    LatLng(double.parse(detail.routeDetailStation!.latitude!),
+                        double.parse(detail.routeDetailStation!.longitude!)),
+                  );
+                }
+
+                if (detail.routeDetailStation != null) {
+                  if (detail.routeDetailStep != null) {
+                    for (var step in detail.routeDetailStep!) {
                       _kTripEndPoints.add(
                         LatLng(double.parse(step.latitude!),
                             double.parse(step.longitude!)),
@@ -138,11 +145,12 @@ class _ReviewRideState extends State<ReviewRide> {
                         myLocationTrackingMode:
                             MyLocationTrackingMode.TrackingGPS,
                         minMaxZoomPreference: const MinMaxZoomPreference(6, 25),
-                        styleString: '',
+                        styleString:
+                            'https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d',
                       ),
                     ),
                     reviewRideBottomSheet(context, route.distance.toString(),
-                        widget.tourName, _kTripEndPoints),
+                        widget.tourName, wayPoints, widget.tourId),
                   ],
                 ),
               );
@@ -166,28 +174,8 @@ class _ReviewRideState extends State<ReviewRide> {
   //   geometry = widget.modifiedResponse['geometry'];
   // }
 
-  _onMapCreated(VietmapController controller) async {
+  void _onMapCreated(VietmapController controller) {
     this.controller = controller;
-    List<LatLng> polylineCoordinates = [];
-
-    // Add each coordinate to the `polylineCoordinates` list
-    for (LatLng point in _kTripEndPoints) {
-      polylineCoordinates.add(point);
-    }
-    controller.addPolyline(
-      PolylineOptions(
-        geometry: polylineCoordinates, // List of LatLng coordinates
-        polylineColor: Colors.blue, // Line color
-        polylineWidth: 3.0, // Line width
-      ),
-    );
-    // controller.addLine(
-    //   LineOptions(
-    //     geometry: _kTripEndPoints,
-    //     lineColor: Colors.indigo.toHexStringRGB(), // Line color
-    //     lineWidth: 3.0, // Line width
-    //   ),
-    // );
   }
 
   _onStyleLoadedCallback() async {
@@ -202,7 +190,7 @@ class _ReviewRideState extends State<ReviewRide> {
       String iconImage = '';
       if (i == 0) {
         iconImage = "circle";
-        await controller.addSymbol(
+        controller?.addSymbol(
           SymbolOptions(
             geometry: _kTripEndPoints[i],
             iconSize: 0.075,
@@ -210,14 +198,16 @@ class _ReviewRideState extends State<ReviewRide> {
           ),
         );
       } else {
-        await controller.addSymbol(
+        iconImage = "circle";
+        controller?.addSymbol(
           SymbolOptions(
             geometry: _kTripEndPoints[i],
+            iconSize: 0.075,
+            iconImage: "assets/icons/$iconImage.png",
           ),
         );
       }
     }
-    // _addSourceAndLineLayer();
   }
 
   // _addSourceAndLineLayer() async {
@@ -270,6 +260,53 @@ class _ReviewRideState extends State<ReviewRide> {
         ),
       ),
       body: loadRoute(),
+      floatingActionButton:
+          Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: kMediumPadding * 8),
+          child: FloatingActionButton(
+            splashColor: Colors.transparent,
+            highlightElevation: 0,
+            backgroundColor: Colors.white,
+            tooltip: 'Add polyline',
+            onPressed: () {
+              if (controller != null) {
+                List<LatLng> polylineCoordinates = [];
+
+                // Add each coordinate to the `polylineCoordinates` list
+                for (LatLng point in _kTripEndPoints) {
+                  polylineCoordinates.add(point);
+                }
+
+                if (polylineCoordinates.isNotEmpty) {
+                  final polylineResult = controller?.addPolyline(
+                    PolylineOptions(
+                      geometry:
+                          polylineCoordinates, // List of LatLng coordinates
+                      polylineColor: Colors.blue, // Line color (blue)
+                      polylineWidth: 3.0, // Line width
+                    ),
+                  );
+
+                  if (polylineResult != null) {
+                    print('Polyline added successfully.');
+                  } else {
+                    print('Failed to add the polyline to the map.');
+                  }
+                } else {
+                  print('No coordinates provided for the polyline.');
+                }
+              } else {
+                print(
+                    'Map is not ready or VietmapController is not initialized.');
+              }
+            },
+            child: const Icon(
+              Icons.polyline,
+            ),
+          ),
+        ),
+      ]),
     );
   }
 }

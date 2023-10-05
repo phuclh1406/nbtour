@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -127,54 +129,84 @@ class _QRScannerState extends State<QRScanner> {
   }
 
   Widget _showResult() {
-    bool _validURL = Uri.parse(result!.code.toString()).isAbsolute;
-
     return Center(
-        child: FutureBuilder<dynamic>(
-      future: showDialog(
+      child: FutureBuilder<dynamic>(
+        future: showDialog(
           context: context,
           builder: (BuildContext context) {
+            List<dynamic>? jsonDataList;
+
+            String errorMessage = "";
+
+            if (json.decode(result!.code.toString()) == List<dynamic>) {}
+            try {
+              final dynamic decodedData = json.decode(result!.code.toString());
+              if (decodedData is List<dynamic>) {
+                jsonDataList = decodedData;
+              } else {
+                errorMessage = "QR code does not contain a valid List of data.";
+              }
+            } catch (e) {
+              errorMessage = "Error decoding JSON data: $e";
+            }
+
             return WillPopScope(
-                child: AlertDialog(
-                  title: const Text('Scan Result!',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  content: SizedBox(
-                    height: 140,
+              child: AlertDialog(
+                title: Row(
+                  children: [
+                    const Text(
+                      'Scan Result!',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isDialogOpen = false;
+                          });
+                          _controller?.resumeCamera();
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.close))
+                  ],
+                ),
+                content: SizedBox(
+                  child: SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text(
-                          result!.code.toString(),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _isDialogOpen = false;
-                            });
-                            _controller?.resumeCamera();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: const Color(0xff7524f),
-                            textStyle: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 15),
-                            shape: const BeveledRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(4.0))),
-                            shadowColor: const Color(0xff7524f),
+                        if (jsonDataList != null)
+                          Column(
+                            children: jsonDataList
+                                .map((item) => ListTile(
+                                      title: Text(item.toString()),
+                                    ))
+                                .toList(),
+                          )
+                        else
+                          Text(
+                            errorMessage.isNotEmpty
+                                ? errorMessage
+                                : result!.code.toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  errorMessage.isNotEmpty ? Colors.red : null,
+                            ),
                           ),
-                          child: const Text('Close'),
-                        )
                       ],
                     ),
                   ),
                 ),
-                onWillPop: () async => false);
-          }),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        throw UnimplementedError;
-      },
-    ));
+              ),
+              onWillPop: () async => false,
+            );
+          },
+        ),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          throw UnimplementedError;
+        },
+      ),
+    );
   }
 }
