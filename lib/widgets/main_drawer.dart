@@ -1,12 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
-import 'package:nbtour/helper/asset_helper.dart';
-import 'package:nbtour/helper/image_helper.dart';
+
 import 'package:nbtour/screens/login_screen.dart';
 import 'package:nbtour/services/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer(

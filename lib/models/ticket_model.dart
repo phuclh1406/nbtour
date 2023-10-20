@@ -10,12 +10,12 @@ class Tickets {
     required this.ticketType,
     required this.ticketTour,
   });
-  late final String? ticketId;
-  late final String? status;
-  late final String? createdAt;
-  late final String? updatedAt;
-  late final TicketTypes? ticketType;
-  late final Tour? ticketTour;
+  late String? ticketId;
+  late String? status;
+  late String? createdAt;
+  late String? updatedAt;
+  late TicketTypes? ticketType;
+  late Tour? ticketTour;
 
   Tickets.fromJson(Map<String, dynamic> json) {
     ticketId = json['ticketId'];

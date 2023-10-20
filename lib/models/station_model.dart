@@ -11,13 +11,13 @@ class Stations {
     required this.longitude,
     required this.status,
   });
-  late final String? stationId;
-  late final String? stationName;
-  late final String? description;
-  late final String? address;
-  late final String? latitude;
-  late final String? longitude;
-  late final String? status;
+  late String? stationId;
+  late String? stationName;
+  late String? description;
+  late String? address;
+  late String? latitude;
+  late String? longitude;
+  late String? status;
 
   Stations.fromJson(Map<String, dynamic> json) {
     stationId = json['stationId'];

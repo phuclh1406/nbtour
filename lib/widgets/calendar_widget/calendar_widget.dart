@@ -7,10 +7,9 @@ import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
 import 'package:nbtour/main.dart';
 import 'package:nbtour/models/data_source.dart';
-import 'package:nbtour/models/schedule_model.dart';
+import 'package:nbtour/models/tour_model.dart';
 import 'package:nbtour/screens/driver/tour_detail_screen.dart';
 import 'package:nbtour/screens/tour_guide/tour_detail_screen.dart';
-import 'package:nbtour/services/schedule_service.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CalendarWidget extends StatefulWidget {
@@ -22,8 +21,6 @@ class CalendarWidget extends StatefulWidget {
 Future<List<Appointment>>? _appointments;
 
 class _CalendarWidgetState extends State<CalendarWidget> {
-  CalendarController _calendarController = CalendarController();
-
   Future<void> _loadAppointments() async {
     try {
       final appointments = await loadScheduledTour();
@@ -96,8 +93,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       if (scheduleJson != null) {
         try {
           // Parsing the JSON string back to a List of Appointment objects
-          Schedules appointments =
-              Schedules.fromJson(json.decode(scheduleJson));
+          Tour appointments = Tour.fromJson(json.decode(scheduleJson));
 
           // Find the tapped appointment based on its properties, e.g., startTime, endTime, subject
           final tappedAppointment = appointments;

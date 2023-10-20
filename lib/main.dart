@@ -6,8 +6,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:nbtour/screens/login_screen.dart';
+import 'package:nbtour/screens/reschedule_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
@@ -20,15 +21,6 @@ final theme = ThemeData(
         color: ColorPalette.primaryColor,
         titleTextStyle:
             TextStyle(color: Colors.white, fontSize: kMediumPadding)));
-
-void getLocation() async {
-  await Geolocator.checkPermission();
-  await Geolocator.requestPermission();
-
-  Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.low);
-  print(position);
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

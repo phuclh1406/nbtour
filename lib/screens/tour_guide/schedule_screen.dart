@@ -1,9 +1,5 @@
-import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
 import 'package:nbtour/widgets/calendar_widget/calendar_widget.dart';
 
@@ -34,8 +30,6 @@ class _TourGuideScheduleScreenState extends State<TourGuideScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime _selectedDate = DateTime.now();
-
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,

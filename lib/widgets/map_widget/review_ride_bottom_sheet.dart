@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/helper/asset_helper.dart';
 import 'package:nbtour/helper/image_helper.dart';
-import 'package:nbtour/helper/shared_prefs.dart';
-import 'package:nbtour/screens/location/navigation.dart';
-import 'package:nbtour/screens/location/turn_by_turn.dart';
-import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
+import 'package:nbtour/main.dart';
+import 'package:nbtour/screens/driver/navigation.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 
 Widget reviewRideBottomSheet(BuildContext context, String distance,
@@ -13,7 +11,7 @@ Widget reviewRideBottomSheet(BuildContext context, String distance,
   // Get source and destination addresses from sharedPreferences
   // String sourceAddress = getSourceAndDestinationPlaceText('source');
   // String destAddress = getSourceAndDestinationPlaceText('destination');
-
+  String roleName = sharedPreferences.getString("role_name")!;
   return Positioned(
     bottom: 0,
     child: SizedBox(
@@ -34,8 +32,8 @@ Widget reviewRideBottomSheet(BuildContext context, String distance,
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: ListTile(
-                    tileColor: Colors.grey[200],
-                    leading: ImageHelper.loadFromAsset(AssetHelper.sportCar),
+                    tileColor: const Color.fromARGB(32, 255, 89, 0),
+                    leading: ImageHelper.loadFromAsset(AssetHelper.busIcon),
                     title: const Text('Tour length',
                         style: TextStyle(
                           fontSize: 18,
@@ -46,21 +44,23 @@ Widget reviewRideBottomSheet(BuildContext context, String distance,
                             fontWeight: FontWeight.bold, fontSize: 18)),
                   ),
                 ),
-                ElevatedButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => VietMapNavigationScreen(
-                                wayPoints: wayPoints, tourId: tourId))),
-                    style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(20),
-                        backgroundColor: ColorPalette.primaryColor),
-                    child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Get direction',
-                              style: TextStyle(color: Colors.white)),
-                        ])),
+                roleName == "Driver"
+                    ? ElevatedButton(
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => VietMapNavigationScreen(
+                                    wayPoints: wayPoints, tourId: tourId))),
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(20),
+                            backgroundColor: ColorPalette.primaryColor),
+                        child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Get direction',
+                                  style: TextStyle(color: Colors.white)),
+                            ]))
+                    : const SizedBox.shrink(),
               ]),
         ),
       ),

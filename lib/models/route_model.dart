@@ -1,3 +1,4 @@
+import 'package:nbtour/models/point_of_interest_model.dart';
 import 'package:nbtour/models/station_model.dart';
 
 List<Routes> routesFromJson(dynamic str) =>
@@ -10,18 +11,18 @@ class Routes {
     required this.distance,
     required this.status,
     required this.createdAt,
+    required this.geoJson,
     required this.updatedAt,
-    required this.routeDetail,
-    required this.routePoiDetail,
+    required this.routeSegment,
   });
-  late final String? routeId;
-  late final String? routeName;
-  late final double? distance;
-  late final String? status;
-  late final String? createdAt;
-  late final String? updatedAt;
-  late final List<RouteDetail>? routeDetail;
-  late final List<RoutePoiDetail>? routePoiDetail;
+  late String? routeId;
+  late String? routeName;
+  late String? distance;
+  late String? status;
+  late Map<String, dynamic>? geoJson;
+  late String? createdAt;
+  late String? updatedAt;
+  late List<RouteSegment>? routeSegment;
 
   Routes.fromJson(Map<String, dynamic> json) {
     routeId = json['routeId'];
@@ -30,16 +31,11 @@ class Routes {
     status = json['status'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
+    geoJson = json['geoJson'];
 
-    if (json['route_detail'] != null && json['route_detail'] is List) {
-      routeDetail = List<RouteDetail>.from(
-        json['route_detail'].map((x) => RouteDetail.fromJson(x)),
-      );
-    }
-
-    if (json['route_poi_detail'] != null && json['route_poi_detail'] is List) {
-      routePoiDetail = List<RoutePoiDetail>.from(
-        json['route_poi_detail'].map((x) => RoutePoiDetail.fromJson(x)),
+    if (json['route_segment'] != null && json['route_segment'] is List) {
+      routeSegment = List<RouteSegment>.from(
+        json['route_segment'].map((x) => RouteSegment.fromJson(x)),
       );
     }
   }
@@ -52,25 +48,15 @@ class Routes {
     _data['status'] = status;
     _data['createdAt'] = createdAt;
     _data['updatedAt'] = updatedAt;
+    _data['geoJson'] = geoJson;
 
-    if (routeDetail != null && routeDetail!.isNotEmpty) {
-      _data['route_detail'] = routeDetail!.map((routeDetail) {
+    if (routeSegment != null && routeSegment!.isNotEmpty) {
+      _data['route_segment'] = routeSegment!.map((routeSegment) {
         return {
-          'routeDetailId': routeDetail.routeDetailId,
-          'index': routeDetail.index,
-          'stopoverTime': routeDetail.stopoverTime,
-          'route_detail_station': routeDetail.routeDetailStation,
-          'route_detail_step': routeDetail.routeDetailStep,
-        };
-      }).toList();
-    }
-
-    if (routePoiDetail != null && routePoiDetail!.isNotEmpty) {
-      _data['route_poi_detail'] = routePoiDetail!.map((routePoiDetail) {
-        return {
-          'routepoiId': routePoiDetail.routepoiId,
-          'index': routePoiDetail.index,
-          'route_poi_detail_poi': routePoiDetail.routePoiDetailPoi,
+          'routeSegmentId': routeSegment.routeSegmentId,
+          'index': routeSegment.index,
+          'geoJson': routeSegment.geoJson,
+          'route_detail_station': routeSegment.segmentDepartureStation,
         };
       }).toList();
     }
@@ -79,152 +65,103 @@ class Routes {
   }
 }
 
-class RouteDetail {
-  RouteDetail({
-    required this.routeDetailId,
+class RouteSegment {
+  RouteSegment({
+    required this.routeSegmentId,
     required this.index,
-    required this.stopoverTime,
-    required this.routeDetailStation,
-    required this.routeDetailStep,
+    required this.segmentDepartureStation,
+    required this.segmentEndStation,
+    required this.geoJson,
+    required this.segmentRoutePoiDetail,
   });
-  late final String? routeDetailId;
+  late final String? routeSegmentId;
   late final int? index;
-  late final String? stopoverTime;
-  late final Stations? routeDetailStation;
-  late final List<RouteDetailStep>? routeDetailStep;
+  late final Stations? segmentDepartureStation;
+  late final Stations? segmentEndStation;
+  late final String? geoJson;
+  late final List<SegmentRoutePoiDetail>? segmentRoutePoiDetail;
 
-  RouteDetail.fromJson(Map<String, dynamic> json) {
-    routeDetailId = json['routeDetailId'];
+  RouteSegment.fromJson(Map<String, dynamic> json) {
+    routeSegmentId = json['routeSegmentId'];
     index = json['index'];
-    stopoverTime = json['stopoverTime'];
-    routeDetailStation = json['route_detail_station'] != null
-        ? Stations.fromJson(json['route_detail_station'])
+    geoJson = json['geoJson'];
+    segmentDepartureStation = json['segment_departure_station'] != null
+        ? Stations.fromJson(json['segment_departure_station'])
         : null;
-    print('This is route detail station $routeDetailStation');
-    if (json['route_detail_step'] != null &&
-        json['route_detail_step'] is List) {
-      routeDetailStep = List<RouteDetailStep>.from(
-        json['route_detail_step'].map((x) => RouteDetailStep.fromJson(x)),
+    segmentEndStation = json['segment_end_station'] != null
+        ? Stations.fromJson(json['segment_end_station'])
+        : null;
+    print('This is route detail station $segmentDepartureStation');
+    if (json['segment_route_poi_detail'] != null &&
+        json['segment_route_poi_detail'] is List) {
+      segmentRoutePoiDetail = List<SegmentRoutePoiDetail>.from(
+        json['segment_route_poi_detail']
+            .map((x) => SegmentRoutePoiDetail.fromJson(x)),
       );
     }
   }
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
-    _data['routeDetailId'] = routeDetailId;
+    _data['routeSegmentId'] = routeSegmentId;
     _data['index'] = index;
-    _data['stopoverTime'] = stopoverTime;
-    if (routeDetailStation != null) {
-      _data['route_detail_station'] = {
-        'stationId': routeDetailStation!.stationId,
-        'stationName': routeDetailStation!.stationName,
-        'description': routeDetailStation!.description,
-        'address': routeDetailStation!.address,
-        'latitude': routeDetailStation!.latitude,
-        'longitude': routeDetailStation!.longitude,
+    if (segmentDepartureStation != null) {
+      _data['segment_departure_station'] = {
+        'stationId': segmentDepartureStation!.stationId,
+        'stationName': segmentDepartureStation!.stationName,
+        'description': segmentDepartureStation!.description,
+        'address': segmentDepartureStation!.address,
+        'latitude': segmentDepartureStation!.latitude,
+        'longitude': segmentDepartureStation!.longitude,
       };
     }
-    if (routeDetailStep != null) {
-      _data['route_detail_step'] =
-          routeDetailStep!.map((e) => e.toJson()).toList();
+    if (segmentEndStation != null) {
+      _data['segment_end_station'] = {
+        'stationId': segmentDepartureStation!.stationId,
+        'stationName': segmentDepartureStation!.stationName,
+        'description': segmentDepartureStation!.description,
+        'address': segmentDepartureStation!.address,
+        'latitude': segmentDepartureStation!.latitude,
+        'longitude': segmentDepartureStation!.longitude,
+      };
     }
-
+    if (segmentRoutePoiDetail != null && segmentRoutePoiDetail!.isNotEmpty) {
+      _data['segment_route_poi_detail'] =
+          segmentRoutePoiDetail!.map((segmentRoutePoiDetail) {
+        return {
+          'routepoiId': segmentRoutePoiDetail.routepoiId,
+          'index': segmentRoutePoiDetail.index,
+          'route_poi_detail_poi': segmentRoutePoiDetail.routePoiDetailPoi,
+        };
+      }).toList();
+    }
     return _data;
   }
 }
 
-class RouteDetailStep {
-  RouteDetailStep({
-    required this.stepId,
-    required this.index,
-    required this.latitude,
-    required this.longitude,
-    required this.routeDetailId,
-  });
-  late final String? stepId;
-  late final int? index;
-  late final String? latitude;
-  late final String? longitude;
-  late final String? routeDetailId;
-
-  RouteDetailStep.fromJson(Map<String, dynamic> json) {
-    stepId = json['stepId'];
-    index = json['index'];
-    latitude = json['latitude'];
-    longitude = json['longitude'];
-    routeDetailId = json['routeDetailId'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['stepId'] = stepId;
-    _data['index'] = index;
-    _data['latitude'] = latitude;
-    _data['longitude'] = longitude;
-    _data['routeDetailId'] = routeDetailId;
-    return _data;
-  }
-}
-
-class RoutePoiDetail {
-  RoutePoiDetail({
+class SegmentRoutePoiDetail {
+  SegmentRoutePoiDetail({
     required this.routepoiId,
     required this.index,
     required this.routePoiDetailPoi,
   });
-  late final String routepoiId;
-  late final int index;
-  late final RoutePoiDetailPoi routePoiDetailPoi;
+  late final String? routepoiId;
+  late final int? index;
+  late final String? routeSegmentId;
+  late final PointOfInterest? routePoiDetailPoi;
 
-  RoutePoiDetail.fromJson(Map<String, dynamic> json) {
+  SegmentRoutePoiDetail.fromJson(Map<String, dynamic> json) {
     routepoiId = json['routepoiId'];
     index = json['index'];
-    routePoiDetailPoi =
-        RoutePoiDetailPoi.fromJson(json['route_poi_detail_poi']);
+    routeSegmentId = json['routeSegmentId'];
+    routePoiDetailPoi = PointOfInterest.fromJson(json['route_poi_detail_poi']);
   }
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
     _data['routepoiId'] = routepoiId;
     _data['index'] = index;
-    _data['route_poi_detail_poi'] = routePoiDetailPoi.toJson();
-    return _data;
-  }
-}
-
-class RoutePoiDetailPoi {
-  RoutePoiDetailPoi({
-    required this.poiId,
-    required this.poiName,
-    required this.description,
-    required this.address,
-    required this.latitude,
-    required this.longitude,
-  });
-  late final String? poiId;
-  late final String? poiName;
-  late final String? description;
-  late final String? address;
-  late final String? latitude;
-  late final String? longitude;
-
-  RoutePoiDetailPoi.fromJson(Map<String, dynamic> json) {
-    poiId = json['poiId'];
-    poiName = json['poiName'];
-    description = json['description'];
-    address = json['address'];
-    latitude = json['latitude'];
-    longitude = json['longitude'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['poiId'] = poiId;
-    _data['poiName'] = poiName;
-    _data['description'] = description;
-    _data['address'] = address;
-    _data['latitude'] = latitude;
-    _data['longitude'] = longitude;
+    _data['route_poi_detail_poi'] = routePoiDetailPoi?.toJson();
     return _data;
   }
 }

@@ -21,7 +21,6 @@ class ButtonSelectYearWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return InkWell(
       onTap: ontap,
       child: Stack(children: [

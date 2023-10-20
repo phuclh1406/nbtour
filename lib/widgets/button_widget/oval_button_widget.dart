@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:nbtour/constant/colors.dart';
+
 import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/helper/asset_helper.dart';
-import 'package:nbtour/helper/image_helper.dart';
 
 class OvalButtonWidget extends StatelessWidget {
   const OvalButtonWidget(
@@ -26,7 +23,6 @@ class OvalButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,

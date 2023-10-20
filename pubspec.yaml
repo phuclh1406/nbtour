@@ -65,10 +65,13 @@ dependencies:
   flutter_typeahead: ^4.8.0
   flutter_svg: ^2.0.7
   vietmap_flutter_gl: ^1.1.6
-  vietmap_flutter_navigation: ^1.2.0
   geocoding: ^2.1.0
   geolocator: ^10.1.0
   flutter_bloc: ^8.1.3
+  geojson: ^1.0.0
+  vietmap_flutter_navigation: ^1.2.1
+  audioplayers: ^5.2.0
+  just_audio: ^0.9.35
   
 dev_dependencies:
   flutter_test:

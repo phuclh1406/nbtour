@@ -19,6 +19,7 @@ class UserModel {
   late String? avatar;
   late String? address;
   late String? phone;
+  late int? maxTour;
   late bool? accessChangePassword;
   late RoleModel? roleModel;
   late String? status;
@@ -33,6 +34,7 @@ class UserModel {
     this.phone,
     this.accessChangePassword,
     this.roleModel,
+    this.maxTour,
     this.status,
   });
 
@@ -44,6 +46,7 @@ class UserModel {
     avatar = json['avatar'];
     address = json['address'];
     phone = json['phone'];
+    maxTour = json['maxTour'];
     accessChangePassword = json['accessChangePassword'];
     roleModel = json['role_model'] != null
         ? RoleModel.fromJson(json['role_model'])
@@ -59,6 +62,7 @@ class UserModel {
     data['birthday'] = yob;
     data['avatar'] = avatar;
     data['address'] = address;
+    data['maxTour'] = maxTour;
     data['phone'] = phone;
     data['accessChangePassword'] = accessChangePassword;
     if (roleModel != null) {

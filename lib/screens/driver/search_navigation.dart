@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nbtour/components/bottom_sheet_address_info.dart';
@@ -61,10 +62,10 @@ class _SearchNavigationState extends State<SearchNavigation> {
     if (!mounted) return;
 
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
-    _navigationOption.simulateRoute = true;
+    _navigationOption.simulateRoute = false;
 
     _navigationOption.apiKey =
-        'c3d0f188ff669f89042771a20656579073cffec5a8a69747';
+        _navigationOption.apiKey = dotenv.env['VIETMAP_API_KEY']!;
     _navigationOption.mapStyle =
         "https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d";
     _navigationOption.customLocationCenterIcon =
@@ -138,6 +139,7 @@ class _SearchNavigationState extends State<SearchNavigation> {
                 setState(() {
                   this.routeProgressEvent = routeProgressEvent;
                 });
+
                 _setInstructionImage(routeProgressEvent.currentModifier,
                     routeProgressEvent.currentModifierType);
               },

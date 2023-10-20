@@ -1,16 +1,16 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
 import 'package:nbtour/constant/text_style.dart';
 import 'package:nbtour/helper/asset_helper.dart';
 import 'package:nbtour/helper/image_helper.dart';
+import 'package:nbtour/models/season_model.dart';
+import 'package:nbtour/models/tour_model.dart';
 import 'package:nbtour/screens/driver/tour_detail_screen.dart';
-import 'package:nbtour/screens/tour_guide/tour_detail_screen.dart';
+import 'package:nbtour/services/tour_service.dart';
 import 'package:nbtour/widgets/tour_list_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../models/schedule_model.dart';
-import '../../services/schedule_service.dart';
 
 String userId = '';
 String tourId = '';
@@ -21,13 +21,37 @@ class DriverTourScreen extends StatefulWidget {
   State<DriverTourScreen> createState() => _DriverTourScreenState();
 }
 
-late Schedules scheduleTour;
+late Tour scheduleTour;
 
 class _DriverTourScreenState extends State<DriverTourScreen> {
   bool isSearching = false;
-  List<Schedules> filteredSchedule = [];
+  List<Tour> filteredSchedule = [];
   String _searchValue = '';
-  List<Schedules> listTour = [];
+  List<Tour> listTour = [];
+  DateTime startTime = DateTime.now();
+  DateTime endTime = DateTime.now();
+  final List<Season> seasonList = [
+    Season(
+        id: 1,
+        seasonTitle: 'Spring',
+        DateTime(DateTime.now().year, 1, 1, 0, 0, 0),
+        DateTime(DateTime.now().year, 4, 1, 0, 0, 0)),
+    Season(
+        id: 2,
+        seasonTitle: 'Summer',
+        DateTime(DateTime.now().year, 4, 1, 0, 0, 0),
+        DateTime(DateTime.now().year, 7, 1, 0, 0, 0)),
+    Season(
+        id: 3,
+        seasonTitle: 'Fall',
+        DateTime(DateTime.now().year, 7, 1, 0, 0, 0),
+        DateTime(DateTime.now().year, 10, 1, 0, 0, 0)),
+    Season(
+        id: 4,
+        seasonTitle: 'Winter',
+        DateTime(DateTime.now().year, 10, 1, 0, 0, 0),
+        DateTime(DateTime.now().year, 1, 1, 0, 0, 0)),
+  ];
   @override
   initState() {
     super.initState();
@@ -44,11 +68,31 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
     }
   }
 
+  bool isDateInSeason({
+    required DateTime date,
+    required List<Season> seasons,
+  }) {
+    bool isInSeason = false; // Initialize isInSeason outside of the loop
+
+    for (Season season in seasons) {
+      // Update isInSeason inside the loop if the date is in the season
+      if (date.isAfter(season.startDate) && date.isBefore(season.endDate)) {
+        isInSeason = true;
+        break; // You can exit the loop early since you found a match
+      }
+    }
+
+    print(isInSeason);
+    return isInSeason; // Return isInSeason after the loop has completed
+  }
+
+  List<Tour> filteredTours = []; // Store the filtered tours
+
+  List<Season> selectedCategories = [];
   Widget loadScheduledTour() {
-    return FutureBuilder<List<Schedules>?>(
-      future: ScheduleService.getScheduleToursByDriverId(userId),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<Schedules>?> snapshot) {
+    return FutureBuilder<List<Tour>?>(
+      future: TourService.getToursByDriverId(userId),
+      builder: (BuildContext context, AsyncSnapshot<List<Tour>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
               child: Padding(
@@ -58,13 +102,13 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
             ),
           ));
         } else if (snapshot.hasData) {
-          List<Schedules>? listScheduledTour = snapshot.data!;
-          List<Schedules> filteredSchedule = listScheduledTour
-              .where((schedule) => schedule.scheduleTour!.tourName!
+          List<Tour>? listScheduledTour = snapshot.data!;
+          List<Tour> filteredSchedule = listScheduledTour
+              .where((schedule) => schedule.tourName!
                   .toLowerCase()
                   .contains(_searchValue.toLowerCase()))
               .toList();
-          print(filteredSchedule);
+
           filteredSchedule;
           if (!isSearching) {
             filteredSchedule = listScheduledTour;
@@ -90,15 +134,9 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                                   )));
                     },
 
-                    announcementImage: filteredSchedule[i]
-                            .scheduleTour!
-                            .tourImage!
-                            .isNotEmpty
+                    announcementImage: filteredSchedule[i].tourImage!.isNotEmpty
                         ? Image.network(
-                            filteredSchedule[i]
-                                .scheduleTour!
-                                .tourImage![0]
-                                .image!,
+                            filteredSchedule[i].tourImage![0].image!,
                             loadingBuilder: (context, child, loadingProgress) =>
                                 (loadingProgress == null)
                                     ? child
@@ -126,19 +164,15 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                             height: kMediumPadding * 5),
 
                     // announcementImage: Image.network(),
-                    title: filteredSchedule[i].scheduleTour!.tourName!,
-                    departureDate:
-                        filteredSchedule[i].scheduleTour!.departureDate != null
-                            ? filteredSchedule[i]
-                                .scheduleTour!
-                                .departureDate!
-                                .toString()
-                            : "",
-                    startTime: filteredSchedule[i].startTime != null
-                        ? filteredSchedule[i].startTime!
+                    title: filteredSchedule[i].tourName!,
+                    departureDate: filteredSchedule[i].departureDate != null
+                        ? filteredSchedule[i].departureDate!.toString()
                         : "",
-                    endTime: filteredSchedule[i].endTime != null
-                        ? filteredSchedule[i].endTime!
+                    startTime: filteredSchedule[i].departureDate != null
+                        ? filteredSchedule[i].departureDate!
+                        : "",
+                    endTime: filteredSchedule[i].endDate != null
+                        ? filteredSchedule[i].endDate!
                         : "",
                   ),
                 const SizedBox(
@@ -162,73 +196,93 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          scrolledUnderElevation: 0,
-          title: isSearching
-              ? TextField(
-                  cursorColor: ColorPalette.primaryColor,
-                  onChanged: (value) {
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        title: isSearching
+            ? TextField(
+                cursorColor: ColorPalette.primaryColor,
+                onChanged: (value) {
+                  setState(() {
+                    _searchValue = value;
+                  });
+                },
+                style:
+                    const TextStyle(color: Colors.black), // Change text color
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.search, color: Colors.black),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: ColorPalette.primaryColor)),
+                  // icon: Icon(
+                  //   Icons.search,
+                  //   color: Colors.black, // Change icon color
+                  // ),
+                  hintText: "Search by tour name...",
+                  hintStyle:
+                      TextStyle(color: Colors.black), // Change hint text color
+                ),
+              )
+            : Text(
+                'Tour Screen',
+                style: TextStyles.defaultStyle.bold.fontHeader,
+              ),
+        actions: <Widget>[
+          isSearching
+              ? IconButton(
+                  icon: const Icon(Icons.cancel),
+                  onPressed: () {
                     setState(() {
-                      _searchValue = value;
+                      isSearching = false;
+                      _searchValue = "";
                     });
                   },
-                  style:
-                      const TextStyle(color: Colors.black), // Change text color
-                  decoration: const InputDecoration(
-                    focusedBorder: UnderlineInputBorder(
-                        borderSide:
-                            BorderSide(color: ColorPalette.primaryColor)),
-                    // icon: Icon(
-                    //   Icons.search,
-                    //   color: Colors.black, // Change icon color
-                    // ),
-                    hintText: "Search by tour name...",
-                    hintStyle: TextStyle(
-                        color: Colors.black), // Change hint text color
-                  ),
                 )
-              : Text(
-                  'Tour Screen',
-                  style: TextStyles.defaultStyle.bold.fontHeader,
-                ),
-          actions: <Widget>[
-            isSearching
-                ? IconButton(
-                    icon: const Icon(Icons.cancel),
-                    onPressed: () {
-                      setState(() {
-                        isSearching = false;
-                        _searchValue = "";
-                      });
-                    },
-                  )
-                : IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isSearching = true;
-                        _searchValue = "";
-                      });
-                    },
-                    icon: const Icon(
-                      Icons.search_outlined,
-                      color: Colors.black,
-                    ),
+              : IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isSearching = true;
+                      _searchValue = "";
+                    });
+                  },
+                  icon: const Icon(
+                    Icons.search_outlined,
+                    color: Colors.black,
                   ),
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.menu,
-                  color: Colors.black,
-                )),
+                ),
+        ],
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: seasonList
+                  .map((season) => FilterChip(
+                        label: Text(season.seasonTitle),
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              selectedCategories.add(season);
+                            } else {
+                              selectedCategories.removeWhere((selectedSeason) =>
+                                  selectedSeason.id == season.id);
+                            }
+                            print('Selected Categories: $selectedCategories');
+                          });
+                        },
+                      ))
+                  .toList(),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: loadScheduledTour(),
+              ),
+            ),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              loadScheduledTour(),
-            ],
-          ),
-        ));
+      ),
+    );
   }
 }

@@ -102,7 +102,9 @@ class TourListWidget extends StatelessWidget {
                             ),
                             Flexible(
                               child: Text(
-                                startTime.substring(12, 19),
+                                startTime != ""
+                                    ? startTime.substring(11, 19)
+                                    : "Not defined",
                                 style: const TextStyle(
                                     fontSize: 15,
                                     color: ColorPalette.subTitleColor,
@@ -124,7 +126,9 @@ class TourListWidget extends StatelessWidget {
                             ),
                             Flexible(
                               child: Text(
-                                endTime.substring(12, 19),
+                                endTime != ""
+                                    ? endTime.substring(11, 19)
+                                    : "Not defined",
                                 style: const TextStyle(
                                     fontSize: 15,
                                     color: ColorPalette.subTitleColor,

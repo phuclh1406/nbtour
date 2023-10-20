@@ -7,12 +7,12 @@ class TicketTypes {
     required this.createdAt,
     required this.updatedAt,
   });
-  late final String? ticketTypeId;
-  late final String? ticketTypeName;
-  late final String? description;
-  late final String? status;
-  late final String? createdAt;
-  late final String? updatedAt;
+  late String? ticketTypeId;
+  late String? ticketTypeName;
+  late String? description;
+  late String? status;
+  late String? createdAt;
+  late String? updatedAt;
 
   TicketTypes.fromJson(Map<String, dynamic> json) {
     ticketTypeId = json['ticketTypeId'];

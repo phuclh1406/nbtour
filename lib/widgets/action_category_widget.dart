@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/colors.dart';
 import 'package:nbtour/constant/dimension.dart';
 
 class ActionCategoryWidget extends StatelessWidget {

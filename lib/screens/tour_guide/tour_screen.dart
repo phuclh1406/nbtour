@@ -9,11 +9,9 @@ import 'package:nbtour/models/season_model.dart';
 import 'package:nbtour/models/tour_model.dart';
 import 'package:nbtour/screens/filter_screen.dart';
 import 'package:nbtour/screens/tour_guide/tour_detail_screen.dart';
+import 'package:nbtour/services/tour_service.dart';
 import 'package:nbtour/widgets/tour_list_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../models/schedule_model.dart';
-import '../../services/schedule_service.dart';
 
 String userId = '';
 String tourId = '';
@@ -24,13 +22,13 @@ class TourGuideTourScreen extends StatefulWidget {
   State<TourGuideTourScreen> createState() => _TourGuideTourScreenState();
 }
 
-late Schedules scheduleTour;
+late Tour scheduleTour;
 
 class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
   bool isSearching = false;
-  List<Schedules> filteredSchedule = [];
+  List<Tour> filteredSchedule = [];
   String _searchValue = '';
-  List<Schedules> listTour = [];
+  List<Tour> listTour = [];
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
   final List<Season> seasonList = [
@@ -89,14 +87,13 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
     return isInSeason; // Return isInSeason after the loop has completed
   }
 
-  List<Schedules> filteredTours = []; // Store the filtered tours
+  List<Tour> filteredTours = []; // Store the filtered tours
 
   List<Season> selectedCategories = [];
   Widget loadScheduledTour() {
-    return FutureBuilder<List<Schedules>?>(
-      future: ScheduleService.getScheduleToursByTourGuideId(userId),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<Schedules>?> snapshot) {
+    return FutureBuilder<List<Tour>?>(
+      future: TourService.getToursByTourGuideId(userId),
+      builder: (BuildContext context, AsyncSnapshot<List<Tour>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
               child: Padding(
@@ -106,14 +103,13 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
             ),
           ));
         } else if (snapshot.hasData) {
-          List<Schedules>? listScheduledTour = snapshot.data!;
-          List<Schedules> filteredSchedule = listScheduledTour
-              .where((schedule) => schedule.scheduleTour!.tourName!
+          List<Tour>? listScheduledTour = snapshot.data!;
+          List<Tour> filteredSchedule = listScheduledTour
+              .where((schedule) => schedule.tourName!
                   .toLowerCase()
                   .contains(_searchValue.toLowerCase()))
               .toList();
 
-          print(filteredSchedule);
           filteredSchedule;
           if (!isSearching) {
             filteredSchedule = listScheduledTour;
@@ -139,15 +135,9 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                                   )));
                     },
 
-                    announcementImage: filteredSchedule[i]
-                            .scheduleTour!
-                            .tourImage!
-                            .isNotEmpty
+                    announcementImage: filteredSchedule[i].tourImage!.isNotEmpty
                         ? Image.network(
-                            filteredSchedule[i]
-                                .scheduleTour!
-                                .tourImage![0]
-                                .image!,
+                            filteredSchedule[i].tourImage![0].image!,
                             loadingBuilder: (context, child, loadingProgress) =>
                                 (loadingProgress == null)
                                     ? child
@@ -175,19 +165,15 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                             height: kMediumPadding * 5),
 
                     // announcementImage: Image.network(),
-                    title: filteredSchedule[i].scheduleTour!.tourName!,
-                    departureDate:
-                        filteredSchedule[i].scheduleTour!.departureDate != null
-                            ? filteredSchedule[i]
-                                .scheduleTour!
-                                .departureDate!
-                                .toString()
-                            : "",
-                    startTime: filteredSchedule[i].startTime != null
-                        ? filteredSchedule[i].startTime!
+                    title: filteredSchedule[i].tourName!,
+                    departureDate: filteredSchedule[i].departureDate != null
+                        ? filteredSchedule[i].departureDate!.toString()
                         : "",
-                    endTime: filteredSchedule[i].endTime != null
-                        ? filteredSchedule[i].endTime!
+                    startTime: filteredSchedule[i].departureDate != null
+                        ? filteredSchedule[i].departureDate!
+                        : "",
+                    endTime: filteredSchedule[i].endDate != null
+                        ? filteredSchedule[i].endDate!
                         : "",
                   ),
                 const SizedBox(

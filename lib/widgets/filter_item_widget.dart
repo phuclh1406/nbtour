@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/colors.dart';
+
 import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/constant/text_style.dart';
 
 class FilterItem extends StatelessWidget {
   const FilterItem(

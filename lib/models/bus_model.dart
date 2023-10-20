@@ -3,8 +3,8 @@ class Bus {
     required this.msg,
     required this.buses,
   });
-  late final String msg;
-  late final List<Buses> buses;
+  late String msg;
+  late List<Buses> buses;
 
   Bus.fromJson(Map<String, dynamic> json) {
     msg = json['msg'];
@@ -30,14 +30,14 @@ class Buses {
     required this.updatedAt,
     required this.busImage,
   });
-  late final String? busId;
-  late final String? busPlate;
-  late final int? numberSeat;
-  late final bool? isDoubleDecker;
-  late final String? status;
-  late final String? createdAt;
-  late final String? updatedAt;
-  late final List<dynamic>? busImage;
+  late String? busId;
+  late String? busPlate;
+  late int? numberSeat;
+  late bool? isDoubleDecker;
+  late String? status;
+  late String? createdAt;
+  late String? updatedAt;
+  late List<dynamic>? busImage;
 
   Buses.fromJson(Map<String, dynamic> json) {
     busId = json['busId'];

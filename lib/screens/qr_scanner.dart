@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class QRScanner extends StatefulWidget {
   const QRScanner({super.key});
@@ -37,7 +36,7 @@ class _QRScannerState extends State<QRScanner> {
         title: const Text('QR Scanner'),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Container(
+      body: SizedBox(
         width: size.width,
         height: size.height,
         child: Column(
@@ -134,20 +133,16 @@ class _QRScannerState extends State<QRScanner> {
         future: showDialog(
           context: context,
           builder: (BuildContext context) {
-            List<dynamic>? jsonDataList;
+            String jsonData = "";
 
             String errorMessage = "";
 
-            if (json.decode(result!.code.toString()) == List<dynamic>) {}
             try {
-              final dynamic decodedData = json.decode(result!.code.toString());
-              if (decodedData is List<dynamic>) {
-                jsonDataList = decodedData;
-              } else {
-                errorMessage = "QR code does not contain a valid List of data.";
-              }
+              final String decodedData = result!.code!;
+
+              jsonData = decodedData;
             } catch (e) {
-              errorMessage = "Error decoding JSON data: $e";
+              errorMessage = "This QR code is not available";
             }
 
             return WillPopScope(
@@ -175,14 +170,10 @@ class _QRScannerState extends State<QRScanner> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        if (jsonDataList != null)
-                          Column(
-                            children: jsonDataList
-                                .map((item) => ListTile(
-                                      title: Text(item.toString()),
-                                    ))
-                                .toList(),
-                          )
+                        if (jsonData != "")
+                          Column(children: [
+                            Text(jsonData),
+                          ])
                         else
                           Text(
                             errorMessage.isNotEmpty

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/helper/asset_helper.dart';
-import 'package:nbtour/helper/image_helper.dart';
 import 'package:nbtour/screens/driver/home_screen.dart';
-import 'package:nbtour/screens/location/search_navigation.dart';
+import 'package:nbtour/screens/driver/search_navigation.dart';
 import 'package:nbtour/screens/tour_guide/home_screen.dart';
 import 'package:nbtour/screens/qr_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';

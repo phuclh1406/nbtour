@@ -1,15 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
+
 import 'package:nbtour/main.dart';
-import 'package:nbtour/models/schedule_model.dart';
-import 'package:nbtour/services/schedule_service.dart';
-import 'package:nbtour/widgets/tour_list_widget.dart';
+
+import 'package:nbtour/models/tour_model.dart';
+import 'package:nbtour/services/tour_service.dart';
+
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'dart:math' as math;
-import '../screens/tour_guide/tour_detail_screen.dart';
 
 String userId = sharedPreferences.getString("user_id")!;
 
@@ -22,13 +21,12 @@ class MeetingDataSource extends CalendarDataSource {
 List<Appointment> meetings = <Appointment>[];
 
 Future<List<Appointment>> loadScheduledTour() async {
-  print('This is User Id: $userId');
   String role = sharedPreferences.getString("role_name")!;
-  print('This is roleName $role');
+
   try {
     if (role.contains("TourGuide")) {
-      List<Schedules>? listScheduledTour =
-          await ScheduleService.getScheduleToursByTourGuideId(userId);
+      List<Tour>? listScheduledTour =
+          await TourService.getToursByTourGuideId(userId);
       if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
         final listScheduledTourJson = listScheduledTour
             .map((listScheduledTour) => listScheduledTour.toJson())
@@ -38,20 +36,21 @@ Future<List<Appointment>> loadScheduledTour() async {
         for (var i = 0; i < listScheduledTour.length; i++) {
           final isAlreadyInclude = meetings.any((meetings) =>
               meetings.startTime ==
-                  DateTime.parse(listScheduledTour[i].startTime!) &&
+                  DateTime.parse(listScheduledTour[i].departureDate!) &&
               (meetings.endTime ==
-                  DateTime.parse(listScheduledTour[i].endTime!)) &&
-              meetings.subject == listScheduledTour[i].scheduleTour!.tourName);
+                  DateTime.parse(listScheduledTour[i].departureDate!)
+                      .add(const Duration(hours: 3))) &&
+              meetings.subject == listScheduledTour[i].tourName);
 
           if (!isAlreadyInclude) {
             meetings.add(Appointment(
-              startTime: DateTime.parse(listScheduledTour[i].startTime!),
-              endTime: DateTime.parse(listScheduledTour[i].endTime!),
-              subject: listScheduledTour[i].scheduleTour!.tourName!,
+              startTime: DateTime.parse(listScheduledTour[i].departureDate!),
+              endTime: DateTime.parse(listScheduledTour[i].departureDate!)
+                  .add(const Duration(hours: 3)),
+              subject: listScheduledTour[i].tourName!,
               color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0),
             ));
-            print('This is meetings $meetings');
           }
         }
 
@@ -61,8 +60,8 @@ Future<List<Appointment>> loadScheduledTour() async {
         return [];
       }
     } else {
-      List<Schedules>? listScheduledTour =
-          await ScheduleService.getScheduleToursByDriverId(userId);
+      List<Tour>? listScheduledTour =
+          await TourService.getToursByDriverId(userId);
       if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
         final listScheduledTourJson = listScheduledTour
             .map((listScheduledTour) => listScheduledTour.toJson())
@@ -72,16 +71,18 @@ Future<List<Appointment>> loadScheduledTour() async {
         for (var i = 0; i < listScheduledTour.length; i++) {
           final isAlreadyInclude = meetings.any((meetings) =>
               meetings.startTime ==
-                  DateTime.parse(listScheduledTour[i].startTime!) &&
+                  DateTime.parse(listScheduledTour[i].departureDate!) &&
               (meetings.endTime ==
-                  DateTime.parse(listScheduledTour[i].endTime!)) &&
-              meetings.subject == listScheduledTour[i].scheduleTour!.tourName);
-          print('This is meetings ${listScheduledTour[i]}');
+                  DateTime.parse(listScheduledTour[i].departureDate!)
+                      .add(const Duration(hours: 3))) &&
+              meetings.subject == listScheduledTour[i].tourName);
+
           if (!isAlreadyInclude) {
             meetings.add(Appointment(
-              startTime: DateTime.parse(listScheduledTour[i].startTime!),
-              endTime: DateTime.parse(listScheduledTour[i].endTime!),
-              subject: listScheduledTour[i].scheduleTour!.tourName!,
+              startTime: DateTime.parse(listScheduledTour[i].departureDate!),
+              endTime: DateTime.parse(listScheduledTour[i].departureDate!)
+                  .add(const Duration(hours: 3)),
+              subject: listScheduledTour[i].tourName!,
               color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0),
             ));
