@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/helper/asset_helper.dart';
-import 'package:nbtour/helper/image_helper.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/helper/asset_helper.dart';
+import 'package:nbtour/utils/helper/image_helper.dart';
 import 'package:nbtour/main.dart';
-import 'package:nbtour/screens/driver/navigation.dart';
+import 'package:nbtour/representation/screens/driver/navigation.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 
 Widget reviewRideBottomSheet(BuildContext context, String distance,

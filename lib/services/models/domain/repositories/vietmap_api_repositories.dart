@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'package:nbtour/core/failures/api_server_failure.dart';
-import 'package:nbtour/core/failures/api_timeout_failure.dart';
-import 'package:nbtour/core/failures/exception_failure.dart';
-import 'package:nbtour/core/failures/failure.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_autocomplete_model.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_place_model.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_reverse_model.dart';
-import 'package:nbtour/repository/vietnam_api_repository.dart';
+import 'package:nbtour/utils/core/failures/api_server_failure.dart';
+import 'package:nbtour/utils/core/failures/api_timeout_failure.dart';
+import 'package:nbtour/utils/core/failures/exception_failure.dart';
+import 'package:nbtour/utils/core/failures/failure.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_autocomplete_model.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_place_model.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_reverse_model.dart';
+import 'package:nbtour/services/models/repository/vietnam_api_repository.dart';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';

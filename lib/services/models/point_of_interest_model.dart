@@ -1,5 +1,5 @@
-import 'package:nbtour/models/file_sound_model.dart';
-import 'package:nbtour/models/image_model.dart';
+import 'package:nbtour/services/models/file_sound_model.dart';
+import 'package:nbtour/services/models/image_model.dart';
 
 List<PointOfInterest> pointOfInterestFromJson(dynamic str) =>
     List<PointOfInterest>.from((str).map((x) => PointOfInterest.fromJson(x)));

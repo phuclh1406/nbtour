@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/constant/text_style.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
+import 'package:nbtour/utils/constant/text_style.dart';
 
 class SearchFieldWidget extends StatelessWidget {
   const SearchFieldWidget({super.key});

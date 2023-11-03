@@ -8,7 +8,7 @@ import 'package:nbtour/utils/helper/asset_helper.dart';
 import 'package:nbtour/utils/helper/image_helper.dart';
 import 'package:nbtour/services/models/season_model.dart';
 import 'package:nbtour/services/models/tour_model.dart';
-import 'package:nbtour/representation/screens/tour_guide/tour_detail_screen.dart';
+import 'package:nbtour/representation/screens/tour_detail_screen.dart';
 import 'package:nbtour/representation/widgets/tour_list_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
@@ -130,7 +130,7 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (ctx) => TourGuideTourDetailScreen(
+                              builder: (ctx) => TourDetailScreen(
                                     scheduleTour: filteredSchedule[i],
                                   )));
                     },
@@ -157,7 +157,7 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                     // announcementImage: Image.network(),
                     title: filteredSchedule[i].tourName!,
                     departureDate: filteredSchedule[i].departureDate != null
-                        ? filteredSchedule[i].departureDate!.toString()
+                        ? filteredSchedule[i].departureDate!
                         : "",
                     startTime: filteredSchedule[i].departureDate != null
                         ? filteredSchedule[i].departureDate!
@@ -198,10 +198,8 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                     _searchValue = value;
                   });
                 },
-                style:
-                    const TextStyle(color: Colors.black), // Change text color
                 decoration: const InputDecoration(
-                  icon: Icon(Icons.search, color: Colors.black),
+                  icon: Icon(Icons.search),
                   focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: ColorPalette.primaryColor)),
                   // icon: Icon(
@@ -209,8 +207,7 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                   //   color: Colors.black, // Change icon color
                   // ),
                   hintText: "Search by tour name...",
-                  hintStyle:
-                      TextStyle(color: Colors.black), // Change hint text color
+                  // Change hint text color
                 ),
               )
             : Text(
@@ -237,16 +234,13 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                   },
                   icon: const Icon(
                     Icons.search_outlined,
-                    color: Colors.black,
                   ),
                 ),
         ],
       ),
       body: SizedBox(
-        child: Expanded(
-          child: SingleChildScrollView(
-            child: loadScheduledTour(),
-          ),
+        child: SingleChildScrollView(
+          child: loadScheduledTour(),
         ),
       ),
     );

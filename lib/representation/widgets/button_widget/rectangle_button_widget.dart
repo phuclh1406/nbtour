@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:nbtour/constant/dimension.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
 
-class OvalButtonWidget extends StatelessWidget {
-  const OvalButtonWidget(
+class RectangleButtonWidget extends StatelessWidget {
+  const RectangleButtonWidget(
       {super.key,
       required this.title,
       required this.ontap,
@@ -28,9 +28,10 @@ class OvalButtonWidget extends StatelessWidget {
       splashColor: Colors.transparent,
       onTap: ontap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: kDefaultPadding / 2),
+        padding: const EdgeInsets.symmetric(
+            vertical: kDefaultPadding / 2, horizontal: kDefaultPadding / 3.5),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(kMediumPadding * 3),
+            borderRadius: BorderRadius.circular(5),
             color: buttonColor,
             border: Border.all(color: borderColor)),
         alignment: Alignment.center,

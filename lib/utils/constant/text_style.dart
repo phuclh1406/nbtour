@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/colors.dart';
+import 'package:nbtour/utils/constant/colors.dart';
 
 class TextStyles {
   TextStyles(this.context);

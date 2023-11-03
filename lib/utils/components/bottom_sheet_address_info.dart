@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_reverse_model.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_reverse_model.dart';
 
 class AddressInfo extends StatelessWidget {
   final VietmapReverseModel data;

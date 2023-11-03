@@ -1,5 +1,5 @@
-import 'package:nbtour/models/point_of_interest_model.dart';
-import 'package:nbtour/models/station_model.dart';
+import 'package:nbtour/services/models/point_of_interest_model.dart';
+import 'package:nbtour/services/models/station_model.dart';
 
 List<Routes> routesFromJson(dynamic str) =>
     List<Routes>.from((str).map((x) => Routes.fromJson(x)));

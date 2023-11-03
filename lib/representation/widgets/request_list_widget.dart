@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
 
 class RequestListWidget extends StatelessWidget {
   const RequestListWidget({
@@ -62,24 +62,6 @@ class RequestListWidget extends StatelessWidget {
                         const SizedBox(
                           height: kDefaultPadding / 2,
                         ),
-                        tour != ""
-                            ? Text(
-                                'Request by: $name',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: ColorPalette.primaryColor,
-                                ),
-                              )
-                            : const Text(
-                                'Not defined',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: ColorPalette.primaryColor,
-                                ),
-                              ),
-                        const SizedBox(
-                          height: kDefaultPadding / 2,
-                        ),
                         Text(
                           tour,
                           overflow: TextOverflow.ellipsis,
@@ -92,12 +74,38 @@ class RequestListWidget extends StatelessWidget {
                         const SizedBox(
                           height: kDefaultPadding / 2,
                         ),
+                        tour != ""
+                            ? Row(
+                                children: [
+                                  const Icon(
+                                    Icons.person_outline,
+                                    size: kDefaultIconSize,
+                                    color: ColorPalette.primaryColor,
+                                  ),
+                                  const SizedBox(width: kDefaultIconSize / 2),
+                                  Text(
+                                    name,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const Text(
+                                'Not defined',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                        const SizedBox(
+                          height: kDefaultPadding / 2,
+                        ),
                         Row(
                           children: [
                             const Icon(
                               Icons.email_outlined,
                               size: kDefaultIconSize,
-                              color: ColorPalette.subTitleColor,
+                              color: ColorPalette.primaryColor,
                             ),
                             const SizedBox(
                               width: kDefaultIconSize / 2,
@@ -106,9 +114,9 @@ class RequestListWidget extends StatelessWidget {
                               child: Text(
                                 email != "" ? email : "Not defined",
                                 style: const TextStyle(
-                                    fontSize: 15,
-                                    color: ColorPalette.subTitleColor,
-                                    overflow: TextOverflow.ellipsis),
+                                  fontSize: 15,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
                             const SizedBox(

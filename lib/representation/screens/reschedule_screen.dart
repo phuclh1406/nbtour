@@ -9,12 +9,11 @@ import 'package:nbtour/services/models/tour_model.dart';
 
 import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
 
-class RescheduleTourGuideScreen extends StatefulWidget {
-  const RescheduleTourGuideScreen({super.key, required this.tour});
+class RescheduleScreen extends StatefulWidget {
+  const RescheduleScreen({super.key, required this.tour});
   final Tour tour;
   @override
-  State<RescheduleTourGuideScreen> createState() =>
-      _RescheduleTourGuideScreenState();
+  State<RescheduleScreen> createState() => _RescheduleScreenState();
 }
 
 Tour? rescheduleTour;
@@ -34,19 +33,27 @@ Future<List<Tour>?> loadAvailableTour() async {
   }
 }
 
-class _RescheduleTourGuideScreenState extends State<RescheduleTourGuideScreen> {
+class _RescheduleScreenState extends State<RescheduleScreen> {
   late Future<List<Tour>?> _toursFuture;
   @override
   void initState() {
     super.initState();
     rescheduleTour = null;
-    fetchTourOfUser(widget.tour.tourGuide!.id!);
-    print(widget.tour.tourGuide!.name);
+    if (sharedPreferences.getString("roleName") == "Tour Guide") {
+      fetchTourOfUser(widget.tour.tourGuide!.id!);
+    } else {
+      fetchTourOfUser(widget.tour.driver!.id!);
+    }
+
     _toursFuture = loadAvailableTour();
   }
 
   Future<List<Tour>?> fetchTourOfUser(String userId) async {
-    thisUserTours = await TourService.getToursByTourGuideId(userId);
+    if (sharedPreferences.getString("roleName") == "Tour Guide") {
+      thisUserTours = await TourService.getToursByTourGuideId(userId);
+    } else {
+      thisUserTours = await TourService.getToursByDriverId(userId);
+    }
     if (thisUserTours!.isNotEmpty) {
       return thisUserTours;
     } else {

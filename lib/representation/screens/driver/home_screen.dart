@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/constant/text_style.dart';
-import 'package:nbtour/helper/asset_helper.dart';
-import 'package:nbtour/helper/image_helper.dart';
-import 'package:nbtour/screens/driver/schedule_screen.dart';
-import 'package:nbtour/screens/driver/tour_detail_screen.dart';
-import 'package:nbtour/screens/driver/tour_screen.dart';
-import 'package:nbtour/screens/login_screen.dart';
-import 'package:nbtour/widgets/action_category_widget.dart';
-import 'package:nbtour/widgets/announcement_widget.dart';
-import 'package:nbtour/widgets/main_drawer.dart';
-import 'package:nbtour/widgets/search_field_widget.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nbtour/representation/screens/request_screen.dart';
+import 'package:nbtour/representation/screens/schedule_screen.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
+
+import 'package:nbtour/utils/helper/asset_helper.dart';
+import 'package:nbtour/utils/helper/image_helper.dart';
+import 'package:nbtour/representation/screens/driver/schedule_screen.dart';
+import 'package:nbtour/representation/screens/driver/tour_screen.dart';
+
+import 'package:nbtour/representation/widgets/action_category_widget.dart';
+import 'package:nbtour/representation/widgets/announcement_widget.dart';
+import 'package:nbtour/representation/widgets/main_drawer.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DriverHomeScreen extends StatefulWidget {
@@ -111,16 +113,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       children: [
                         ActionCategoryWidget(
                             icon: const Icon(
-                              Icons.shopping_cart_checkout_outlined,
+                              Icons.calendar_month_outlined,
                               size: kDefaultIconSize * 1.2,
                               color: Colors.white,
                             ),
-                            onTap: () {},
-                            title: 'Sell Products'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (ctx) => ScheduleScreen(
+                                      initDate: DateTime.now())));
+                            },
+                            title: 'View Schedule'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
                             icon: const Icon(
-                              Icons.calendar_month_outlined,
+                              FontAwesomeIcons.clipboard,
                               size: kDefaultIconSize * 1.2,
                               color: Colors.white,
                             ),
@@ -128,11 +134,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        const DriverScheduleScreen(),
+                                    builder: (context) => const RequestScreen(),
                                   ));
                             },
-                            title: 'Your Schedule'),
+                            title: 'Your Request'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
                             icon: const Icon(

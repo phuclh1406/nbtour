@@ -70,24 +70,6 @@ class UserListWidget extends StatelessWidget {
                         const SizedBox(
                           height: kDefaultPadding / 4,
                         ),
-                        departureStation != ""
-                            ? Text(
-                                'Depart Station: $departureStation',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: ColorPalette.primaryColor,
-                                ),
-                              )
-                            : const Text(
-                                'Not defined',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: ColorPalette.primaryColor,
-                                ),
-                              ),
-                        const SizedBox(
-                          height: kDefaultPadding / 4,
-                        ),
                         Text(
                           title,
                           overflow: TextOverflow.ellipsis,
@@ -100,13 +82,38 @@ class UserListWidget extends StatelessWidget {
                         const SizedBox(
                           height: kDefaultPadding / 4,
                         ),
+                        departureStation != ""
+                            ? Row(
+                                children: [
+                                  const Icon(FontAwesomeIcons.busSimple,
+                                      size: kDefaultIconSize,
+                                      color: ColorPalette.primaryColor),
+                                  const SizedBox(
+                                    width: kDefaultIconSize / 2,
+                                  ),
+                                  Text(
+                                    departureStation,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const Text(
+                                'Not defined',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: ColorPalette.primaryColor,
+                                ),
+                              ),
+                        const SizedBox(
+                          height: kDefaultPadding / 4,
+                        ),
                         Row(
                           children: [
-                            const Icon(
-                              Icons.email_outlined,
-                              size: kDefaultIconSize,
-                              color: ColorPalette.subTitleColor,
-                            ),
+                            const Icon(Icons.email_outlined,
+                                size: kDefaultIconSize,
+                                color: ColorPalette.primaryColor),
                             const SizedBox(
                               width: kDefaultIconSize / 2,
                             ),
@@ -115,7 +122,6 @@ class UserListWidget extends StatelessWidget {
                                 email != "" ? email : "Not defined",
                                 style: const TextStyle(
                                     fontSize: 15,
-                                    color: ColorPalette.subTitleColor,
                                     overflow: TextOverflow.ellipsis),
                               ),
                             ),
@@ -129,11 +135,9 @@ class UserListWidget extends StatelessWidget {
                         ),
                         Row(
                           children: [
-                            const Icon(
-                              FontAwesomeIcons.idBadge,
-                              size: kDefaultIconSize,
-                              color: ColorPalette.subTitleColor,
-                            ),
+                            const Icon(FontAwesomeIcons.idBadge,
+                                size: kDefaultIconSize,
+                                color: ColorPalette.primaryColor),
                             const SizedBox(
                               width: kDefaultIconSize / 2,
                             ),
@@ -142,7 +146,6 @@ class UserListWidget extends StatelessWidget {
                                 code != "" ? code : "Not defined",
                                 style: const TextStyle(
                                     fontSize: 15,
-                                    color: ColorPalette.subTitleColor,
                                     overflow: TextOverflow.ellipsis),
                               ),
                             ),

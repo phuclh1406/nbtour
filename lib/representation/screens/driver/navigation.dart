@@ -5,18 +5,18 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:nbtour/components/bottom_sheet_address_info.dart';
-import 'package:nbtour/components/floating_search_bar.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/constant/text_style.dart';
-import 'package:nbtour/helper/shared_prefs.dart';
+import 'package:nbtour/utils/components/bottom_sheet_address_info.dart';
+import 'package:nbtour/utils/components/floating_search_bar.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
+import 'package:nbtour/utils/constant/text_style.dart';
+import 'package:nbtour/utils/helper/shared_prefs.dart';
 import 'package:nbtour/main.dart';
-import 'package:nbtour/models/domain/repositories/vietmap_api_repositories.dart';
-import 'package:nbtour/models/domain/usecases/get_location_from_latlng_usecase.dart';
-import 'package:nbtour/models/domain/usecases/get_place_detail_usecase.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_place_model.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_reverse_model.dart';
+import 'package:nbtour/services/models/domain/repositories/vietmap_api_repositories.dart';
+import 'package:nbtour/services/models/domain/usecases/get_location_from_latlng_usecase.dart';
+import 'package:nbtour/services/models/domain/usecases/get_place_detail_usecase.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_place_model.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_reverse_model.dart';
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/helpers.dart';
@@ -46,7 +46,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     distanceFilter: 100,
   );
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
-
+  String apiKey = dotenv.env['VIETMAP_API_KEY']!;
   bool isBuild = false;
   List<WayPoint> wayPoints = [];
   List<WayPoint> currentWayPoints = [];
@@ -105,7 +105,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
 
     _navigationOption.apiKey = dotenv.env['VIETMAP_API_KEY']!;
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=$apiKey";
     _navigationOption.customLocationCenterIcon =
         await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);

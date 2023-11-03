@@ -8,9 +8,10 @@ import 'package:nbtour/utils/helper/asset_helper.dart';
 import 'package:nbtour/utils/helper/image_helper.dart';
 import 'package:nbtour/services/models/season_model.dart';
 import 'package:nbtour/services/models/tour_model.dart';
-import 'package:nbtour/representation/screens/driver/tour_detail_screen.dart';
+import 'package:nbtour/representation/screens/tour_detail_screen.dart';
 import 'package:nbtour/representation/widgets/tour_list_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';
 
 String userId = '';
 String tourId = '';
@@ -25,6 +26,7 @@ late Tour scheduleTour;
 
 class _DriverTourScreenState extends State<DriverTourScreen> {
   bool isSearching = false;
+  bool isLoading = true;
   List<Tour> filteredSchedule = [];
   String _searchValue = '';
   List<Tour> listTour = [];
@@ -52,6 +54,7 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
         DateTime(DateTime.now().year, 10, 1, 0, 0, 0),
         DateTime(DateTime.now().year, 1, 1, 0, 0, 0)),
   ];
+
   @override
   initState() {
     super.initState();
@@ -94,12 +97,10 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
       future: TourService.getToursByDriverId(userId),
       builder: (BuildContext context, AsyncSnapshot<List<Tour>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
               child: Padding(
-            padding: EdgeInsets.only(top: kMediumPadding),
-            child: CircularProgressIndicator(
-              color: ColorPalette.primaryColor,
-            ),
+            padding: const EdgeInsets.only(top: kMediumPadding),
+            child: Lottie.asset('assets/animations/loading.json'),
           ));
         } else if (snapshot.hasData) {
           List<Tour>? listScheduledTour = snapshot.data!;
@@ -129,7 +130,7 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (ctx) => DriverTourDetailScreen(
+                              builder: (ctx) => TourDetailScreen(
                                     scheduleTour: filteredSchedule[i],
                                   )));
                     },
@@ -140,17 +141,7 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                             loadingBuilder: (context, child, loadingProgress) =>
                                 (loadingProgress == null)
                                     ? child
-                                    : const Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Center(
-                                            child: CircularProgressIndicator(
-                                                color:
-                                                    ColorPalette.primaryColor),
-                                          ),
-                                        ],
-                                      ),
+                                    : const Text(''),
                             errorBuilder: (context, error, stackTrace) =>
                                 ImageHelper.loadFromAsset(
                                     AssetHelper.announcementImage,
@@ -166,7 +157,7 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                     // announcementImage: Image.network(),
                     title: filteredSchedule[i].tourName!,
                     departureDate: filteredSchedule[i].departureDate != null
-                        ? filteredSchedule[i].departureDate!.toString()
+                        ? filteredSchedule[i].departureDate!
                         : "",
                     startTime: filteredSchedule[i].departureDate != null
                         ? filteredSchedule[i].departureDate!
@@ -207,10 +198,8 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                     _searchValue = value;
                   });
                 },
-                style:
-                    const TextStyle(color: Colors.black), // Change text color
                 decoration: const InputDecoration(
-                  icon: Icon(Icons.search, color: Colors.black),
+                  icon: Icon(Icons.search),
                   focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: ColorPalette.primaryColor)),
                   // icon: Icon(
@@ -218,8 +207,7 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                   //   color: Colors.black, // Change icon color
                   // ),
                   hintText: "Search by tour name...",
-                  hintStyle:
-                      TextStyle(color: Colors.black), // Change hint text color
+                  // Change hint text color
                 ),
               )
             : Text(
@@ -246,41 +234,13 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                   },
                   icon: const Icon(
                     Icons.search_outlined,
-                    color: Colors.black,
                   ),
                 ),
         ],
       ),
-      body: Container(
-        padding: const EdgeInsets.all(8),
-        margin: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: seasonList
-                  .map((season) => FilterChip(
-                        label: Text(season.seasonTitle),
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              selectedCategories.add(season);
-                            } else {
-                              selectedCategories.removeWhere((selectedSeason) =>
-                                  selectedSeason.id == season.id);
-                            }
-                            print('Selected Categories: $selectedCategories');
-                          });
-                        },
-                      ))
-                  .toList(),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: loadScheduledTour(),
-              ),
-            ),
-          ],
+      body: SizedBox(
+        child: SingleChildScrollView(
+          child: loadScheduledTour(),
         ),
       ),
     );

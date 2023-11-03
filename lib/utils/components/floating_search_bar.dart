@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:nbtour/models/domain/repositories/vietmap_api_repositories.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_autocomplete_model.dart';
-import 'package:nbtour/widgets/map_widget/banner_instruction.dart';
+import 'package:nbtour/services/models/domain/repositories/vietmap_api_repositories.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_autocomplete_model.dart';
+import 'package:nbtour/representation/widgets/map_widget/banner_instruction.dart';
 
 class FloatingSearchBar extends StatelessWidget {
   final Function(VietmapAutocompleteModel) onSearchItemClick;

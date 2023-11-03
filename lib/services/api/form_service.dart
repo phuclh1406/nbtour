@@ -24,12 +24,10 @@ class RescheduleServices {
         'changeEmployee': changeEmployee,
       });
       var response = await client.post(url, headers: headers, body: body);
-      print(response.body);
-      print(response.statusCode);
       if (response.statusCode == 200) {
         return "Send form success";
       } else {
-        return "Send form fail";
+        return json.decode(response.body)['msg'];
       }
     } catch (e) {
       return "Send form fail";
@@ -41,21 +39,26 @@ class RescheduleServices {
     String? status,
   ) async {
     try {
-      var url = Uri.parse(
-          'https://${Config.apiURL}${Config.form}?formId=$formId&status=$status');
+      var url = Uri.parse('https://${Config.apiURL}${Config.form}/$formId');
+
       String token = sharedPreferences.getString('accesstoken')!;
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
       };
 
-      var response = await client.put(url, headers: headers);
+      final body = json.encode({
+        'status': status,
+      });
+
+      var response = await client.put(url, headers: headers, body: body);
       print(response.body);
       print(response.statusCode);
+
       if (response.statusCode == 200) {
         return "Update request success";
       } else {
-        return "Update request fail";
+        return json.decode(response.body)['msg'];
       }
     } catch (e) {
       return "Update request fail";
@@ -75,8 +78,6 @@ class RescheduleServices {
 
       final response = await client.get(url, headers: headers);
       final responseData = json.decode(response.body);
-      print(response.body);
-      print(response.statusCode);
       if (response.statusCode == 200) {
         listForm = rescheduleFormsFromJson(responseData['forms']);
         return listForm;

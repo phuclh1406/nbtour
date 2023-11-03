@@ -167,6 +167,7 @@ class _BookingListScreenState extends State<BookingListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
         title: isSearching
