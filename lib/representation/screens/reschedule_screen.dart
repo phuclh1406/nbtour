@@ -39,13 +39,21 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
   void initState() {
     super.initState();
     rescheduleTour = null;
-    fetchTourOfUser(widget.tour.tourGuide!.id!);
-    print(widget.tour.tourGuide!.name);
+    if (sharedPreferences.getString("roleName") == "Tour Guide") {
+      fetchTourOfUser(widget.tour.tourGuide!.id!);
+    } else {
+      fetchTourOfUser(widget.tour.driver!.id!);
+    }
+
     _toursFuture = loadAvailableTour();
   }
 
   Future<List<Tour>?> fetchTourOfUser(String userId) async {
-    thisUserTours = await TourService.getToursByTourGuideId(userId);
+    if (sharedPreferences.getString("roleName") == "Tour Guide") {
+      thisUserTours = await TourService.getToursByTourGuideId(userId);
+    } else {
+      thisUserTours = await TourService.getToursByDriverId(userId);
+    }
     if (thisUserTours!.isNotEmpty) {
       return thisUserTours;
     } else {

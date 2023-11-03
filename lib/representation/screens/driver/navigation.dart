@@ -46,7 +46,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     distanceFilter: 100,
   );
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
-
+  String apiKey = dotenv.env['VIETMAP_API_KEY']!;
   bool isBuild = false;
   List<WayPoint> wayPoints = [];
   List<WayPoint> currentWayPoints = [];
@@ -105,7 +105,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
 
     _navigationOption.apiKey = dotenv.env['VIETMAP_API_KEY']!;
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=$apiKey";
     _navigationOption.customLocationCenterIcon =
         await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);

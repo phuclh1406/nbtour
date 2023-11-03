@@ -73,9 +73,9 @@ dependencies:
   just_audio: ^0.9.35
   lottie: ^2.7.0
   flutter_slidable: ^3.0.0
-  vietmap_flutter_navigation: ^1.2.4
   timeline_tile: ^2.0.0
   flutter_launcher_icons: ^0.13.1
+  vietmap_flutter_navigation: ^1.2.8
   
 dev_dependencies:
   flutter_test:

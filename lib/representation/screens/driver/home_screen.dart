@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nbtour/representation/screens/request_screen.dart';
+import 'package:nbtour/representation/screens/schedule_screen.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 
 import 'package:nbtour/utils/helper/asset_helper.dart';
@@ -110,16 +113,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       children: [
                         ActionCategoryWidget(
                             icon: const Icon(
-                              Icons.shopping_cart_checkout_outlined,
+                              Icons.calendar_month_outlined,
                               size: kDefaultIconSize * 1.2,
                               color: Colors.white,
                             ),
-                            onTap: () {},
-                            title: 'Sell Products'),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (ctx) => ScheduleScreen(
+                                      initDate: DateTime.now())));
+                            },
+                            title: 'View Schedule'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
                             icon: const Icon(
-                              Icons.calendar_month_outlined,
+                              FontAwesomeIcons.clipboard,
                               size: kDefaultIconSize * 1.2,
                               color: Colors.white,
                             ),
@@ -127,11 +134,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        const DriverScheduleScreen(),
+                                    builder: (context) => const RequestScreen(),
                                   ));
                             },
-                            title: 'Your Schedule'),
+                            title: 'Your Request'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
                             icon: const Icon(

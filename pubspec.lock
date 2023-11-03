@@ -1040,14 +1040,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
-  screenshot:
-    dependency: transitive
-    description:
-      name: screenshot
-      sha256: "455284ff1f5b911d94a43c25e1385485cf6b4f288293eba68f15dad711c7b81c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1305,10 +1297,10 @@ packages:
     dependency: "direct main"
     description:
       name: vietmap_flutter_navigation
-      sha256: f7155802e1fa4dcc3d722f13e5a3fe49a5cf4014702a62f5a81a94d8d4509d29
+      sha256: "6dcb9f3f74af3af2da633d39751e19cff282189e1885a218d06443b249038dac"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.4"
+    version: "1.2.8"
   vietmap_gl_platform_interface:
     dependency: transitive
     description:

@@ -263,10 +263,8 @@ class _RequestScreenState extends State<RequestScreen> {
         ],
       ),
       body: SizedBox(
-        child: Expanded(
-          child: SingleChildScrollView(
-            child: loadScheduledTour(),
-          ),
+        child: SingleChildScrollView(
+          child: loadScheduledTour(),
         ),
       ),
     );

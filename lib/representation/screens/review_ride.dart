@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:location/location.dart';
@@ -42,6 +43,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
   VietmapController? controller;
   double? deviationLat;
   double? deviationLong;
+  String apiKey = dotenv.env['VIETMAP_API_KEY']!;
   List<Marker> temp = [];
   late List<LatLng> geometry;
   bool isPlay = true;
@@ -267,7 +269,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
                             MyLocationTrackingMode.TrackingGPS,
                         minMaxZoomPreference: const MinMaxZoomPreference(6, 25),
                         styleString:
-                            'https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d',
+                            'https://maps.vietmap.vn/api/maps/light/styles.json?apikey=$apiKey',
                         myLocationEnabled: true,
                       ),
                     ),
