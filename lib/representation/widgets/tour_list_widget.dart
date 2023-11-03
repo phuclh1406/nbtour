@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
+import 'package:intl/intl.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
 
 class TourListWidget extends StatelessWidget {
   const TourListWidget({
@@ -65,24 +66,6 @@ class TourListWidget extends StatelessWidget {
                         const SizedBox(
                           height: kDefaultPadding / 2,
                         ),
-                        departureDate != ""
-                            ? Text(
-                                'Start Date: ${departureDate.substring(0, 10)}',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: ColorPalette.primaryColor,
-                                ),
-                              )
-                            : const Text(
-                                'Start Date: Not defined',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: ColorPalette.primaryColor,
-                                ),
-                              ),
-                        const SizedBox(
-                          height: kDefaultPadding / 2,
-                        ),
                         Text(
                           title,
                           overflow: TextOverflow.ellipsis,
@@ -95,12 +78,38 @@ class TourListWidget extends StatelessWidget {
                         const SizedBox(
                           height: kDefaultPadding / 2,
                         ),
+                        departureDate != ""
+                            ? Row(
+                                children: [
+                                  const Icon(Icons.calendar_month_outlined,
+                                      size: kDefaultIconSize,
+                                      color: ColorPalette.primaryColor),
+                                  const SizedBox(width: kDefaultIconSize / 2),
+                                  Text(
+                                    DateFormat.yMMMd()
+                                        .format(DateTime.parse(departureDate)),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const Text(
+                                'Not defined',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: ColorPalette.primaryColor,
+                                ),
+                              ),
+                        const SizedBox(
+                          height: kDefaultPadding / 2,
+                        ),
                         Row(
                           children: [
                             const Icon(
                               FontAwesomeIcons.clock,
                               size: kDefaultIconSize,
-                              color: ColorPalette.subTitleColor,
+                              color: ColorPalette.primaryColor,
                             ),
                             const SizedBox(
                               width: kDefaultIconSize / 2,
@@ -108,11 +117,11 @@ class TourListWidget extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 startTime != ""
-                                    ? startTime.substring(11, 19)
+                                    ? DateFormat.Hm()
+                                        .format(DateTime.parse(startTime))
                                     : "Not defined",
                                 style: const TextStyle(
                                     fontSize: 15,
-                                    color: ColorPalette.subTitleColor,
                                     overflow: TextOverflow.ellipsis),
                               ),
                             ),
@@ -123,7 +132,6 @@ class TourListWidget extends StatelessWidget {
                               '-',
                               style: TextStyle(
                                   fontSize: 15,
-                                  color: ColorPalette.subTitleColor,
                                   overflow: TextOverflow.ellipsis),
                             ),
                             const SizedBox(
@@ -132,11 +140,11 @@ class TourListWidget extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 endTime != ""
-                                    ? endTime.substring(11, 19)
+                                    ? DateFormat.Hm()
+                                        .format(DateTime.parse(endTime))
                                     : "Not defined",
                                 style: const TextStyle(
                                     fontSize: 15,
-                                    color: ColorPalette.subTitleColor,
                                     overflow: TextOverflow.ellipsis),
                               ),
                             ),

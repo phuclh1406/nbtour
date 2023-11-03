@@ -1,4 +1,4 @@
-import 'package:nbtour/models/domain/entities/vietmap_place.dart';
+import 'package:nbtour/services/models/domain/entities/vietmap_place.dart';
 
 class VietmapPlaceModel extends VietmapPlace {
   VietmapPlaceModel.fromJson(Map<String, dynamic> json) {

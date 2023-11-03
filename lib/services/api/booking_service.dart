@@ -34,20 +34,21 @@ class BookingServices {
 
   static Future<String> checkInCustomer(String id, bool isAttended) async {
     try {
-      var url = Uri.parse(
-          'https://${Config.apiURL}${Config.getBookingUserList}/$id?isAttended=$isAttended');
+      var url =
+          Uri.parse('https://${Config.apiURL}${Config.getBookingUserList}/$id');
       String token = sharedPreferences.getString('accesstoken')!;
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
       };
-      final response = await client.put(url, headers: headers);
-      print(response.body);
-      print(response.statusCode);
+
+      final body = json.encode({'isAttended': isAttended});
+      final response = await client.put(url, headers: headers, body: body);
+
       if (response.statusCode == 200) {
         return "Check-in success";
       } else {
-        return "Check-in Fail";
+        return json.decode(response.body)['msg'];
       }
     } catch (e) {
       return "Check-in Fail";

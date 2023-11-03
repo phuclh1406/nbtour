@@ -2,10 +2,10 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/constant/text_style.dart';
-import 'package:nbtour/widgets/calendar_widget/calendar_widget.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
+import 'package:nbtour/utils/constant/text_style.dart';
+import 'package:nbtour/representation/widgets/calendar_widget/calendar_widget.dart';
 
 class DriverScheduleScreen extends StatefulWidget {
   const DriverScheduleScreen({super.key});
@@ -44,7 +44,9 @@ class _DriverScheduleScreenState extends State<DriverScheduleScreen> {
           style: TextStyles.defaultStyle.bold.fontHeader,
         ),
       ),
-      body: const CalendarWidget(),
+      body: CalendarWidget(
+        initDate: DateTime.now(),
+      ),
     );
   }
 }

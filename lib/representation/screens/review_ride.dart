@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:location/location.dart';
+import 'package:nbtour/representation/screens/timeline_screen.dart';
 import 'package:nbtour/services/api/route_service.dart';
 import 'package:nbtour/services/api/tracking_service.dart';
+import 'package:nbtour/services/models/tour_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
@@ -19,21 +22,13 @@ import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'dart:math' as math;
 
-class ReviewRideTourGuideScreen extends StatefulWidget {
-  const ReviewRideTourGuideScreen(
-      {Key? key,
-      required this.tourId,
-      required this.tourName,
-      required this.routeId})
-      : super(key: key);
+class ReviewRideScreen extends StatefulWidget {
+  const ReviewRideScreen({Key? key, required this.tour}) : super(key: key);
 
-  final String routeId;
-  final String tourId;
-  final String tourName;
+  final Tour tour;
 
   @override
-  State<ReviewRideTourGuideScreen> createState() =>
-      _ReviewRideTourGuideScreenState();
+  State<ReviewRideScreen> createState() => _ReviewRideScreenState();
 }
 
 List<PointOfInterest> _kTripPoints = [];
@@ -43,7 +38,7 @@ List<PointOfInterest>? pointList = [];
 Timer? timer;
 const double pi = 3.1415926535897932;
 
-class _ReviewRideTourGuideScreenState extends State<ReviewRideTourGuideScreen> {
+class _ReviewRideScreenState extends State<ReviewRideScreen> {
   VietmapController? controller;
   double? deviationLat;
   double? deviationLong;
@@ -91,24 +86,42 @@ class _ReviewRideTourGuideScreenState extends State<ReviewRideTourGuideScreen> {
     super.initState();
     initializeLocationAndSave();
     timer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
-      checkLocation();
+      // checkLocation();
     });
+  }
+
+  void openStationsOverlay(Tour tour) {
+    showModalBottomSheet(
+      showDragHandle: true,
+      elevation: 0,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      context: context,
+      builder: (ctx) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+
+          // child: TimelinesScreen(route: route)),
+          child: TimelinesScreen(
+            tour: tour,
+            wayPoints: wayPoints,
+          )),
+    );
   }
 
   void checkLocation() async {
     var location = await Geolocator.getCurrentPosition();
     Tracking? tracking =
-        await TrackingServices().getTrackingByTourId(widget.tourId);
+        await TrackingServices.getTrackingByTourId(widget.tour.tourId!);
     try {
       if (tracking != null) {
-        await TrackingServices().updateTrackingWithCoordinates(
+        await TrackingServices.updateTrackingWithCoordinates(
             tracking.trackingId!,
             location.latitude,
             location.longitude,
             "Active");
       } else {
-        await TrackingServices().trackingWithCoordinates(
-            widget.tourId, location.latitude, location.longitude, "Active");
+        await TrackingServices.trackingWithCoordinates(widget.tour.tourId!,
+            location.latitude, location.longitude, "Active");
       }
       for (var i = 0; i < _kTripStations.length; i++) {
         double distance = Geolocator.distanceBetween(
@@ -130,29 +143,29 @@ class _ReviewRideTourGuideScreenState extends State<ReviewRideTourGuideScreen> {
     this.controller = controller;
   }
 
-  _onSymboltapped(Stations station) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(station.stationName!),
-          content: Text(station.description!),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Close"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // _onSymboltapped(Stations station) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text(station.stationName!),
+  //         content: Text(station.description!),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text("Close"),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget loadRoute() {
     return FutureBuilder<Routes?>(
-      future: RouteService.getRouteByRouteId(widget.routeId),
+      future: RouteService.getRouteByRouteId(widget.tour.tourRoute!.routeId!),
       builder: (BuildContext context, AsyncSnapshot<Routes?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -225,25 +238,25 @@ class _ReviewRideTourGuideScreenState extends State<ReviewRideTourGuideScreen> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height,
                       child: VietmapGL(
-                        onMapClick: (point, coordinates) => {
-                          for (int i = 0; i < _kTripStations.length; i++)
-                            {
-                              deviationLat = (coordinates.latitude -
-                                      double.parse(
-                                          _kTripStations[i].latitude!)) *
-                                  (coordinates.latitude -
-                                      double.parse(
-                                          _kTripStations[i].latitude!)),
-                              deviationLong = (coordinates.longitude -
-                                      double.parse(
-                                          _kTripStations[i].longitude!)) *
-                                  (coordinates.latitude -
-                                      double.parse(
-                                          _kTripStations[i].latitude!)),
-                              if (deviationLat! < 1 && deviationLong! < 1)
-                                {_onSymboltapped(_kTripStations[i])}
-                            }
-                        },
+                        // onMapClick: (point, coordinates) => {
+                        //   for (int i = 0; i < _kTripStations.length; i++)
+                        //     {
+                        //       deviationLat = (coordinates.latitude -
+                        //               double.parse(
+                        //                   _kTripStations[i].latitude!)) *
+                        //           (coordinates.latitude -
+                        //               double.parse(
+                        //                   _kTripStations[i].latitude!)),
+                        //       deviationLong = (coordinates.longitude -
+                        //               double.parse(
+                        //                   _kTripStations[i].longitude!)) *
+                        //           (coordinates.latitude -
+                        //               double.parse(
+                        //                   _kTripStations[i].latitude!)),
+                        //       if (deviationLat! < 1 && deviationLong! < 1)
+                        //         {_onSymboltapped(_kTripStations[i])}
+                        //     }
+                        // },
                         trackCameraPosition: true,
                         zoomGesturesEnabled: true,
                         initialCameraPosition:
@@ -259,30 +272,46 @@ class _ReviewRideTourGuideScreenState extends State<ReviewRideTourGuideScreen> {
                       ),
                     ),
                     Positioned(
-                        bottom: kDefaultIconSize / 2,
-                        left: kDefaultIconSize / 2,
-                        right: kDefaultIconSize / 2,
-                        child: Container(
-                          padding: const EdgeInsets.all(kMediumPadding / 2),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(5)),
-                          height: kMediumPadding * 5,
-                          child: SingleChildScrollView(
-                            child: Wrap(
-                              direction: Axis.vertical,
-                              spacing: kDefaultIconSize / 2,
-                              children: [
-                                for (var i = 0; i < _kTripStations.length; i++)
-                                  Text(
-                                    'Station ${i + 1}: ${_kTripStations[i].stationName!}',
-                                    style: TextStyles
-                                        .defaultStyle.bold.subTitleTextColor,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        )),
+                      bottom: kDefaultIconSize / 2,
+                      left: kDefaultIconSize / 2,
+                      right: kDefaultIconSize / 2,
+                      child: FloatingActionButton.small(
+                        onPressed: () {
+                          openStationsOverlay(widget.tour);
+                        },
+                        backgroundColor: ColorPalette.primaryColor,
+                        focusColor: const Color.fromARGB(255, 220, 216, 216),
+                        child: Text(
+                          'View route detail',
+                          style: TextStyles.regularStyle.whiteTextColor,
+                        ),
+                      ),
+                    ),
+                    // Positioned(
+                    //     bottom: kDefaultIconSize / 2,
+                    //     left: kDefaultIconSize / 2,
+                    //     right: kDefaultIconSize / 2,
+                    //     child: Container(
+                    //       padding: const EdgeInsets.all(kMediumPadding / 2),
+                    //       decoration: BoxDecoration(
+                    //           color: Colors.white,
+                    //           borderRadius: BorderRadius.circular(5)),
+                    //       height: kMediumPadding * 5,
+                    //       child: SingleChildScrollView(
+                    //         child: Wrap(
+                    //           direction: Axis.vertical,
+                    //           spacing: kDefaultIconSize / 2,
+                    //           children: [
+                    //             for (var i = 0; i < _kTripStations.length; i++)
+                    //               Text(
+                    //                 'Station ${i + 1}: ${_kTripStations[i].stationName!}',
+                    //                 style: TextStyles
+                    //                     .defaultStyle.bold.subTitleTextColor,
+                    //               ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     )),
                     Positioned(
                         top: kMediumPadding,
                         left: kMediumPadding / 2,

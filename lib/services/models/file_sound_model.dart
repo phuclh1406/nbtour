@@ -1,4 +1,4 @@
-import 'package:nbtour/models/language_model.dart';
+import 'package:nbtour/services/models/language_model.dart';
 
 List<FileSound> fileSoundsFromJson(dynamic str) =>
     List<FileSound>.from((str).map((x) => FileSound.fromJson(x)));

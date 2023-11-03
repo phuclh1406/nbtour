@@ -1,13 +1,12 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/screens/driver/home_screen.dart';
-import 'package:nbtour/screens/driver/search_navigation.dart';
-import 'package:nbtour/screens/tour_guide/booking_list_screen.dart';
-import 'package:nbtour/screens/tour_guide/home_screen.dart';
-import 'package:nbtour/screens/qr_scanner.dart';
-import 'package:nbtour/screens/tour_guide/schedule_screen.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/representation/screens/driver/home_screen.dart';
+
+import 'package:nbtour/representation/screens/tour_guide/booking_list_screen.dart';
+import 'package:nbtour/representation/screens/tour_guide/home_screen.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TabsScreen extends StatefulWidget {
@@ -69,7 +68,7 @@ class _TabsScreenState extends State<TabsScreen> {
       activePage = const TourGuideHomeScreen();
       isTourGuide = true;
       if (_selectPageIndex == 1) {
-        activePage = const TourGuideScheduleScreen();
+        activePage = const BookingListScreen();
       }
     } else {
       activePage = const DriverHomeScreen();
@@ -80,31 +79,31 @@ class _TabsScreenState extends State<TabsScreen> {
 
     return Scaffold(
       body: activePage,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Visibility(
-        visible: MediaQuery.of(context).viewInsets.bottom == 0.0,
-        child: FloatingActionButton(
-          backgroundColor: ColorPalette.primaryColor,
-          foregroundColor: Colors.white,
-          shape: const CircleBorder(),
-          child: isTourGuide
-              ? const Icon(FontAwesomeIcons.clipboardList)
-              : const Icon(Icons.navigation_outlined),
-          onPressed: () {
-            if (isTourGuide) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => const BookingListScreen()));
-            } else {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => const SearchNavigation()));
-            }
-          },
-        ),
-      ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // floatingActionButton: Visibility(
+      //   visible: MediaQuery.of(context).viewInsets.bottom == 0.0,
+      //   child: FloatingActionButton(
+      //     backgroundColor: ColorPalette.primaryColor,
+      //     foregroundColor: Colors.white,
+      //     shape: const CircleBorder(),
+      //     child: isTourGuide
+      //         ? const Icon(FontAwesomeIcons.clipboardList)
+      //         : const Icon(Icons.navigation_outlined),
+      //     onPressed: () {
+      //       if (isTourGuide) {
+      //         Navigator.push(
+      //             context,
+      //             MaterialPageRoute(
+      //                 builder: (ctx) => const BookingListScreen()));
+      //       } else {
+      //         Navigator.push(
+      //             context,
+      //             MaterialPageRoute(
+      //                 builder: (ctx) => const SearchNavigation()));
+      //       }
+      //     },
+      //   ),
+      // ),
       bottomNavigationBar: Theme(
         data: ThemeData(
             splashColor: Colors.transparent,
@@ -124,9 +123,9 @@ class _TabsScreenState extends State<TabsScreen> {
             ),
             BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.calendar_month_rounded,
+                  FontAwesomeIcons.clipboardList,
                 ),
-                label: 'Schedule')
+                label: 'Check-in')
           ],
         ),
       ),

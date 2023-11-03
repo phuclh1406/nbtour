@@ -1,5 +1,5 @@
-import 'package:nbtour/models/ticket_type_model.dart';
-import 'package:nbtour/models/tour_model.dart';
+import 'package:nbtour/services/models/ticket_type_model.dart';
+import 'package:nbtour/services/models/tour_model.dart';
 
 List<Tickets> ticketsFromJson(dynamic str) =>
     List<Tickets>.from((str).map((x) => Tickets.fromJson(x)));

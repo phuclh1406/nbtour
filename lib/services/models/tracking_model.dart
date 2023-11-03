@@ -20,7 +20,6 @@ class Tracking {
     coordinates = json['coordinates'];
     tourId = json['tourId'];
     busId = json['busId'];
-
     status = json['status'];
   }
 

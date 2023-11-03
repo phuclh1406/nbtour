@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:nbtour/main.dart';
 import 'package:nbtour/services/api/config.dart';
 import 'package:nbtour/services/models/tour_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -77,6 +78,31 @@ class TourService {
       }
     } catch (e) {
       throw Exception(e);
+    }
+  }
+
+  static Future<String> updateTourStatus(
+      String tourId, String status, String tourName) async {
+    try {
+      String token = sharedPreferences.getString('accesstoken')!;
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final body = json.encode({"tourName": tourName, "tourStatus": status});
+
+      var url = Uri.parse('https://${Config.apiURL}${Config.getTour}/$tourId');
+      var response = await client.put(url, headers: headers, body: body);
+      print(response.statusCode);
+      print(response.body);
+      if (response.statusCode == 200) {
+        return "Update success";
+      } else {
+        return json.decode(response.body)['msg'];
+      }
+    } catch (e) {
+      return 'Update fail';
     }
   }
 

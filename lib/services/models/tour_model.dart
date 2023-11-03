@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/models/bus_model.dart';
-import 'package:nbtour/models/image_model.dart';
-import 'package:nbtour/models/route_model.dart';
-import 'package:nbtour/models/station_model.dart';
-import 'package:nbtour/models/ticket_model.dart';
-import 'package:nbtour/models/user_model.dart';
+import 'package:nbtour/services/models/bus_model.dart';
+import 'package:nbtour/services/models/image_model.dart';
+import 'package:nbtour/services/models/route_model.dart';
+import 'package:nbtour/services/models/station_model.dart';
+import 'package:nbtour/services/models/ticket_model.dart';
+import 'package:nbtour/services/models/user_model.dart';
 
 List<Tour> toursFromJson(dynamic str) =>
     List<Tour>.from((str).map((x) => Tour.fromJson(x)));

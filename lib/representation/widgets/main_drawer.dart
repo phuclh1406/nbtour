@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:nbtour/main.dart';
 import 'package:nbtour/services/api/auth_service.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
@@ -163,6 +164,7 @@ class MainDrawer extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => const LoginScreen(),
                 ));
+            sharedPreferences.clear();
           },
         )
       ]),

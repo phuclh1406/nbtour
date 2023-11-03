@@ -1,7 +1,7 @@
-import 'package:nbtour/models/booking_ticket_model.dart';
-import 'package:nbtour/models/station_model.dart';
+import 'package:nbtour/services/models/booking_ticket_model.dart';
+import 'package:nbtour/services/models/station_model.dart';
 
-import 'package:nbtour/models/user_model.dart';
+import 'package:nbtour/services/models/user_model.dart';
 
 List<Booking> bookingsFromJson(dynamic str) =>
     List<Booking>.from((str).map((x) => Booking.fromJson(x)));

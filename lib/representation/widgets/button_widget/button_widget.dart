@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/helper/asset_helper.dart';
-import 'package:nbtour/helper/image_helper.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
+import 'package:nbtour/utils/helper/asset_helper.dart';
+import 'package:nbtour/utils/helper/image_helper.dart';
 
 class ButtonWidget extends StatelessWidget {
   const ButtonWidget(

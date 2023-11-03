@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/constant/text_style.dart';
-import 'package:nbtour/helper/asset_helper.dart';
-import 'package:nbtour/helper/image_helper.dart';
-import 'package:nbtour/screens/driver/schedule_screen.dart';
-import 'package:nbtour/screens/driver/tour_detail_screen.dart';
-import 'package:nbtour/screens/driver/tour_screen.dart';
-import 'package:nbtour/screens/login_screen.dart';
-import 'package:nbtour/widgets/action_category_widget.dart';
-import 'package:nbtour/widgets/announcement_widget.dart';
-import 'package:nbtour/widgets/main_drawer.dart';
-import 'package:nbtour/widgets/search_field_widget.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
+
+import 'package:nbtour/utils/helper/asset_helper.dart';
+import 'package:nbtour/utils/helper/image_helper.dart';
+import 'package:nbtour/representation/screens/driver/schedule_screen.dart';
+import 'package:nbtour/representation/screens/driver/tour_screen.dart';
+
+import 'package:nbtour/representation/widgets/action_category_widget.dart';
+import 'package:nbtour/representation/widgets/announcement_widget.dart';
+import 'package:nbtour/representation/widgets/main_drawer.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DriverHomeScreen extends StatefulWidget {

@@ -1,4 +1,4 @@
-import 'package:nbtour/models/domain/entities/vietmap_reverse.dart';
+import 'package:nbtour/services/models/domain/entities/vietmap_reverse.dart';
 
 class VietmapReverseModel extends VietmapReverse {
   VietmapReverseModel.fromJson(Map<String, dynamic> json) {

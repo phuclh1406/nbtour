@@ -1,8 +1,8 @@
-import 'package:nbtour/models/vietnam_map/vietmap_autocomplete_model.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_place_model.dart';
-import 'package:nbtour/models/vietnam_map/vietmap_reverse_model.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_autocomplete_model.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_place_model.dart';
+import 'package:nbtour/services/models/vietnam_map/vietmap_reverse_model.dart';
 
-import '/core/failures/failure.dart';
+import '../../../utils/core/failures/failure.dart';
 
 import 'package:dartz/dartz.dart';
 

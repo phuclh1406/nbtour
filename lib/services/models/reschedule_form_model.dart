@@ -1,5 +1,5 @@
-import 'package:nbtour/models/tour_model.dart';
-import 'package:nbtour/models/user_model.dart';
+import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/models/user_model.dart';
 
 List<RescheduleForm> rescheduleFormsFromJson(dynamic str) =>
     List<RescheduleForm>.from((str).map((x) => RescheduleForm.fromJson(x)));

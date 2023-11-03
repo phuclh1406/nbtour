@@ -1,19 +1,15 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
-import 'package:nbtour/constant/text_style.dart';
-import 'package:nbtour/main.dart';
-import 'package:nbtour/models/data_source.dart';
-import 'package:nbtour/models/tour_model.dart';
-import 'package:nbtour/screens/driver/tour_detail_screen.dart';
-import 'package:nbtour/screens/tour_guide/tour_detail_screen.dart';
+
+import 'package:nbtour/utils/constant/colors.dart';
+
+import 'package:nbtour/services/models/data_source.dart';
+
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CalendarWidget extends StatefulWidget {
-  const CalendarWidget({super.key});
+  const CalendarWidget({super.key, required this.initDate});
+
+  final DateTime initDate;
   @override
   State<CalendarWidget> createState() => _CalendarWidgetState();
 }
@@ -40,92 +36,47 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     _loadAppointments();
   }
 
-  Widget appointmentBuilder(
-    BuildContext context,
-    CalendarAppointmentDetails calendarAppointmentDetails,
-  ) {
-    final Appointment appointment =
-        calendarAppointmentDetails.appointments.first;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-            width: calendarAppointmentDetails.bounds.width,
-            height: calendarAppointmentDetails.bounds.height / 2,
-            color: appointment.color,
-            child: const Center(
-              child: Icon(
-                Icons.group,
-                color: Colors.black,
-              ),
-            )),
-        Container(
-          width: calendarAppointmentDetails.bounds.width,
-          height: calendarAppointmentDetails.bounds.height / 2,
-          color: appointment.color,
-          child: Column(
-            children: [
-              Text(
-                appointment.subject,
-                textAlign: TextAlign.center,
-                style: TextStyles.defaultStyle.bold.fontCaption,
-              ),
-              const SizedBox(
-                height: kDefaultIconSize,
-              ),
-              Text(
-                '${DateFormat(' (hh:mm a').format(appointment.startTime)}-${DateFormat('hh:mm a)').format(appointment.endTime)}',
-                textAlign: TextAlign.center,
-                style: TextStyles.defaultStyle.bold.fontCaption,
-              ),
-            ],
-          ),
-        )
-      ],
-    );
-  }
+  // void calendarTapped(
+  //     BuildContext context, CalendarTapDetails calendarTapDetails) {
+  //   if (calendarTapDetails.targetElement == CalendarElement.appointment) {
+  //     String? scheduleJson = sharedPreferences.getString("schedule_tour");
 
-  void calendarTapped(
-      BuildContext context, CalendarTapDetails calendarTapDetails) {
-    if (calendarTapDetails.targetElement == CalendarElement.appointment) {
-      String? scheduleJson = sharedPreferences.getString("schedule_tour");
+  //     if (scheduleJson != null) {
+  //       try {
+  //         // Parsing the JSON string back to a List of Appointment objects
+  //         Tour appointments = Tour.fromJson(json.decode(scheduleJson));
 
-      if (scheduleJson != null) {
-        try {
-          // Parsing the JSON string back to a List of Appointment objects
-          Tour appointments = Tour.fromJson(json.decode(scheduleJson));
+  //         // Find the tapped appointment based on its properties, e.g., startTime, endTime, subject
+  //         final tappedAppointment = appointments;
 
-          // Find the tapped appointment based on its properties, e.g., startTime, endTime, subject
-          final tappedAppointment = appointments;
+  //         // Navigate to the detail screen with the tapped appointment data
+  //         String roleName = sharedPreferences.getString("role_name")!;
+  //         if (roleName.contains("TourGuide")) {
+  //           Navigator.of(context).push(
+  //             MaterialPageRoute(
+  //               builder: (context) => TourGuideTourDetailScreen(
+  //                 scheduleTour: tappedAppointment,
+  //               ),
+  //             ),
+  //           );
+  //         } else {
+  //           Navigator.of(context).push(
+  //             MaterialPageRoute(
+  //               builder: (context) => DriverTourDetailScreen(
+  //                 scheduleTour: tappedAppointment,
+  //               ),
+  //             ),
+  //           );
+  //         }
 
-          // Navigate to the detail screen with the tapped appointment data
-          String roleName = sharedPreferences.getString("role_name")!;
-          if (roleName.contains("TourGuide")) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => TourGuideTourDetailScreen(
-                  scheduleTour: tappedAppointment,
-                ),
-              ),
-            );
-          } else {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => DriverTourDetailScreen(
-                  scheduleTour: tappedAppointment,
-                ),
-              ),
-            );
-          }
-
-          // Remove the stored data from SharedPreferences (if needed)
-          sharedPreferences.remove("appointments");
-        } catch (e) {
-          print('Error decoding JSON: $e');
-        }
-      }
-    }
-  }
+  //         // Remove the stored data from SharedPreferences (if needed)
+  //         sharedPreferences.remove("appointments");
+  //       } catch (e) {
+  //         print('Error decoding JSON: $e');
+  //       }
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -142,19 +93,22 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             print('This is appointment $appointments');
             return SfCalendar(
               // onTap: (details) => calendarTapped(context, details),
-              view: CalendarView.day,
+              view: CalendarView.month,
               showTodayButton: true,
+              monthViewSettings: const MonthViewSettings(
+                  appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,
+                  showAgenda: true),
               timeSlotViewSettings: const TimeSlotViewSettings(
                 timeInterval:
                     Duration(hours: 1), // Set your desired time interval
                 timeFormat: 'HH', // Set the time format to 24-hour
               ),
-              initialSelectedDate: DateTime.now(),
+              initialSelectedDate: widget.initDate,
               showDatePickerButton: true,
               firstDayOfWeek: 1,
               dataSource: MeetingDataSource(appointments),
               todayHighlightColor: ColorPalette.primaryColor,
-              appointmentBuilder: appointmentBuilder,
+
               selectionDecoration: BoxDecoration(
                 color: Colors.transparent,
                 border: Border.all(color: ColorPalette.primaryColor, width: 2),
@@ -168,7 +122,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             );
           } else {
             return const Center(
-              child: Text('No appointments found.'),
+              child: Text(''),
             );
           }
         });

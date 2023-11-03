@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
 
 class AnnouncementWidget extends StatelessWidget {
   const AnnouncementWidget(

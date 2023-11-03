@@ -1,5 +1,5 @@
 // user_id, user_name, email, password, birthday, avatar, address, phone, accessChangePassword, refresh_token, role_id, status
-import 'package:nbtour/models/role_model.dart';
+import 'package:nbtour/services/models/role_model.dart';
 
 List<UserModel> usersFromJson(dynamic str) =>
     List<UserModel>.from((str).map((x) => UserModel.fromJson(x)));

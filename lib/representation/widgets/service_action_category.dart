@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nbtour/constant/dimension.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
 
 class ServiceAction extends StatelessWidget {
   const ServiceAction(

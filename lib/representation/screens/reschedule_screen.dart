@@ -9,12 +9,11 @@ import 'package:nbtour/services/models/tour_model.dart';
 
 import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
 
-class RescheduleTourGuideScreen extends StatefulWidget {
-  const RescheduleTourGuideScreen({super.key, required this.tour});
+class RescheduleScreen extends StatefulWidget {
+  const RescheduleScreen({super.key, required this.tour});
   final Tour tour;
   @override
-  State<RescheduleTourGuideScreen> createState() =>
-      _RescheduleTourGuideScreenState();
+  State<RescheduleScreen> createState() => _RescheduleScreenState();
 }
 
 Tour? rescheduleTour;
@@ -34,7 +33,7 @@ Future<List<Tour>?> loadAvailableTour() async {
   }
 }
 
-class _RescheduleTourGuideScreenState extends State<RescheduleTourGuideScreen> {
+class _RescheduleScreenState extends State<RescheduleScreen> {
   late Future<List<Tour>?> _toursFuture;
   @override
   void initState() {

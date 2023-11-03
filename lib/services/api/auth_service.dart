@@ -78,10 +78,9 @@ class AuthServices {
     });
     final response = await client.post(url, headers: headers, body: body);
     final responseData = json.decode(response.body);
-    print(responseData);
-    print(response.statusCode);
+
     final accesstoken = responseData['accessToken'];
-    print(accesstoken);
+
     if (response.statusCode == 200) {
       final name = responseData['user']['userName'];
       final phone = responseData['user']['phone'];
@@ -149,7 +148,7 @@ class AuthServices {
 
       // Rest of your code...
     } else {
-      printWrapped('Invalid response data');
+      return json.decode(response.body)['msg'];
     }
     return response.statusCode;
   }
@@ -238,7 +237,7 @@ class AuthServices {
 
       // Rest of your code...
     } else {
-      printWrapped('Invalid response data');
+      return json.decode(response.body)['msg'];
     }
   }
 
@@ -253,15 +252,14 @@ class AuthServices {
         'Authorization': 'Bearer $token',
       };
       final response = await http.post(Uri.parse(url), headers: headers);
-      print(response.statusCode);
+
       if (response.statusCode == 200) {
         await googleSignOut();
       } else {
-        printWrapped('Invalid response data');
+        return json.decode(response.body)['msg'];
       }
     } catch (error) {
       // Handle the error here, e.g., print it for debugging purposes.
-      print('Error during signOut: $error');
     }
   }
 

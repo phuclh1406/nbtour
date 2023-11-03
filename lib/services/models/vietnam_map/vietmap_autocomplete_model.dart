@@ -1,4 +1,4 @@
-import 'package:nbtour/models/domain/entities/vietmap_autocomplete_model.dart';
+import 'package:nbtour/services/models/domain/entities/vietmap_autocomplete_model.dart';
 
 class VietmapAutocompleteModel extends VietmapAutocomplete {
   VietmapAutocompleteModel.fromJson(Map<String, dynamic> json) {
