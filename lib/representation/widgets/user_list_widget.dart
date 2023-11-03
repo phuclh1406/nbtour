@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:nbtour/constant/colors.dart';
-import 'package:nbtour/constant/dimension.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
 
 class UserListWidget extends StatelessWidget {
   const UserListWidget({
