@@ -22,8 +22,6 @@ class TrackingServices {
       'status': status,
     });
     final response = await client.post(url, headers: headers, body: body);
-    print(response.body);
-    print(response.statusCode);
     if (response.statusCode == 200) {
       return 'create success';
     } else {
@@ -84,6 +82,7 @@ class TrackingServices {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token'
     };
+
     final response = await client.get(url, headers: headers);
     final responseData = json.decode(response.body);
 
@@ -168,8 +167,6 @@ class TrackingServices {
       'status': status,
     });
     final response = await client.put(url, headers: headers, body: body);
-    print(response.body);
-    print(response.statusCode);
     if (response.statusCode == 200) {
       return "update success";
     } else {

@@ -73,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: const Color.fromARGB(248, 255, 255, 255),

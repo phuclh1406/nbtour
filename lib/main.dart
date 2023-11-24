@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
+import 'package:nbtour/services/api/tour_service.dart';
 import 'package:nbtour/services/api/tracking_service.dart';
 import 'package:nbtour/services/models/tracking_model.dart';
 import 'package:nbtour/services/models/tracking_station_model.dart';
@@ -22,7 +23,7 @@ final theme = ThemeData(
     useMaterial3: true,
     bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white, modalBackgroundColor: Colors.white),
-    dividerColor: Colors.white,
+    dividerColor: Colors.transparent,
     textTheme: GoogleFonts.latoTextTheme(),
     appBarTheme: const AppBarTheme(
         color: ColorPalette.primaryColor,
@@ -46,7 +47,6 @@ void initializeLocationAndSave() async {
 
   // Get the current user location
   LocationData locationData = await location.getLocation();
-
   // Get the current user address
 
   // Store the user location in sharedPreferences
@@ -60,49 +60,62 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   try {
-    sharedPreferences = await SharedPreferences.getInstance();
-    String? roleName = sharedPreferences.getString('role_name');
-    if (roleName != null) {
-      if (roleName == "Driver") {
-        if (sharedPreferences.getString('tracking_tour_id') != null) {
-          Timer.periodic(const Duration(seconds: 5), (Timer t) {
-            checkLocation();
-            checkLocationCoordinates();
-          });
-        }
-      }
-    }
-
     await dotenv.load(fileName: "assets/config/.env");
     runApp(const App());
+    Timer.periodic(const Duration(seconds: 5), (timer) {
+      fetchLoginUser();
+    });
   } catch (e) {
     "error";
   }
 }
 
-void checkLocationCoordinates() async {
+void fetchLoginUser() async {
+  try {
+    print('check 1');
+    sharedPreferences = await SharedPreferences.getInstance();
+    String? roleName = sharedPreferences.getString('role_name');
+    if (roleName != null) {
+      if (roleName == "Driver") {
+        String userId = sharedPreferences.getString("user_id")!;
+        print('check 2');
+        var tour =
+            await TourService.getTourByTourStatusAndDriverId(userId, "Started");
+
+        if (tour != null) {
+          print('check 3');
+          checkLocation(tour.tourId!);
+          checkLocationCoordinates(tour.tourId!);
+        }
+      }
+    }
+  } catch (e) {
+    "error";
+  }
+}
+
+void checkLocationCoordinates(String toudId) async {
   try {
     var location = await Geolocator.getCurrentPosition();
-    var tourId = sharedPreferences.getString('tracking_tour_id')!;
+
     print('tracking 1');
-    Tracking? tracking = await TrackingServices.getTrackingByTourId(tourId);
+    Tracking? tracking = await TrackingServices.getTrackingByTourId(toudId);
     if (tracking != null) {
       print('tracking2 ');
       await TrackingServices.updateTrackingWithCoordinates(tracking.trackingId!,
           location.latitude, location.longitude, "Active");
     } else {
       await TrackingServices.trackingWithCoordinates(
-          tourId, location.latitude, location.longitude, "Active");
+          toudId, location.latitude, location.longitude, "Active");
     }
   } catch (e) {
     "Error";
   }
 }
 
-void checkLocation() async {
+void checkLocation(String tourId) async {
   try {
     var location = await Geolocator.getCurrentPosition();
-    String tourId = sharedPreferences.getString('tracking_tour_id')!;
 
     List<TrackingStations>? trackingList =
         await TrackingServices.getTrackingStationsByTourId(tourId);

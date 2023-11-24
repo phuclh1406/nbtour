@@ -7,26 +7,31 @@ List<BookingTickets> bookingTicketsFromJson(dynamic str) =>
 class BookingTickets {
   BookingTickets({
     required this.quantity,
+    required this.ticketId,
     required this.bookingDetailTicket,
   });
+  late String? ticketId;
   late int? quantity;
-  late Tickets? bookingDetailTicket;
+  late TicketTypes? bookingDetailTicket;
 
   BookingTickets.fromJson(Map<String, dynamic> json) {
     quantity = json['quantity'];
-
-    bookingDetailTicket = json['booking_detail_ticket'] != null
-        ? Tickets.fromJson(json['booking_detail_ticket'])
+    ticketId = json['ticketId'];
+    bookingDetailTicket = json['ticket_type'] != null
+        ? TicketTypes.fromJson(json['ticket_type'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['quantity'] = quantity;
+    data['ticketId'] = ticketId;
     if (bookingDetailTicket != null) {
-      data['booking_detail_ticket'] = {
-        'ticketId': bookingDetailTicket?.ticketId,
-        'ticket_tour': bookingDetailTicket?.ticketTour,
+      data['ticket_type'] = {
+        'ticketTypeId': bookingDetailTicket?.ticketTypeId,
+        'ticketTypeName': bookingDetailTicket?.ticketTypeName,
+        'description': bookingDetailTicket?.description,
+        'price': bookingDetailTicket?.price
       };
     }
 

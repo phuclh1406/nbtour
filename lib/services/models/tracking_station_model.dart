@@ -40,7 +40,6 @@ class TrackingStations {
         'departureDate': tourDetail?.departureDate,
         'duration': tourDetail?.duration,
         'routeId': tourDetail?.tourRoute?.routeId,
-        'departureStationId': tourDetail?.departureStation?.stationId,
         'tourGuideId': tourDetail?.tourGuide?.id,
         'driverId': tourDetail?.driver?.id,
         'busId': tourDetail?.tourBus?.busId,

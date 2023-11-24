@@ -160,7 +160,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               size: kDefaultIconSize * 1.2,
                               color: Colors.white,
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (ctx) =>
+                                          const DriverTourScreen()));
+                            },
                             title: 'Tour History'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
@@ -169,7 +175,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               size: kDefaultIconSize * 1.2,
                               color: Colors.white,
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (ctx) =>
+                                          const DriverTourScreen()));
+                            },
                             title: 'QR Scanner'),
                       ],
                     ),
@@ -190,7 +202,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                   child: Row(
                     children: [
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (ctx) =>
+                                  ScheduleScreen(initDate: DateTime.now())));
+                        },
                         announcementImage: ImageHelper.loadFromAsset(
                             AssetHelper.announcementImage),
                         title: 'International Band Museum312312321312',
@@ -198,7 +214,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         dateOfPublic: '15/09/2023',
                       ),
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (ctx) =>
+                                  ScheduleScreen(initDate: DateTime.now())));
+                        },
                         announcementImage: ImageHelper.loadFromAsset(
                             AssetHelper.announcementImage),
                         title: 'International Band Museum312312321312',
@@ -206,7 +226,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         dateOfPublic: '15/09/2023',
                       ),
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (ctx) =>
+                                  ScheduleScreen(initDate: DateTime.now())));
+                        },
                         announcementImage: ImageHelper.loadFromAsset(
                             AssetHelper.announcementImage),
                         title: 'International Band Museum312312321312',
@@ -231,7 +255,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                   child: Row(
                     children: [
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (ctx) =>
+                                  ScheduleScreen(initDate: DateTime.now())));
+                        },
                         announcementImage:
                             ImageHelper.loadFromAsset(AssetHelper.productImage),
                         title: 'International Band Museum312312321312',
@@ -239,7 +267,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         dateOfPublic: '15/09/2023',
                       ),
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (ctx) =>
+                                  ScheduleScreen(initDate: DateTime.now())));
+                        },
                         announcementImage:
                             ImageHelper.loadFromAsset(AssetHelper.productImage),
                         title: 'International Band Museum312312321312',
@@ -247,7 +279,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         dateOfPublic: '15/09/2023',
                       ),
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (ctx) =>
+                                  ScheduleScreen(initDate: DateTime.now())));
+                        },
                         announcementImage: Container(
                             child: ImageHelper.loadFromAsset(
                                 AssetHelper.productImage)),

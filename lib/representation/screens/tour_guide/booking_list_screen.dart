@@ -74,10 +74,10 @@ class _BookingListScreenState extends State<BookingListScreen> {
       future: TourService.getToursByTourGuideId(userId),
       builder: (BuildContext context, AsyncSnapshot<List<Tour>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
               child: Padding(
-            padding: const EdgeInsets.only(top: kMediumPadding),
-            child: Lottie.asset('assets/animations/loading.json'),
+            padding: EdgeInsets.only(top: kMediumPadding * 6),
+            child: CircularProgressIndicator(color: ColorPalette.primaryColor),
           ));
         } else if (snapshot.hasData) {
           List<Tour>? listScheduledTour = snapshot.data!;
@@ -151,7 +151,12 @@ class _BookingListScreenState extends State<BookingListScreen> {
               ],
             );
           } else {
-            return const Center(child: Text('No schedules found.'));
+            return Padding(
+              padding: const EdgeInsets.only(top: kMediumPadding * 5),
+              child: Center(
+                  child: ImageHelper.loadFromAsset(AssetHelper.noData,
+                      width: 300, fit: BoxFit.fitWidth)),
+            );
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error
@@ -223,10 +228,8 @@ class _BookingListScreenState extends State<BookingListScreen> {
         ],
       ),
       body: SizedBox(
-        child: Expanded(
-          child: SingleChildScrollView(
-            child: loadScheduledTour(),
-          ),
+        child: SingleChildScrollView(
+          child: loadScheduledTour(),
         ),
       ),
     );

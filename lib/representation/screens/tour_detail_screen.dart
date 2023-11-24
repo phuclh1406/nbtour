@@ -47,10 +47,11 @@ class TourDetailScreen extends StatelessWidget {
         future: TourService.getTourByTourId(scheduleTour.tourId!),
         builder: (BuildContext context, AsyncSnapshot<Tour?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
                 child: Padding(
-              padding: const EdgeInsets.only(bottom: kMediumPadding * 6),
-              child: Lottie.asset('assets/animations/loading.json'),
+              padding: EdgeInsets.only(bottom: kMediumPadding * 6),
+              child:
+                  CircularProgressIndicator(color: ColorPalette.primaryColor),
             ));
           } else if (snapshot.hasData) {
             Tour? tour = snapshot.data!;
@@ -146,6 +147,10 @@ class TourDetailScreen extends StatelessWidget {
                                             height: kDefaultIconSize / 4,
                                           ),
                                           RectangleButtonWidget(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2,
                                               title: "View in calendar",
                                               ontap: () {
                                                 Navigator.of(context).push(
@@ -215,9 +220,14 @@ class TourDetailScreen extends StatelessWidget {
                                           const SizedBox(
                                             height: kDefaultIconSize / 4,
                                           ),
-                                          if (tour.departureStation != null)
+                                          if (tour.tourRoute!.routeSegment![0]
+                                                  .segmentDepartureStation !=
+                                              null)
                                             Text(
-                                              tour.departureStation!
+                                              tour
+                                                  .tourRoute!
+                                                  .routeSegment![0]
+                                                  .segmentDepartureStation!
                                                   .description!,
                                               style: TextStyles.defaultStyle,
                                               overflow: TextOverflow.clip,
@@ -380,9 +390,9 @@ class TourDetailScreen extends StatelessWidget {
                                 const SizedBox(height: kDefaultPadding / 2),
                                 Text(tour.description!,
                                     style: const TextStyle(
-                                        fontSize: 16,
-                                        height: 1.5,
-                                        color: ColorPalette.subTitleColor)),
+                                      fontSize: 16,
+                                      height: 1.5,
+                                    )),
                                 const SizedBox(height: kMediumPadding),
                               ],
                             ),
@@ -407,6 +417,8 @@ class TourDetailScreen extends StatelessWidget {
                             width: kMediumPadding / 2,
                           ),
                           RectangleButtonWidget(
+                            width: MediaQuery.of(context).size.width / 2 -
+                                kMediumPadding / 1.7,
                             title: 'View route',
                             ontap: () {
                               Navigator.push(
@@ -428,7 +440,9 @@ class TourDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: kDefaultIconSize / 4),
                           RectangleButtonWidget(
-                            title: 'Reschedule this tour',
+                            width: MediaQuery.of(context).size.width / 2 -
+                                kMediumPadding / 1.7,
+                            title: 'Reschedule tour',
                             ontap: _openAddExpenseOverlay,
                             buttonColor: Colors.white,
                             textStyle: TextStyles.defaultStyle.primaryTextColor,

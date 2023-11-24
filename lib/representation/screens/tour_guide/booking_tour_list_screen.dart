@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nbtour/representation/screens/tour_guide/booking_tour_screen.dart';
 import 'package:nbtour/services/api/tour_service.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
@@ -11,20 +12,19 @@ import 'package:nbtour/services/models/tour_model.dart';
 import 'package:nbtour/representation/screens/tour_detail_screen.dart';
 import 'package:nbtour/representation/widgets/tour_list_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lottie/lottie.dart';
 
 String userId = '';
 String tourId = '';
 
-class DriverTourScreen extends StatefulWidget {
-  const DriverTourScreen({super.key});
+class BookingTourListScreen extends StatefulWidget {
+  const BookingTourListScreen({super.key});
   @override
-  State<DriverTourScreen> createState() => _DriverTourScreenState();
+  State<BookingTourListScreen> createState() => _BookingTourListScreenState();
 }
 
 late Tour scheduleTour;
 
-class _DriverTourScreenState extends State<DriverTourScreen> {
+class _BookingTourListScreenState extends State<BookingTourListScreen> {
   bool isSearching = false;
   bool isLoading = true;
   List<Tour> filteredSchedule = [];
@@ -32,28 +32,6 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
   List<Tour> listTour = [];
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
-  final List<Season> seasonList = [
-    Season(
-        id: 1,
-        seasonTitle: 'Spring',
-        DateTime(DateTime.now().year, 1, 1, 0, 0, 0),
-        DateTime(DateTime.now().year, 4, 1, 0, 0, 0)),
-    Season(
-        id: 2,
-        seasonTitle: 'Summer',
-        DateTime(DateTime.now().year, 4, 1, 0, 0, 0),
-        DateTime(DateTime.now().year, 7, 1, 0, 0, 0)),
-    Season(
-        id: 3,
-        seasonTitle: 'Fall',
-        DateTime(DateTime.now().year, 7, 1, 0, 0, 0),
-        DateTime(DateTime.now().year, 10, 1, 0, 0, 0)),
-    Season(
-        id: 4,
-        seasonTitle: 'Winter',
-        DateTime(DateTime.now().year, 10, 1, 0, 0, 0),
-        DateTime(DateTime.now().year, 1, 1, 0, 0, 0)),
-  ];
 
   @override
   initState() {
@@ -94,7 +72,7 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
   List<Season> selectedCategories = [];
   Widget loadScheduledTour() {
     return FutureBuilder<List<Tour>?>(
-      future: TourService.getToursByDriverId(userId),
+      future: TourService.getAllTours(),
       builder: (BuildContext context, AsyncSnapshot<List<Tour>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -121,51 +99,58 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                   height: kDefaultPadding / 5,
                 ),
                 for (var i = 0; i < filteredSchedule.length; i++)
-                  TourListWidget(
-                    onTap: () {
-                      setState(() {
-                        isSearching = false;
-                        filteredSchedule = listScheduledTour;
-                      });
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (ctx) => TourDetailScreen(
-                                    scheduleTour: filteredSchedule[i],
-                                  )));
-                    },
+                  filteredSchedule[i].status == "Active" &&
+                          filteredSchedule[i].tourStatus == "Available"
+                      ? TourListWidget(
+                          onTap: () {
+                            setState(() {
+                              isSearching = false;
+                              filteredSchedule = listScheduledTour;
+                            });
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (ctx) => BookingTourScreen(
+                                          tour: filteredSchedule[i],
+                                        )));
+                          },
 
-                    announcementImage: filteredSchedule[i].tourImage!.isNotEmpty
-                        ? Image.network(
-                            filteredSchedule[i].tourImage![0].image!,
-                            loadingBuilder: (context, child, loadingProgress) =>
-                                (loadingProgress == null)
-                                    ? child
-                                    : const Text(''),
-                            errorBuilder: (context, error, stackTrace) =>
-                                ImageHelper.loadFromAsset(
-                                    AssetHelper.announcementImage,
-                                    width: kMediumPadding * 3,
-                                    height: kMediumPadding * 5),
-                            width: kMediumPadding * 3,
-                            height: kMediumPadding * 5)
-                        : ImageHelper.loadFromAsset(
-                            AssetHelper.announcementImage,
-                            width: kMediumPadding * 3,
-                            height: kMediumPadding * 5),
+                          announcementImage: filteredSchedule[i]
+                                  .tourImage!
+                                  .isNotEmpty
+                              ? Image.network(
+                                  filteredSchedule[i].tourImage![0].image!,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) =>
+                                          (loadingProgress == null)
+                                              ? child
+                                              : const Text(''),
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      ImageHelper.loadFromAsset(
+                                          AssetHelper.announcementImage,
+                                          width: kMediumPadding * 3,
+                                          height: kMediumPadding * 5),
+                                  width: kMediumPadding * 3,
+                                  height: kMediumPadding * 5)
+                              : ImageHelper.loadFromAsset(
+                                  AssetHelper.announcementImage,
+                                  width: kMediumPadding * 3,
+                                  height: kMediumPadding * 5),
 
-                    // announcementImage: Image.network(),
-                    title: filteredSchedule[i].tourName!,
-                    departureDate: filteredSchedule[i].departureDate != null
-                        ? filteredSchedule[i].departureDate!
-                        : "",
-                    startTime: filteredSchedule[i].departureDate != null
-                        ? filteredSchedule[i].departureDate!
-                        : "",
-                    endTime: filteredSchedule[i].endDate != null
-                        ? filteredSchedule[i].endDate!
-                        : "",
-                  ),
+                          // announcementImage: Image.network(),
+                          title: filteredSchedule[i].tourName!,
+                          departureDate:
+                              filteredSchedule[i].departureDate != null
+                                  ? filteredSchedule[i].departureDate!
+                                  : "",
+                          startTime: filteredSchedule[i].departureDate != null
+                              ? filteredSchedule[i].departureDate!
+                              : "",
+                          endTime: filteredSchedule[i].endDate != null
+                              ? filteredSchedule[i].endDate!
+                              : "",
+                        )
+                      : const SizedBox.shrink(),
                 const SizedBox(
                   height: kDefaultPadding / 2,
                 ),
@@ -194,6 +179,7 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         scrolledUnderElevation: 0,
         title: isSearching
             ? TextField(
@@ -216,7 +202,7 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                 ),
               )
             : Text(
-                'Tour Screen',
+                'Booking Screen',
                 style: TextStyles.defaultStyle.bold.fontHeader,
               ),
         actions: <Widget>[

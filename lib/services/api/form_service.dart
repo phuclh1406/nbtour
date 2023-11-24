@@ -23,7 +23,10 @@ class RescheduleServices {
         'desireTour': desireTour,
         'changeEmployee': changeEmployee,
       });
+
       var response = await client.post(url, headers: headers, body: body);
+      print(response.statusCode);
+      print(response.body);
       if (response.statusCode == 200) {
         return "Send form success";
       } else {
@@ -52,9 +55,6 @@ class RescheduleServices {
       });
 
       var response = await client.put(url, headers: headers, body: body);
-      print(response.body);
-      print(response.statusCode);
-
       if (response.statusCode == 200) {
         return "Update request success";
       } else {
@@ -70,6 +70,30 @@ class RescheduleServices {
       List<RescheduleForm> listForm = [];
       var url = Uri.parse(
           'https://${Config.apiURL}${Config.form}?changeEmployee=$userId');
+      String token = sharedPreferences.getString('accesstoken')!;
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+
+      final response = await client.get(url, headers: headers);
+      final responseData = json.decode(response.body);
+      if (response.statusCode == 200) {
+        listForm = rescheduleFormsFromJson(responseData['forms']);
+        return listForm;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<List<RescheduleForm>?>? getSentForm(String? userId) async {
+    try {
+      List<RescheduleForm> listForm = [];
+      var url =
+          Uri.parse('https://${Config.apiURL}${Config.form}?userId=$userId');
       String token = sharedPreferences.getString('accesstoken')!;
       final headers = {
         'Content-Type': 'application/json',

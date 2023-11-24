@@ -57,7 +57,6 @@ class Tickets {
         'endBookingDate': ticketTour?.endBookingDate,
         'departureDate': ticketTour?.departureDate,
         'routeId': ticketTour?.tourRoute?.routeId,
-        'departureStationId': ticketTour?.departureStation?.stationName,
         'tourStatus': ticketTour?.tourStatus,
         'status': ticketTour?.status,
       };

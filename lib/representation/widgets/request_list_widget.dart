@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
+import 'package:intl/intl.dart';
 
 class RequestListWidget extends StatelessWidget {
   const RequestListWidget({
@@ -10,6 +11,8 @@ class RequestListWidget extends StatelessWidget {
     required this.name,
     required this.email,
     required this.tour,
+    required this.date,
+    required this.status,
   }) : super(key: key);
 
   final void Function() onTap;
@@ -17,6 +20,8 @@ class RequestListWidget extends StatelessWidget {
   final String name;
   final String email;
   final String tour;
+  final String date;
+  final String status;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +35,7 @@ class RequestListWidget extends StatelessWidget {
             alignment: Alignment.center,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
-              width: size.width - kMediumPadding,
+              width: size.width - kMediumPadding / 2,
               margin: const EdgeInsets.symmetric(
                   horizontal: kDefaultPadding / 2,
                   vertical: kDefaultPadding / 4),
@@ -83,10 +88,12 @@ class RequestListWidget extends StatelessWidget {
                                     color: ColorPalette.primaryColor,
                                   ),
                                   const SizedBox(width: kDefaultIconSize / 2),
-                                  Text(
-                                    name,
-                                    style: const TextStyle(
-                                      fontSize: 15,
+                                  Flexible(
+                                    child: Text(
+                                      name,
+                                      style: const TextStyle(
+                                          fontSize: 15,
+                                          overflow: TextOverflow.ellipsis),
                                     ),
                                   ),
                                 ],
@@ -98,7 +105,7 @@ class RequestListWidget extends StatelessWidget {
                                 ),
                               ),
                         const SizedBox(
-                          height: kDefaultPadding / 2,
+                          height: kDefaultPadding,
                         ),
                         Row(
                           children: [
@@ -121,6 +128,136 @@ class RequestListWidget extends StatelessWidget {
                             ),
                             const SizedBox(
                               width: kDefaultIconSize / 2,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            date != ""
+                                ? Row(
+                                    children: [
+                                      const Icon(Icons.calendar_month_outlined,
+                                          size: kDefaultIconSize,
+                                          color: ColorPalette.primaryColor),
+                                      const SizedBox(
+                                          width: kDefaultIconSize / 2),
+                                      Text(
+                                        DateFormat.yMMMd()
+                                            .format(DateTime.parse(date)),
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : const Text(
+                                    'Not defined',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: ColorPalette.primaryColor,
+                                    ),
+                                  ),
+                            const SizedBox(
+                              width: kDefaultPadding,
+                            ),
+                            if (status == "Pending")
+                              Container(
+                                  margin: const EdgeInsets.only(
+                                      top: 10, bottom: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: kDefaultPadding,
+                                      vertical: kDefaultPadding / 2),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: const Color.fromARGB(
+                                          22, 158, 158, 158)),
+                                  child: Text(
+                                    status,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700),
+                                  )),
+                            if (status == "Approved")
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: kDefaultPadding,
+                                    vertical: kDefaultPadding / 2),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color:
+                                        const Color.fromARGB(24, 76, 175, 79)),
+                                child: Text(
+                                  status,
+                                  style: const TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            if (status == "Accepted")
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: kDefaultPadding,
+                                    vertical: kDefaultPadding / 2),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color:
+                                        const Color.fromARGB(19, 255, 235, 59)),
+                                child: Text(
+                                  status,
+                                  style: const TextStyle(
+                                      color: Colors.yellow,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            if (status == "Rejected")
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: kDefaultPadding,
+                                    vertical: kDefaultPadding / 2),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color:
+                                        const Color.fromARGB(24, 244, 67, 54)),
+                                child: Text(
+                                  status,
+                                  style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            if (status != "Pending" &&
+                                status != "Approved" &&
+                                status != "Rejected" &&
+                                status != "Accepted")
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: kDefaultPadding,
+                                    vertical: kDefaultPadding / 2),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color:
+                                        const Color.fromARGB(19, 72, 59, 255)),
+                                child: const Text(
+                                  "Not defined",
+                                  style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            const SizedBox(
+                              height: kDefaultIconSize / 2,
                             ),
                           ],
                         ),

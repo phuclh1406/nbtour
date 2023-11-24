@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nbtour/representation/screens/notification_list_screen.dart';
+import 'package:nbtour/representation/screens/sent_request.dart';
+import 'package:nbtour/representation/screens/send_report_screen.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
 import 'package:nbtour/utils/helper/asset_helper.dart';
@@ -11,7 +14,6 @@ import 'package:nbtour/representation/screens/tour_guide/tour_screen.dart';
 import 'package:nbtour/representation/widgets/action_category_widget.dart';
 import 'package:nbtour/representation/widgets/announcement_widget.dart';
 import 'package:nbtour/representation/widgets/main_drawer.dart';
-import 'package:nbtour/representation/widgets/search_field_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TourGuideHomeScreen extends StatefulWidget {
@@ -51,7 +53,19 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
         avatar = fetchUserAvatar;
       });
     }
-    ;
+  }
+
+  void openAddExpenseOverlay() {
+    showModalBottomSheet(
+      showDragHandle: true,
+      elevation: 0,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      context: context,
+      builder: (ctx) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: const SendReportScreen()),
+    );
   }
 
   @override
@@ -77,7 +91,10 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
               iconTheme: const IconThemeData(color: Colors.white),
               actions: <Widget>[
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (ctx) => const NotificationListScreen()));
+                  },
                   icon: const Icon(
                     Icons.notifications,
                     color: Colors.white,
@@ -136,7 +153,23 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                                     builder: (context) => const RequestScreen(),
                                   ));
                             },
-                            title: 'Your Request'),
+                            title: 'Income Request'),
+                        const SizedBox(width: kItemPadding / 1.5),
+                        ActionCategoryWidget(
+                            icon: const Icon(
+                              Icons.send_outlined,
+                              size: kDefaultIconSize * 1.2,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SentRequestScreen(),
+                                  ));
+                            },
+                            title: 'Sent Request'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
                             icon: const Icon(
@@ -155,20 +188,17 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
                             icon: const Icon(
-                              Icons.history_outlined,
-                              size: kDefaultIconSize * 1.2,
-                              color: Colors.white,
-                            ),
-                            onTap: () {},
-                            title: 'Tour History'),
-                        const SizedBox(width: kItemPadding / 1.5),
-                        ActionCategoryWidget(
-                            icon: const Icon(
                               Icons.qr_code_scanner,
                               size: kDefaultIconSize * 1.2,
                               color: Colors.white,
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const RequestScreen(),
+                                  ));
+                            },
                             title: 'QR Scanner'),
                       ],
                     ),
@@ -189,7 +219,13 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                   child: Row(
                     children: [
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RequestScreen(),
+                              ));
+                        },
                         announcementImage: ImageHelper.loadFromAsset(
                             AssetHelper.announcementImage),
                         title: 'International Band Museum312312321312',
@@ -197,7 +233,13 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                         dateOfPublic: '15/09/2023',
                       ),
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RequestScreen(),
+                              ));
+                        },
                         announcementImage: ImageHelper.loadFromAsset(
                             AssetHelper.announcementImage),
                         title: 'International Band Museum312312321312',
@@ -205,7 +247,13 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                         dateOfPublic: '15/09/2023',
                       ),
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RequestScreen(),
+                              ));
+                        },
                         announcementImage: ImageHelper.loadFromAsset(
                             AssetHelper.announcementImage),
                         title: 'International Band Museum312312321312',
@@ -230,7 +278,13 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                   child: Row(
                     children: [
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RequestScreen(),
+                              ));
+                        },
                         announcementImage:
                             ImageHelper.loadFromAsset(AssetHelper.productImage),
                         title: 'International Band Museum312312321312',
@@ -238,7 +292,13 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                         dateOfPublic: '15/09/2023',
                       ),
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RequestScreen(),
+                              ));
+                        },
                         announcementImage:
                             ImageHelper.loadFromAsset(AssetHelper.productImage),
                         title: 'International Band Museum312312321312',
@@ -246,7 +306,13 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                         dateOfPublic: '15/09/2023',
                       ),
                       AnnouncementWidget(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RequestScreen(),
+                              ));
+                        },
                         announcementImage: Container(
                             child: ImageHelper.loadFromAsset(
                                 AssetHelper.productImage)),
