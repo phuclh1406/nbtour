@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:nbtour/services/api/booking_service.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRScanner extends StatefulWidget {
@@ -12,14 +13,13 @@ class QRScanner extends StatefulWidget {
 
 class _QRScannerState extends State<QRScanner> {
   late Size size;
-
   final GlobalKey _qrKey = GlobalKey(debugLabel: "QR");
 
   QRViewController? _controller;
   Barcode? result;
-
   bool _isBuild = false;
   bool _isDialogOpen = false;
+  String notiMsg = "";
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
@@ -99,12 +99,12 @@ class _QRScannerState extends State<QRScanner> {
     );
   }
 
-  void _onQRViewCreated(QRViewController _qrController) {
+  void _onQRViewCreated(QRViewController qrController) {
     setState(() {
-      this._controller = _qrController;
+      _controller = qrController;
     });
 
-    _controller?.scannedDataStream.listen((event) {
+    _controller?.scannedDataStream.listen((event) async {
       setState(() {
         result = event;
         _controller?.pauseCamera();
@@ -112,7 +112,24 @@ class _QRScannerState extends State<QRScanner> {
       if (result?.code != null) {
         print("QR code Scanned and showing Result");
         if (!_isDialogOpen) {
-          _isDialogOpen = true; // Set the flag to true
+          _isDialogOpen = true;
+
+          // Call the API with the scanned data
+
+          String msg = await BookingServices.checkInCustomer(result!.code!);
+          if (msg == "Check-in success") {
+            setState(() {
+              notiMsg = "Take attendance successfully";
+            });
+          } else if (msg == "Check-in fail") {
+            setState(() {
+              notiMsg = "An error occured";
+            });
+          } else {
+            setState(() {
+              notiMsg = msg;
+            });
+          }
           _showResult();
         }
       }
@@ -120,8 +137,8 @@ class _QRScannerState extends State<QRScanner> {
   }
 
   void onPermissionSet(
-      BuildContext context, QRViewController _ctrl, bool _permission) {
-    if (!_permission) {
+      BuildContext context, QRViewController ctrl, bool permission) {
+    if (!permission) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('No permission')));
     }
@@ -133,18 +150,6 @@ class _QRScannerState extends State<QRScanner> {
         future: showDialog(
           context: context,
           builder: (BuildContext context) {
-            String jsonData = "";
-
-            String errorMessage = "";
-
-            try {
-              final String decodedData = result!.code!;
-
-              jsonData = decodedData;
-            } catch (e) {
-              errorMessage = "This QR code is not available";
-            }
-
             return WillPopScope(
               child: AlertDialog(
                 title: Row(
@@ -170,21 +175,7 @@ class _QRScannerState extends State<QRScanner> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        if (jsonData != "")
-                          Column(children: [
-                            Text(jsonData),
-                          ])
-                        else
-                          Text(
-                            errorMessage.isNotEmpty
-                                ? errorMessage
-                                : result!.code.toString(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  errorMessage.isNotEmpty ? Colors.red : null,
-                            ),
-                          ),
+                        Text(notiMsg),
                       ],
                     ),
                   ),

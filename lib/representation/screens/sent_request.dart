@@ -14,13 +14,13 @@ import 'package:nbtour/services/models/season_model.dart';
 import 'package:nbtour/services/models/tour_model.dart';
 import 'package:nbtour/representation/widgets/request_list_widget.dart';
 
-class RequestScreen extends StatefulWidget {
-  const RequestScreen({super.key});
+class SentRequestScreen extends StatefulWidget {
+  const SentRequestScreen({super.key});
   @override
-  State<RequestScreen> createState() => _RequestScreenState();
+  State<SentRequestScreen> createState() => _SentRequestScreenState();
 }
 
-class _RequestScreenState extends State<RequestScreen>
+class _SentRequestScreenState extends State<SentRequestScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<RescheduleForm> allForms = [];
@@ -88,7 +88,7 @@ class _RequestScreenState extends State<RequestScreen>
   // Store the filtered tours
   Widget loadScheduledTour() {
     return FutureBuilder<List<RescheduleForm>?>(
-      future: RescheduleServices.getFormList(userId),
+      future: RescheduleServices.getSentForm(userId),
       builder: (BuildContext context,
           AsyncSnapshot<List<RescheduleForm>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -185,100 +185,40 @@ class _RequestScreenState extends State<RequestScreen>
                 for (var i = 0; i < filteredSchedule.length; i++)
                   Column(
                     children: [
-                      filteredSchedule[i].status == "Pending"
-                          ? Slidable(
-                              endActionPane: ActionPane(
-                                motion: const StretchMotion(),
-                                children: [
-                                  SlidableAction(
-                                      onPressed: (context) => _onCheckIn(
-                                          filteredSchedule[i].formId!,
-                                          "Accepted"),
-                                      backgroundColor: Colors.green,
-                                      icon: FontAwesomeIcons.check,
-                                      label: 'Accept'),
-                                  SlidableAction(
-                                      onPressed: (context) => _onRemove(
-                                          filteredSchedule[i].formId!,
-                                          "Rejected"),
-                                      backgroundColor: Colors.red,
-                                      icon: FontAwesomeIcons.trash,
-                                      label: 'Reject')
-                                ],
-                              ),
-                              child: RequestListWidget(
-                                onTap: () {
-                                  // setState(() {
-                                  //   isSearching = false;
-                                  //   filteredSchedule = listScheduledTour;
-                                  // });
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (ctx) => TourGuideTourDetailScreen(
-                                  //               scheduleTour: filteredSchedule[i],
-                                  //             )));
-                                },
+                      RequestListWidget(
+                        onTap: () {
+                          // setState(() {
+                          //   isSearching = false;
+                          //   filteredSchedule = listScheduledTour;
+                          // });
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (ctx) => TourGuideTourDetailScreen(
+                          //               scheduleTour: filteredSchedule[i],
+                          //             )));
+                        },
 
-                                announcementImage: ImageHelper.loadFromAsset(
-                                    AssetHelper.request,
-                                    width: kMediumPadding * 3,
-                                    height: kMediumPadding * 5),
+                        announcementImage: ImageHelper.loadFromAsset(
+                            AssetHelper.request,
+                            width: kMediumPadding * 3,
+                            height: kMediumPadding * 5),
 
-                                // announcementImage: Image.network(),
-                                email: filteredSchedule[i].formUser!.email!,
-                                tour: filteredSchedule[i]
-                                            .currentTour!
-                                            .tourName !=
-                                        null
-                                    ? filteredSchedule[i].currentTour!.tourName!
-                                    : "",
-                                name: filteredSchedule[i].formUser!.name != null
-                                    ? filteredSchedule[i].formUser!.name!
-                                    : "",
-                                status: filteredSchedule[i].status != null
-                                    ? filteredSchedule[i].status!
-                                    : "",
-                                date: filteredSchedule[i].createdAt != null
-                                    ? filteredSchedule[i].createdAt!
-                                    : "",
-                              ),
-                            )
-                          : RequestListWidget(
-                              onTap: () {
-                                // setState(() {
-                                //   isSearching = false;
-                                //   filteredSchedule = listScheduledTour;
-                                // });
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (ctx) => TourGuideTourDetailScreen(
-                                //               scheduleTour: filteredSchedule[i],
-                                //             )));
-                              },
-
-                              announcementImage: ImageHelper.loadFromAsset(
-                                  AssetHelper.request,
-                                  width: kMediumPadding * 3,
-                                  height: kMediumPadding * 5),
-
-                              // announcementImage: Image.network(),
-                              email: filteredSchedule[i].formUser!.email!,
-                              tour: filteredSchedule[i].currentTour!.tourName !=
-                                      null
-                                  ? filteredSchedule[i].currentTour!.tourName!
-                                  : "",
-                              name: filteredSchedule[i].formUser!.name != null
-                                  ? filteredSchedule[i].formUser!.name!
-                                  : "",
-                              status: filteredSchedule[i].status != null
-                                  ? filteredSchedule[i].status!
-                                  : "",
-                              date: filteredSchedule[i].createdAt != null
-                                  ? filteredSchedule[i].createdAt!
-                                  : "",
-                            ),
+                        // announcementImage: Image.network(),
+                        email: filteredSchedule[i].formUser!.email!,
+                        tour: filteredSchedule[i].currentTour!.tourName != null
+                            ? filteredSchedule[i].currentTour!.tourName!
+                            : "",
+                        name: filteredSchedule[i].formUser!.name != null
+                            ? filteredSchedule[i].formUser!.name!
+                            : "",
+                        status: filteredSchedule[i].status != null
+                            ? filteredSchedule[i].status!
+                            : "",
+                        date: filteredSchedule[i].createdAt != null
+                            ? filteredSchedule[i].createdAt!
+                            : "",
+                      ),
                     ],
                   ),
                 const SizedBox(
@@ -364,7 +304,7 @@ class _RequestScreenState extends State<RequestScreen>
                   ),
                 )
               : Text(
-                  'Request list',
+                  'My applications',
                   style: TextStyles.defaultStyle.bold.fontHeader,
                 ),
           actions: <Widget>[

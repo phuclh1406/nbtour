@@ -5,6 +5,7 @@ import 'package:nbtour/utils/constant/dimension.dart';
 class RectangleButtonWidget extends StatelessWidget {
   const RectangleButtonWidget(
       {super.key,
+      required this.width,
       required this.title,
       required this.ontap,
       required this.buttonColor,
@@ -13,6 +14,7 @@ class RectangleButtonWidget extends StatelessWidget {
       required this.borderColor,
       required this.icon});
 
+  final double width;
   final String title;
   final void Function() ontap;
   final Color buttonColor;
@@ -28,8 +30,8 @@ class RectangleButtonWidget extends StatelessWidget {
       splashColor: Colors.transparent,
       onTap: ontap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            vertical: kDefaultPadding / 2, horizontal: kDefaultPadding / 3.5),
+        width: width,
+        padding: const EdgeInsets.symmetric(vertical: kDefaultPadding / 2),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: buttonColor,
@@ -38,6 +40,7 @@ class RectangleButtonWidget extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: kMediumPadding / 2),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (isIcon) icon,
               const SizedBox(width: kDefaultIconSize / 2),

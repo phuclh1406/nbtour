@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nbtour/services/models/booking_model.dart';
+import 'package:nbtour/services/models/booking_ticket_model.dart';
 import 'package:nbtour/services/models/bus_model.dart';
 import 'package:nbtour/services/models/image_model.dart';
 import 'package:nbtour/services/models/route_model.dart';
@@ -24,7 +26,6 @@ class Tour {
     required this.createdAt,
     required this.updatedAt,
     required this.tourImage,
-    required this.departureStation,
     required this.tourRoute,
     required this.tourTicket,
     required this.tourGuide,
@@ -42,11 +43,10 @@ class Tour {
   late String? createdAt;
   late String? updatedAt;
   late List<ImageModel>? tourImage;
-  late Stations? departureStation;
   late Buses? tourBus;
   late String? duration;
   late Routes? tourRoute;
-  late List<Tickets>? tourTicket;
+  late List<BookingTickets>? tourTicket;
   late UserModel? tourGuide;
   late UserModel? driver;
 
@@ -72,9 +72,7 @@ class Tour {
     } else {
       tourImage = [];
     }
-    departureStation = json['departure_station'] != null
-        ? Stations.fromJson(json['departure_station'])
-        : null;
+
     tourGuide = json['tour_tourguide'] != null
         ? UserModel.fromJson(json['tour_tourguide'])
         : null;
@@ -86,8 +84,8 @@ class Tour {
     tourRoute =
         json['tour_route'] != null ? Routes.fromJson(json['tour_route']) : null;
     if (json['tour_ticket'] != null && json['tour_ticket'] is List) {
-      tourTicket = List<Tickets>.from(
-        json['tour_ticket'].map((x) => Tickets.fromJson(x)),
+      tourTicket = List<BookingTickets>.from(
+        json['tour_ticket'].map((x) => BookingTickets.fromJson(x)),
       );
     } else {
       tourTicket = [];
@@ -112,16 +110,7 @@ class Tour {
     if (tourImage != null) {
       data['tour_image'] = tourImage?.map((x) => x.toJson()).toList();
     }
-    if (departureStation != null) {
-      data['departure_station'] = {
-        'stationId': departureStation?.stationId,
-        'stationName': departureStation?.stationName,
-        'description': departureStation?.description,
-        'address': departureStation?.address,
-        'latitude': departureStation?.latitude,
-        'longitude': departureStation?.longitude,
-      };
-    }
+
     if (tourBus != null) {
       data['departure_station'] = {
         'busId': tourBus?.busId,
@@ -167,8 +156,13 @@ class Tour {
         'accessChangePassword': driver?.accessChangePassword,
       };
     }
-    if (tourTicket != null) {
-      data['tour_ticket'] = tourTicket!.map((x) => x.toJson()).toList();
+    if (tourTicket != null && tourTicket!.isNotEmpty) {
+      data['tour_ticket'] = tourTicket!.map((ticket) {
+        return {
+          'ticketId': ticket.ticketId,
+          'ticket_type': ticket.bookingDetailTicket,
+        };
+      }).toList();
     }
     return data;
   }

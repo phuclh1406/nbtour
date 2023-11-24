@@ -42,11 +42,14 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
   List<Tour> listTour = [];
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
-
+  Stream<List<Booking>?>? bookingStream;
   @override
   initState() {
     super.initState();
     fetchUserId();
+    bookingStream = Stream.periodic(const Duration(seconds: 10), (_) {
+      return fetchBooking();
+    }).asyncMap((_) => fetchBooking());
   }
 
   Future<void> fetchUserId() async {
@@ -56,6 +59,18 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
       setState(() {
         userId = fetchUserId;
       });
+    }
+  }
+
+  Future<List<Booking>?> fetchBooking() async {
+    try {
+      final updatedBookingList =
+          await BookingServices.getUserList(widget.tourId!);
+
+      return updatedBookingList;
+    } catch (e) {
+      // Handle error as needed
+      return null;
     }
   }
 
@@ -75,8 +90,8 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
     });
   }
 
-  void _onCheckIn(i, id, isAttended) async {
-    await BookingServices.checkInCustomer(id, isAttended);
+  void _onCheckIn(i, id) async {
+    await BookingServices.checkInCustomer(id);
 
     // Update the local state after a successful API call
     setState(() {
@@ -84,14 +99,14 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
     });
   }
 
-  void _onRemoveCheckIn(i, id, isAttended) async {
-    await BookingServices.checkInCustomer(id, isAttended);
+  // void _onRemoveCheckIn(i, id, isAttended) async {
+  //   await BookingServices.checkInCustomer(id);
 
-    // Update the local state after a successful API call
-    setState(() {
-      filteredSchedule[i].isAttended = false;
-    });
-  }
+  //   // Update the local state after a successful API call
+  //   setState(() {
+  //     filteredSchedule[i].isAttended = false;
+  //   });
+  // }
 
   bool isDateInSeason({
     required DateTime date,
@@ -111,14 +126,14 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
   }
 
   Widget loadScheduledTour() {
-    return FutureBuilder<List<Booking>?>(
-      future: BookingServices.getUserList(widget.tourId!),
+    return StreamBuilder<List<Booking>?>(
+      stream: bookingStream,
       builder: (BuildContext context, AsyncSnapshot<List<Booking>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
               child: Padding(
-            padding: const EdgeInsets.only(top: kMediumPadding),
-            child: Lottie.asset('assets/animations/loading.json'),
+            padding: EdgeInsets.only(top: kMediumPadding * 6),
+            child: CircularProgressIndicator(color: ColorPalette.primaryColor),
           ));
         } else if (snapshot.hasData) {
           listScheduledTour = snapshot.data!;
@@ -128,11 +143,11 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
                   .toLowerCase()
                   .contains(_searchValue.toLowerCase()))
               .toList();
-
           filteredSchedule;
           if (!isSearching) {
             filteredSchedule = listScheduledTour;
           }
+
           if (filteredSchedule.isNotEmpty) {
             sortBookingsByAttendance(filteredSchedule);
             return Column(
@@ -141,103 +156,109 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
                   height: kDefaultPadding / 5,
                 ),
                 for (var i = 0; i < filteredSchedule.length; i++)
-                  StatefulBuilder(builder: (context, setState) {
-                    return Slidable(
-                      endActionPane: filteredSchedule[i].isAttended == false
-                          ? ActionPane(
-                              motion: const StretchMotion(),
-                              children: [
-                                SlidableAction(
-                                    onPressed: (context) => _onCheckIn(i,
-                                        filteredSchedule[i].bookingId!, true),
-                                    backgroundColor: Colors.green,
-                                    icon: FontAwesomeIcons.check,
-                                    label: 'Check-in')
-                              ],
-                            )
-                          : ActionPane(
-                              motion: const StretchMotion(),
-                              children: [
-                                SlidableAction(
-                                    onPressed: (context) => _onRemoveCheckIn(i,
-                                        filteredSchedule[i].bookingId!, false),
-                                    backgroundColor: Colors.red,
-                                    icon: FontAwesomeIcons.solidTrashCan,
-                                    label: 'Remove check')
-                              ],
-                            ),
-                      child: UserListWidget(
-                        onTap: () {
-                          // setState(() {
-                          //   isSearching = false;
-                          //   filteredSchedule = listScheduledTour;
-                          // });
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (ctx) => TourGuideTourDetailScreen(
-                          //               scheduleTour: filteredSchedule[i],
-                          //             )));
-                        },
+                  filteredSchedule[i].isAttended != true
+                      ? Slidable(
+                          endActionPane: ActionPane(
+                            motion: const StretchMotion(),
+                            children: [
+                              SlidableAction(
+                                  onPressed: (context) => _onCheckIn(
+                                      i, filteredSchedule[i].bookingId!),
+                                  backgroundColor: Colors.green,
+                                  icon: FontAwesomeIcons.check,
+                                  label: 'Check-in')
+                            ],
+                          ),
+                          child: UserListWidget(
+                            onTap: () {
+                              // setState(() {
+                              //   isSearching = false;
+                              //   filteredSchedule = listScheduledTour;
+                              // });
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (ctx) => TourGuideTourDetailScreen(
+                              //               scheduleTour: filteredSchedule[i],
+                              //             )));
+                            },
 
-                        // announcementImage: filteredSchedule[i]
-                        //         .bookingDetail!
-                        //         .bookingUser!
-                        //         .avatar!
-                        //         .isNotEmpty
-                        //     ? Image.network(
-                        //         filteredSchedule[i]
-                        //             .bookingDetail!
-                        //             .bookingUser!
-                        //             .avatar!,
-                        //         loadingBuilder: (context, child, loadingProgress) =>
-                        //             (loadingProgress == null)
-                        //                 ? child
-                        //                 : const Text(''),
-                        //         errorBuilder: (context, error, stackTrace) =>
-                        //             ImageHelper.loadFromAsset(
-                        //                 AssetHelper.announcementImage,
-                        //                 width: kMediumPadding * 3,
-                        //                 height: kMediumPadding * 5),
-                        //         width: kMediumPadding * 3,
-                        //         height: kMediumPadding * 5)
-                        //     : ImageHelper.loadFromAsset(
-                        //         AssetHelper.announcementImage,
-                        //         width: kMediumPadding * 3,
-                        //         height: kMediumPadding * 5),
-                        color: filteredSchedule[i].isAttended == true
-                            ? const Color.fromARGB(113, 38, 207, 44)
-                            : const Color.fromARGB(255, 255, 255, 255),
-                        announcementImage: ImageHelper.loadFromAsset(
-                            AssetHelper.user,
-                            width: kMediumPadding * 3,
-                            height: kMediumPadding * 5),
-                        // announcementImage: Image.network(),
-                        title: filteredSchedule[i].bookingUser!.name!,
-                        departureStation: filteredSchedule[i]
+                            color: filteredSchedule[i].isAttended == true
+                                ? const Color.fromARGB(113, 38, 207, 44)
+                                : const Color.fromARGB(255, 255, 255, 255),
+                            announcementImage: ImageHelper.loadFromAsset(
+                                AssetHelper.user,
+                                width: kMediumPadding * 3,
+                                height: kMediumPadding * 5),
+                            // announcementImage: Image.network(),
+                            title: filteredSchedule[i].bookingUser!.name!,
+                            departureStation: filteredSchedule[i]
+                                        .bookingDepartureStation!
+                                        .stationName !=
+                                    null
+                                ? filteredSchedule[i]
                                     .bookingDepartureStation!
-                                    .stationName !=
-                                null
-                            ? filteredSchedule[i]
-                                .bookingDepartureStation!
-                                .stationName!
-                            : "",
-                        email: filteredSchedule[i].bookingUser!.email != null
-                            ? filteredSchedule[i].bookingUser!.email!
-                            : "",
-                        code: filteredSchedule[i].bookingCode != null
-                            ? filteredSchedule[i].bookingCode!
-                            : "",
-                      ),
-                    );
-                  }),
+                                    .stationName!
+                                : "",
+                            email:
+                                filteredSchedule[i].bookingUser!.email != null
+                                    ? filteredSchedule[i].bookingUser!.email!
+                                    : "",
+                            code: filteredSchedule[i].bookingCode != null
+                                ? filteredSchedule[i].bookingCode!
+                                : "",
+                          ),
+                        )
+                      : UserListWidget(
+                          onTap: () {
+                            // setState(() {
+                            //   isSearching = false;
+                            //   filteredSchedule = listScheduledTour;
+                            // });
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (ctx) => TourGuideTourDetailScreen(
+                            //               scheduleTour: filteredSchedule[i],
+                            //             )));
+                          },
+
+                          color: filteredSchedule[i].isAttended == true
+                              ? const Color.fromARGB(113, 38, 207, 44)
+                              : const Color.fromARGB(255, 255, 255, 255),
+                          announcementImage: ImageHelper.loadFromAsset(
+                              AssetHelper.user,
+                              width: kMediumPadding * 3,
+                              height: kMediumPadding * 5),
+                          // announcementImage: Image.network(),
+                          title: filteredSchedule[i].bookingUser!.name!,
+                          departureStation: filteredSchedule[i]
+                                      .bookingDepartureStation!
+                                      .stationName !=
+                                  null
+                              ? filteredSchedule[i]
+                                  .bookingDepartureStation!
+                                  .stationName!
+                              : "",
+                          email: filteredSchedule[i].bookingUser!.email != null
+                              ? filteredSchedule[i].bookingUser!.email!
+                              : "",
+                          code: filteredSchedule[i].bookingCode != null
+                              ? filteredSchedule[i].bookingCode!
+                              : "",
+                        ),
                 const SizedBox(
                   height: kDefaultPadding / 2,
                 ),
               ],
             );
           } else {
-            return const Center(child: Text('No schedules found.'));
+            return Padding(
+              padding: const EdgeInsets.only(top: kMediumPadding * 5),
+              child: Center(
+                  child: ImageHelper.loadFromAsset(AssetHelper.noData,
+                      width: 300, fit: BoxFit.fitWidth)),
+            );
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error
@@ -318,10 +339,8 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
         ],
       ),
       body: SizedBox(
-        child: Expanded(
-          child: SingleChildScrollView(
-            child: loadScheduledTour(),
-          ),
+        child: SingleChildScrollView(
+          child: loadScheduledTour(),
         ),
       ),
     );

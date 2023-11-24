@@ -8,6 +8,8 @@ import 'package:nbtour/main.dart';
 import 'package:nbtour/services/models/tour_model.dart';
 
 import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class RescheduleScreen extends StatefulWidget {
   const RescheduleScreen({super.key, required this.tour});
@@ -39,7 +41,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
   void initState() {
     super.initState();
     rescheduleTour = null;
-    if (sharedPreferences.getString("roleName") == "Tour Guide") {
+    if (sharedPreferences.getString("role_name") == "TourGuide") {
       fetchTourOfUser(widget.tour.tourGuide!.id!);
     } else {
       fetchTourOfUser(widget.tour.driver!.id!);
@@ -49,12 +51,13 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
   }
 
   Future<List<Tour>?> fetchTourOfUser(String userId) async {
-    if (sharedPreferences.getString("roleName") == "Tour Guide") {
+    if (sharedPreferences.getString("role_name") == "TourGuide") {
       thisUserTours = await TourService.getToursByTourGuideId(userId);
     } else {
       thisUserTours = await TourService.getToursByDriverId(userId);
     }
     if (thisUserTours!.isNotEmpty) {
+      print('${thisUserTours!.length}');
       return thisUserTours;
     } else {
       return [];
@@ -101,18 +104,26 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
         widget.tour.tourId, desireTour, employee);
     if (check == "Send form success") {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Request is sent')));
         Navigator.of(context).pop();
+        showAlertSuccess();
       }
     } else {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Request is denied')));
+        showAlertFail(check);
       }
     }
+  }
+
+  void showAlertSuccess() {
+    QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        text: 'Send request successfully');
+  }
+
+  void showAlertFail(String response) {
+    QuickAlert.show(
+        context: context, type: QuickAlertType.error, text: response);
   }
 
   @override
@@ -126,38 +137,57 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-                child: CircularProgressIndicator(
-              color: ColorPalette.primaryColor,
+                child: Padding(
+              padding: EdgeInsets.only(bottom: kMediumPadding * 6),
+              child:
+                  CircularProgressIndicator(color: ColorPalette.primaryColor),
             ));
           } else if (snapshot.hasError) {
             return Text('Error loading data: ${snapshot.error}');
           } else {
             final tourList = snapshot.data ?? [];
 
-            print(tourList.length);
-            tourList.removeWhere((tour) {
-              return thisUserTours!.any((userTour) {
-                // Customize this condition based on how you want to compare the Tour objects
-                return tour.tourGuide!.id ==
-                    userTour.tourGuide!.id; // Assuming tourId is unique
+            print('${tourList.length} lengtthhhhhhhhhhhh');
+            if (sharedPreferences.getString("role_name") == "TourGuide") {
+              tourList.removeWhere((tour) {
+                return thisUserTours!.any((userTour) {
+                  // Customize this condition based on how you want to compare the Tour objects
+
+                  return tour.tourGuide?.id == userTour.tourGuide?.id;
+
+                  // Assuming tourId is unique
+                });
               });
-            });
-            print(tourList.length);
+              print(tourList.length);
+            } else {
+              tourList.removeWhere((tour) {
+                return thisUserTours!.any((userTour) {
+                  // Customize this condition based on how you want to compare the Tour objects
+                  return tour.driver?.id ==
+                      userTour.driver?.id; // Assuming tourId is unique
+                });
+              });
+            }
+
             for (var i = 0; i < tourList.length; i++) {
               bool isCurrentTourPast = isTourInPast(widget.tour);
               bool isDesireTourInPast = isTourInPast(tourList[i]);
               bool shouldAddTour = true;
 
               for (var j = 0; j < thisUserTours!.length; j++) {
-                bool isSameTourGuideId = tourList[i].tourGuide!.id! ==
-                    thisUserTours![j].tourGuide!.id!;
+                bool isSameEmployeeId =
+                    sharedPreferences.getString("role_name") == "TourGuide"
+                        ? tourList[i].tourGuide?.id! ==
+                            thisUserTours![j].tourGuide?.id!
+                        : tourList[i].driver?.id! ==
+                            thisUserTours![j].driver?.id!;
                 bool isTourConflictWithThisUserTours =
                     hasSchedulingConflict(tourList[i], thisUserTours![j]);
 
                 if (isCurrentTourPast ||
                     isTourConflictWithThisUserTours ||
                     isDesireTourInPast ||
-                    isSameTourGuideId) {
+                    isSameEmployeeId) {
                   shouldAddTour = false; // Don't add this tour
                   break; // No need to check other user tours, so break the inner loop
                 }

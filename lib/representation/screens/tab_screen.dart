@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nbtour/representation/screens/tour_guide/booking_tour_list_screen.dart';
+import 'package:nbtour/representation/screens/report_screen.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/representation/screens/driver/home_screen.dart';
 
@@ -17,16 +19,18 @@ class TabsScreen extends StatefulWidget {
 }
 
 class _TabsScreenState extends State<TabsScreen> {
+  List<RemoteMessage> _messages = [];
   String roleName = '';
   bool isTourGuide = false;
   void setupPushNotification() async {
     final fcm = FirebaseMessaging.instance;
-    await fcm.deleteToken();
-    final notificationSettings = await fcm.requestPermission();
-    notificationSettings.alert;
-    await fcm.getToken().then((value) {
-      String? token = value;
-      print(token);
+    await fcm.requestPermission();
+    final token = await fcm.getToken();
+    print('This is device token $token');
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      setState(() {
+        _messages = [..._messages, message];
+      });
     });
   }
 
@@ -69,6 +73,14 @@ class _TabsScreenState extends State<TabsScreen> {
       isTourGuide = true;
       if (_selectPageIndex == 1) {
         activePage = const BookingListScreen();
+      }
+
+      if (_selectPageIndex == 2) {
+        activePage = const BookingTourListScreen();
+      }
+
+      if (_selectPageIndex == 3) {
+        activePage = const ReportScreen();
       }
     } else {
       activePage = const DriverHomeScreen();
@@ -125,7 +137,17 @@ class _TabsScreenState extends State<TabsScreen> {
                 icon: Icon(
                   FontAwesomeIcons.clipboardList,
                 ),
-                label: 'Check-in')
+                label: 'Check-in'),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.book_online,
+                ),
+                label: 'Booking tour'),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.report_outlined,
+                ),
+                label: 'Report')
           ],
         ),
       ),

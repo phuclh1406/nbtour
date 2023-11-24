@@ -13,6 +13,7 @@ class RescheduleForm {
     required this.desireTour,
     required this.status,
     required this.formUser,
+    required this.createdAt,
   });
   late String? formId;
   late String? userId;
@@ -21,6 +22,7 @@ class RescheduleForm {
   late Tour? desireTour;
   late String? status;
   late UserModel? formUser;
+  late String? createdAt;
 
   RescheduleForm.fromJson(Map<String, dynamic> json) {
     formId = json['formId'];
@@ -34,6 +36,7 @@ class RescheduleForm {
     formUser = json['form_user'] != null
         ? UserModel.fromJson(json['form_user'])
         : null;
+    createdAt = json['createdAt'];
   }
 
   Map<String, dynamic> toJson() {
@@ -52,7 +55,6 @@ class RescheduleForm {
         'departureDate': currentTour?.departureDate,
         'duration': currentTour?.duration,
         'routeId': currentTour?.tourRoute?.routeId,
-        'departureStationId': currentTour?.departureStation?.stationId,
         'tourGuideId': currentTour?.tourGuide?.id,
         'driverId': currentTour?.driver?.id,
         'busId': currentTour?.tourBus?.busId,
@@ -71,7 +73,6 @@ class RescheduleForm {
         'departureDate': desireTour?.departureDate,
         'duration': desireTour?.duration,
         'routeId': desireTour?.tourRoute?.routeId,
-        'departureStationId': desireTour?.departureStation?.stationId,
         'tourGuideId': desireTour?.tourGuide?.id,
         'driverId': desireTour?.driver?.id,
         'busId': desireTour?.tourBus?.busId,
@@ -88,6 +89,7 @@ class RescheduleForm {
         'user_role': formUser?.roleModel,
       };
     }
+    data['createdAt'] = createdAt;
 
     return data;
   }

@@ -222,6 +222,8 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                             width: kMediumPadding / 2,
                           ),
                           RectangleButtonWidget(
+                            width: MediaQuery.of(context).size.width / 2 -
+                                kMediumPadding / 1.7,
                             title: trackingList[0].tourDetail!.tourStatus !=
                                     "Started"
                                 ? "Start tour"
@@ -253,7 +255,9 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                           ),
                           const SizedBox(width: kDefaultIconSize / 4),
                           RectangleButtonWidget(
-                            title: 'View tour\'s direction',
+                            width: MediaQuery.of(context).size.width / 2 -
+                                kMediumPadding / 1.7,
+                            title: 'View direction',
                             ontap: () {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (ctx) => VietMapNavigationScreen(

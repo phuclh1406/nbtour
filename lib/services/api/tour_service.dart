@@ -38,7 +38,6 @@ class TourService {
 
     var url = Uri.parse('https://${Config.apiURL}${Config.getTour}');
     var response = await client.get(url, headers: requestHeaders);
-
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       var tour = toursFromJson(data['tours']);
@@ -60,7 +59,6 @@ class TourService {
       var url = Uri.parse(
           'https://${Config.apiURL}${Config.getTour}?tourGuideId=$userId');
       var response = await client.get(url, headers: headers);
-
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         List<Tour> tour = toursFromJson(data["tours"]);
@@ -73,6 +71,33 @@ class TourService {
 
         // Return the result here
         return result;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  static Future<Tour?> getTourByTourStatusAndDriverId(
+      String? userId, String? status) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('accesstoken')!;
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+      var url = Uri.parse(
+          'https://${Config.apiURL}${Config.getTour}?driverId=$userId&tourStatus=$status');
+      var response = await client.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        Tour tour = Tour.fromJson(data["tours"][0]);
+
+        // Return the result here
+        return tour;
       } else {
         return null;
       }
@@ -94,8 +119,7 @@ class TourService {
 
       var url = Uri.parse('https://${Config.apiURL}${Config.getTour}/$tourId');
       var response = await client.put(url, headers: headers, body: body);
-      print(response.statusCode);
-      print(response.body);
+
       if (response.statusCode == 200) {
         return "Update success";
       } else {
