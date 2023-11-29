@@ -22,29 +22,9 @@ class TrackingServices {
       'status': status,
     });
     final response = await client.post(url, headers: headers, body: body);
-    if (response.statusCode == 200) {
-      return 'create success';
-    } else {
-      return json.decode(response.body)['msg'];
-    }
-  }
 
-  static Future<String> trackingWithStations(
-      String tourId, double lat, double long, String status) async {
-    var url = Uri.https(Config.apiURL, Config.trackingStations);
-    String token = sharedPreferences.getString("accesstoken")!;
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
-    final body = json.encode({
-      'tourId': tourId,
-      'latitude': lat,
-      'longitude': long,
-      'status': status,
-    });
-    final response = await client.post(url, headers: headers, body: body);
-
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       return 'create success';
     } else {
@@ -77,10 +57,8 @@ class TrackingServices {
       String tourId) async {
     var url = Uri.parse(
         'https://${Config.apiURL}${Config.trackingStations}?tourId=$tourId');
-    String token = sharedPreferences.getString('accesstoken')!;
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
     };
 
     final response = await client.get(url, headers: headers);
@@ -97,16 +75,16 @@ class TrackingServices {
     try {
       var url = Uri.parse(
           'https://${Config.apiURL}${Config.trackingStations}/$tourDetailId');
-      String token = sharedPreferences.getString('accesstoken')!;
       final headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
       };
 
       final body = json.encode({'status': 'Arrived'});
 
       final response = await client.put(url, headers: headers, body: body);
       final responseData = json.decode(response.body);
+      print(response.statusCode);
+      print(response.body);
 
       if (response.statusCode == 200) {
         return 'Tracking success';
@@ -166,7 +144,10 @@ class TrackingServices {
       'longitude': long,
       'status': status,
     });
+
     final response = await client.put(url, headers: headers, body: body);
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       return "update success";
     } else {

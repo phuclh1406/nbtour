@@ -19,12 +19,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
 late SharedPreferences sharedPreferences;
+
 final theme = ThemeData(
     useMaterial3: true,
     bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white, modalBackgroundColor: Colors.white),
     dividerColor: Colors.transparent,
     textTheme: GoogleFonts.latoTextTheme(),
+    splashColor: Colors.grey,
+    highlightColor: Colors.grey,
     appBarTheme: const AppBarTheme(
         color: ColorPalette.primaryColor,
         titleTextStyle:
@@ -32,6 +35,7 @@ final theme = ThemeData(
 
 void initializeLocationAndSave() async {
   // Ensure all permissions are collected for Locations
+
   Location location = Location();
   bool? serviceEnabled;
   PermissionStatus? permissionGranted;
@@ -62,7 +66,7 @@ void main() async {
   try {
     await dotenv.load(fileName: "assets/config/.env");
     runApp(const App());
-    Timer.periodic(const Duration(seconds: 5), (timer) {
+    Timer.periodic(const Duration(seconds: 3), (timer) {
       fetchLoginUser();
     });
   } catch (e) {
@@ -72,25 +76,27 @@ void main() async {
 
 void fetchLoginUser() async {
   try {
-    print('check 1');
     sharedPreferences = await SharedPreferences.getInstance();
     String? roleName = sharedPreferences.getString('role_name');
-    if (roleName != null) {
-      if (roleName == "Driver") {
-        String userId = sharedPreferences.getString("user_id")!;
-        print('check 2');
-        var tour =
-            await TourService.getTourByTourStatusAndDriverId(userId, "Started");
+    if (roleName != null && roleName == "Driver") {
+      String userId = sharedPreferences.getString("user_id")!;
+      var tour =
+          await TourService.getTourByTourStatusAndDriverId(userId, "Started");
 
-        if (tour != null) {
-          print('check 3');
-          checkLocation(tour.tourId!);
-          checkLocationCoordinates(tour.tourId!);
-        }
+      bool newIsRunning = tour!.isNotEmpty;
+      // Only update shared preferences if the value of isRunning changes
+      sharedPreferences.setString('isRunning', newIsRunning.toString());
+      sharedPreferences.setString('running_tour_name', tour[0].tourName!);
+      sharedPreferences.setString('running_tour_id', tour[0].tourId!);
+
+      if (newIsRunning) {
+        print('Tour is running, show overlay and start location checks.');
+        checkLocation(tour[0].tourId!);
+        checkLocationCoordinates(tour[0].tourId!);
       }
     }
   } catch (e) {
-    "error";
+    print('Error in fetchLoginUser: $e');
   }
 }
 
@@ -118,9 +124,9 @@ void checkLocation(String tourId) async {
     var location = await Geolocator.getCurrentPosition();
 
     List<TrackingStations>? trackingList =
-        await TrackingServices.getTrackingStationsByTourId(tourId);
+        await TrackingServices.getTrackingStationsByTourId(tourId) ?? [];
 
-    for (var i = 0; i < trackingList!.length; i++) {
+    for (var i = 0; i < trackingList.length; i++) {
       if (trackingList[i].tourDetail!.tourStatus == "Started") {
         if (i <= 0
             ? trackingList[i].status == "NotArrived"
@@ -131,7 +137,7 @@ void checkLocation(String tourId) async {
               location.latitude,
               location.longitude);
 
-          if (distance <= 50) {
+          if (distance <= 100) {
             await TrackingServices.trackingStations(
                 trackingList[i].tourDetailId!);
           }

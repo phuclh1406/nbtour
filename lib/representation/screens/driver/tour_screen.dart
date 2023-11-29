@@ -11,7 +11,6 @@ import 'package:nbtour/services/models/tour_model.dart';
 import 'package:nbtour/representation/screens/tour_detail_screen.dart';
 import 'package:nbtour/representation/widgets/tour_list_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lottie/lottie.dart';
 
 String userId = '';
 String tourId = '';
@@ -211,12 +210,13 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                   //   Icons.search,
                   //   color: Colors.black, // Change icon color
                   // ),
-                  hintText: "Search by tour name...",
+                  hintText: "Tìm kiếm bằng tên tour...",
+                  hintStyle: TextStyles.defaultStyle, //
                   // Change hint text color
                 ),
               )
             : Text(
-                'Tour Screen',
+                'Danh sách',
                 style: TextStyles.defaultStyle.bold.fontHeader,
               ),
         actions: <Widget>[

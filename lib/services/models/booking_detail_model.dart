@@ -1,67 +1,55 @@
-// import 'package:nbtour/models/station_model.dart';
-// import 'package:nbtour/models/ticket_type_model.dart';
-// import 'package:nbtour/models/user_model.dart';
+import 'package:nbtour/services/models/ticket_type_model.dart';
+import 'package:nbtour/services/models/tour_model.dart';
 
-// class BookingDetail {
-//   BookingDetail({
-//     required this.bookingId,
-//     required this.bookingDate,
-//     required this.bookingCode,
-//     required this.totalPrice,
-//     required this.bookingStatus,
-//     required this.status,
-//     required this.isAttended,
-//     required this.bookingUser,
-//     required this.bookingDepartureStation,
-//   });
-//   late String? bookingId;
-//   late String? bookingDate;
-//   late String? bookingCode;
-//   late int? totalPrice;
-//   late String? bookingStatus;
-//   late bool? isAttended;
-//   late String? status;
-//   late UserModel? bookingUser;
-//   late TicketTypes? ticketType;
-//   late Stations? bookingDepartureStation;
+class BookingDetail {
+  BookingDetail({
+    required this.ticketId,
+    required this.ticketTour,
+    required this.ticketType,
+  });
+  late String? ticketId;
+  late Tour? ticketTour;
+  late TicketTypes? ticketType;
 
-//   BookingDetail.fromJson(Map<String, dynamic> json) {
-//     bookingId = json['bookingId'];
-//     bookingDate = json['bookingDate'];
-//     bookingCode = json['bookingCode'];
-//     totalPrice = json['totalPrice'];
-//     isAttended = json['isAttended'];
-//     bookingStatus = json['bookingStatus'];
-//     status = json['status'];
-//     bookingUser = json['booking_user'] != null
-//         ? UserModel.fromJson(json['booking_user'])
-//         : null;
-//     bookingDepartureStation = json['booking_departure_station'] != null
-//         ? Stations.fromJson(json['booking_departure_station'])
-//         : null;
-//   }
+  BookingDetail.fromJson(Map<String, dynamic> json) {
+    ticketId = json['ticketId'];
 
-//   Map<String, dynamic> toJson() {
-//     final data = <String, dynamic>{};
-//     data['bookingId'] = bookingId;
-//     data['bookingDate'] = bookingDate;
-//     data['bookingCode'] = bookingCode;
-//     data['totalPrice'] = totalPrice;
-//     data['isAttended'] = isAttended;
-//     data['bookingStatus'] = bookingStatus;
-//     data['status'] = status;
-//     if (bookingUser != null) {
-//       data['booking_user'] = {
-//         'userId': bookingUser?.id,
-//         'userName': bookingUser?.name,
-//       };
-//     }
-//     if (bookingDepartureStation != null) {
-//       data['booking_departure_station'] = {
-//         'stationId': bookingDepartureStation?.stationId,
-//         'stationName': bookingDepartureStation?.stationName,
-//       };
-//     }
-//     return data;
-//   }
-// }
+    ticketTour =
+        json['ticket_tour'] != null ? Tour.fromJson(json['ticket_tour']) : null;
+    ticketType = json['ticket_type'] != null
+        ? TicketTypes.fromJson(json['ticket_type'])
+        : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['ticketId'] = ticketId;
+
+    if (ticketTour != null) {
+      data['ticket_tour'] = {
+        'tourId': ticketTour?.tourId,
+        'tourName': ticketTour?.tourName,
+        "description": ticketTour?.description,
+        "departureDate": ticketTour?.departureDate,
+        "duration": ticketTour?.duration,
+        "routeId": ticketTour?.tourRoute?.routeId,
+        "departureStationId": ticketTour
+            ?.tourRoute?.routeSegment?[0].segmentDepartureStation?.stationId,
+        "tourGuideId": ticketTour?.tourGuide?.id,
+        "driverId": ticketTour?.driver?.id,
+        "busId": ticketTour?.tourBus?.busId,
+        "tourStatus": ticketTour?.tourStatus,
+        "status": ticketTour?.status,
+        "tour_bus": ticketTour?.tourBus
+      };
+    }
+    if (ticketType != null) {
+      data['ticket_type'] = {
+        'ticketTypeId': ticketType?.ticketTypeId,
+        'ticketTypeName': ticketType?.ticketTypeName,
+        'description': ticketType?.description,
+      };
+    }
+    return data;
+  }
+}

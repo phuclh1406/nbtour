@@ -10,8 +10,6 @@ import 'package:nbtour/services/models/tour_model.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'dart:math' as math;
 
-String userId = sharedPreferences.getString("user_id")!;
-
 class MeetingDataSource extends CalendarDataSource {
   MeetingDataSource(List<Appointment> source) {
     appointments = source;
@@ -21,32 +19,28 @@ class MeetingDataSource extends CalendarDataSource {
 List<Appointment> meetings = <Appointment>[];
 
 Future<List<Appointment>> loadScheduledTour() async {
-  String role = sharedPreferences.getString("role_name")!;
-
   try {
-    if (role.contains("TourGuide")) {
+    String role = sharedPreferences.getString("role_name")!;
+    String userId = sharedPreferences.getString("user_id")!;
+    meetings = [];
+    if (role == "TourGuide") {
       List<Tour>? listScheduledTour =
           await TourService.getToursByTourGuideId(userId);
       if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
-        final listScheduledTourJson = listScheduledTour
-            .map((listScheduledTour) => listScheduledTour.toJson())
-            .toList();
-        sharedPreferences.setString(
-            "schedule_tour", json.encode(listScheduledTourJson));
         for (var i = 0; i < listScheduledTour.length; i++) {
           final isAlreadyInclude = meetings.any((meetings) =>
               meetings.startTime ==
                   DateTime.parse(listScheduledTour[i].departureDate!) &&
               (meetings.endTime ==
-                  DateTime.parse(listScheduledTour[i].departureDate!)
-                      .add(const Duration(hours: 3))) &&
+                  DateTime.parse(listScheduledTour[i].endDate!)) &&
               meetings.subject == listScheduledTour[i].tourName);
 
           if (!isAlreadyInclude) {
             meetings.add(Appointment(
+              startTimeZone: "SE Asia Standard Time",
+              endTimeZone: "SE Asia Standard Time",
               startTime: DateTime.parse(listScheduledTour[i].departureDate!),
-              endTime: DateTime.parse(listScheduledTour[i].departureDate!)
-                  .add(const Duration(hours: 3)),
+              endTime: DateTime.parse(listScheduledTour[i].endDate!),
               subject: listScheduledTour[i].tourName!,
               color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0),
@@ -62,26 +56,22 @@ Future<List<Appointment>> loadScheduledTour() async {
     } else {
       List<Tour>? listScheduledTour =
           await TourService.getToursByDriverId(userId);
+      print('$userId 456');
       if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
-        final listScheduledTourJson = listScheduledTour
-            .map((listScheduledTour) => listScheduledTour.toJson())
-            .toList();
-        sharedPreferences.setString(
-            "schedule_tour", json.encode(listScheduledTourJson));
         for (var i = 0; i < listScheduledTour.length; i++) {
           final isAlreadyInclude = meetings.any((meetings) =>
               meetings.startTime ==
                   DateTime.parse(listScheduledTour[i].departureDate!) &&
               (meetings.endTime ==
-                  DateTime.parse(listScheduledTour[i].departureDate!)
-                      .add(const Duration(hours: 3))) &&
+                  DateTime.parse(listScheduledTour[i].endDate!)) &&
               meetings.subject == listScheduledTour[i].tourName);
 
           if (!isAlreadyInclude) {
             meetings.add(Appointment(
+              startTimeZone: "SE Asia Standard Time",
+              endTimeZone: "SE Asia Standard Time",
               startTime: DateTime.parse(listScheduledTour[i].departureDate!),
-              endTime: DateTime.parse(listScheduledTour[i].departureDate!)
-                  .add(const Duration(hours: 3)),
+              endTime: DateTime.parse(listScheduledTour[i].endDate!),
               subject: listScheduledTour[i].tourName!,
               color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0),

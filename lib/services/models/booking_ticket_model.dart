@@ -1,5 +1,4 @@
-import 'package:nbtour/services/models/ticket_model.dart';
-import 'package:nbtour/services/models/ticket_type_model.dart';
+import 'package:nbtour/services/models/booking_detail_model.dart';
 
 List<BookingTickets> bookingTicketsFromJson(dynamic str) =>
     List<BookingTickets>.from((str).map((x) => BookingTickets.fromJson(x)));
@@ -12,13 +11,13 @@ class BookingTickets {
   });
   late String? ticketId;
   late int? quantity;
-  late TicketTypes? bookingDetailTicket;
+  late BookingDetail? bookingDetailTicket;
 
   BookingTickets.fromJson(Map<String, dynamic> json) {
     quantity = json['quantity'];
     ticketId = json['ticketId'];
-    bookingDetailTicket = json['ticket_type'] != null
-        ? TicketTypes.fromJson(json['ticket_type'])
+    bookingDetailTicket = json['booking_detail_ticket'] != null
+        ? BookingDetail.fromJson(json['booking_detail_ticket'])
         : null;
   }
 
@@ -27,11 +26,10 @@ class BookingTickets {
     data['quantity'] = quantity;
     data['ticketId'] = ticketId;
     if (bookingDetailTicket != null) {
-      data['ticket_type'] = {
-        'ticketTypeId': bookingDetailTicket?.ticketTypeId,
-        'ticketTypeName': bookingDetailTicket?.ticketTypeName,
-        'description': bookingDetailTicket?.description,
-        'price': bookingDetailTicket?.price
+      data['booking_detail_ticket'] = {
+        'ticketId': bookingDetailTicket?.ticketId,
+        'ticket_tour': bookingDetailTicket?.ticketTour,
+        'ticket_type': bookingDetailTicket?.ticketType,
       };
     }
 

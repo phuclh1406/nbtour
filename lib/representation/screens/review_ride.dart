@@ -110,37 +110,6 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
     );
   }
 
-  void checkLocation() async {
-    var location = await Geolocator.getCurrentPosition();
-    Tracking? tracking =
-        await TrackingServices.getTrackingByTourId(widget.tour.tourId!);
-    try {
-      if (tracking != null) {
-        await TrackingServices.updateTrackingWithCoordinates(
-            tracking.trackingId!,
-            location.latitude,
-            location.longitude,
-            "Active");
-      } else {
-        await TrackingServices.trackingWithCoordinates(widget.tour.tourId!,
-            location.latitude, location.longitude, "Active");
-      }
-      for (var i = 0; i < _kTripStations.length; i++) {
-        double distance = Geolocator.distanceBetween(
-            double.parse(_kTripStations[i].latitude!),
-            double.parse(_kTripStations[i].longitude!),
-            location.latitude,
-            location.longitude);
-
-        if (distance <= 50) {
-          //  await
-        }
-      }
-    } catch (e) {
-      "Error";
-    }
-  }
-
   void _onMapCreated(VietmapController controller) {
     this.controller = controller;
   }
@@ -284,7 +253,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
                         backgroundColor: ColorPalette.primaryColor,
                         focusColor: const Color.fromARGB(255, 220, 216, 216),
                         child: Text(
-                          'View route detail',
+                          'Xem chi tiết tuyến đường',
                           style: TextStyles.regularStyle.whiteTextColor,
                         ),
                       ),

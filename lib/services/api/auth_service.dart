@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:nbtour/main.dart';
 import 'package:nbtour/services/api/config.dart';
 import 'dart:convert';
 
@@ -76,11 +77,14 @@ class AuthServices {
       'email': emailInput,
       'password': password,
     });
+
     final response = await client.post(url, headers: headers, body: body);
     final responseData = json.decode(response.body);
 
     final accesstoken = responseData['accessToken'];
 
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       final name = responseData['user']['userName'];
       final phone = responseData['user']['phone'];
@@ -238,6 +242,31 @@ class AuthServices {
       // Rest of your code...
     } else {
       return json.decode(response.body)['msg'];
+    }
+  }
+
+  Future<String> sendDeviceToken(String? token, String? userId) async {
+    try {
+      String token = sharedPreferences.getString('accesstoken')!;
+      var url =
+          Uri.parse('https://${Config.apiURL}${Config.notification}/$userId');
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final body = json.encode({"deviceToken": token});
+      final response = await http.put(url, headers: headers, body: body);
+
+      print(response.statusCode);
+      print(response.body);
+      if (response.statusCode == 200) {
+        return "success";
+      } else {
+        return "fail";
+      }
+    } catch (e) {
+      return "send token fail";
     }
   }
 

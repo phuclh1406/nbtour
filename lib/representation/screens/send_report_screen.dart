@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:nbtour/main.dart';
 
@@ -31,15 +32,27 @@ class _SendReportScreenState extends State<SendReportScreen> {
   String userId = sharedPreferences.getString('user_id')!;
 
   void showAlertSuccess() {
-    QuickAlert.show(
-        context: context,
-        type: QuickAlertType.success,
-        text: 'Send report successfully');
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.success,
+      title: 'Thành công',
+      desc: 'Đã gửi đơn thành công',
+      btnOkOnPress: () {},
+      btnOkText: 'Xác nhận',
+    ).show();
   }
 
   void showAlertFail() {
-    QuickAlert.show(
-        context: context, type: QuickAlertType.error, text: 'Send report fail');
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.error,
+      title: 'Thất bại',
+      desc: 'Đã gửi đơn thất bại',
+      btnOkOnPress: () {},
+      btnOkText: 'Xác nhận',
+    ).show();
   }
 
   void _submit(BuildContext context) async {
@@ -85,8 +98,7 @@ class _SendReportScreenState extends State<SendReportScreen> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: kMediumPadding / 2),
-              child: Text('Send report',
-                  style: TextStyles.regularStyle.fontHeader),
+              child: Text('Gửi đơn', style: TextStyles.regularStyle.fontHeader),
             ),
             const SizedBox(height: kMediumPadding),
             Form(
@@ -104,7 +116,7 @@ class _SendReportScreenState extends State<SendReportScreen> {
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.title_outlined),
                             prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            hintText: 'Enter title (Required)',
+                            hintText: 'Nhập tiêu đề (Bắt buộc)',
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 246, 243, 243)),
@@ -121,7 +133,7 @@ class _SendReportScreenState extends State<SendReportScreen> {
                           textCapitalization: TextCapitalization.none,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Title is required';
+                              return 'Tiêu đề không được bỏ trống';
                             }
                             return null;
                           },
@@ -139,7 +151,7 @@ class _SendReportScreenState extends State<SendReportScreen> {
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.description_outlined),
                             prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            hintText: 'Enter description (Optional)',
+                            hintText: 'Nhập mô tả (Bắt buộc)',
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 246, 243, 243)),
@@ -156,7 +168,7 @@ class _SendReportScreenState extends State<SendReportScreen> {
                           textCapitalization: TextCapitalization.none,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Description is required';
+                              return 'Mô tả không được bỏ trống';
                             }
                             return null;
                           },
@@ -168,7 +180,7 @@ class _SendReportScreenState extends State<SendReportScreen> {
                       const SizedBox(height: kMediumPadding),
                       ButtonWidget(
                         isIcon: false,
-                        title: 'SUBMIT',
+                        title: 'Gửi đơn',
                         ontap: () {
                           _submit(context);
                         },

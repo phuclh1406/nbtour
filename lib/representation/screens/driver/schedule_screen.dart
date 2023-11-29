@@ -40,7 +40,7 @@ class _DriverScheduleScreenState extends State<DriverScheduleScreen> {
         scrolledUnderElevation: 0,
         backgroundColor: Colors.white,
         title: Text(
-          'Schedule',
+          'Thời gian biểu',
           style: TextStyles.defaultStyle.bold.fontHeader,
         ),
       ),

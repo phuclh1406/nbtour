@@ -9,8 +9,6 @@ import 'package:nbtour/services/models/tour_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
-import 'package:quickalert/models/quickalert_type.dart';
-import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class BookingTourScreen extends StatelessWidget {
   const BookingTourScreen({super.key, required this.tour});
@@ -143,7 +141,7 @@ class BookingTourScreen extends StatelessWidget {
                               height: kDefaultIconSize,
                             ),
                             const Text(
-                              'Available tickets',
+                              'Vé khả dụng',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -153,17 +151,18 @@ class BookingTourScreen extends StatelessWidget {
                               height: kDefaultIconSize / 1.5,
                             ),
                             const Text(
-                              'A list of available tickets that you can book in tour',
+                              'Danh sách các loại vé khả dụng',
                               style: TextStyle(fontSize: 16),
                             ),
                             const SizedBox(
                               height: kDefaultIconSize / 1.5,
                             ),
                             Wrap(
-                              children: List.generate(tour.tourTicket!.length,
-                                  (index) {
+                              children:
+                                  List.generate(tour.ticket.length, (index) {
                                 return Container(
-                                  margin: const EdgeInsets.only(right: 5),
+                                  margin: const EdgeInsets.only(
+                                      right: 5, bottom: 5),
                                   height: 60,
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(15),
@@ -177,13 +176,9 @@ class BookingTourScreen extends StatelessWidget {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          tour
-                                              .tourTicket![index]
-                                              .bookingDetailTicket!
+                                          tour.ticket[index].ticketType!
                                               .ticketTypeName!,
-                                          style: const TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
+                                          style: TextStyles.defaultStyle,
                                         ),
                                       ],
                                     ),
@@ -194,28 +189,22 @@ class BookingTourScreen extends StatelessWidget {
                             const SizedBox(
                               height: kDefaultIconSize,
                             ),
-                            for (var ticket in tour.tourTicket!)
+                            for (var ticket in tour.ticket)
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${ticket.bookingDetailTicket!.ticketTypeName}: ${ticket.bookingDetailTicket!.price!.amount} vnđ',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                      '(${ticket.bookingDetailTicket!.description})',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      )),
+                                      '${ticket.ticketType!.ticketTypeName}: ${ticket.ticketType!.price!.amount} vnđ',
+                                      style: TextStyles.defaultStyle),
+                                  Text('(${ticket.ticketType!.description})',
+                                      style: TextStyles.defaultStyle),
                                   const SizedBox(
                                     height: kDefaultIconSize / 1.5,
                                   ),
                                 ],
                               ),
                             const Text(
-                              'Description',
+                              'Mô tả',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -256,7 +245,7 @@ class BookingTourScreen extends StatelessWidget {
                   RectangleButtonWidget(
                     width: MediaQuery.of(context).size.width / 2 -
                         kMediumPadding / 1.7,
-                    title: 'View route',
+                    title: 'Xem đường',
                     ontap: () {
                       Navigator.push(
                           context,
@@ -279,7 +268,7 @@ class BookingTourScreen extends StatelessWidget {
                   RectangleButtonWidget(
                     width: MediaQuery.of(context).size.width / 2 -
                         kMediumPadding / 1.7,
-                    title: 'Book now',
+                    title: 'Đặt ngay',
                     ontap: openAddExpenseOverlay,
                     buttonColor: Colors.white,
                     textStyle: TextStyles.defaultStyle.primaryTextColor,

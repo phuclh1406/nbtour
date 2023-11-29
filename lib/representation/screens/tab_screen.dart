@@ -1,8 +1,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nbtour/main.dart';
 import 'package:nbtour/representation/screens/tour_guide/booking_tour_list_screen.dart';
 import 'package:nbtour/representation/screens/report_screen.dart';
+import 'package:nbtour/services/api/auth_service.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/representation/screens/driver/home_screen.dart';
 
@@ -19,19 +21,13 @@ class TabsScreen extends StatefulWidget {
 }
 
 class _TabsScreenState extends State<TabsScreen> {
-  List<RemoteMessage> _messages = [];
   String roleName = '';
   bool isTourGuide = false;
+  String? token;
   void setupPushNotification() async {
     final fcm = FirebaseMessaging.instance;
     await fcm.requestPermission();
-    final token = await fcm.getToken();
-    print('This is device token $token');
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      setState(() {
-        _messages = [..._messages, message];
-      });
-    });
+    token = await fcm.getToken();
   }
 
   @override
@@ -40,6 +36,17 @@ class _TabsScreenState extends State<TabsScreen> {
     // Fetch roleName from SharedPreferences when the widget is initialized
     setupPushNotification();
     fetchUserRole();
+    sendDeviceToken();
+  }
+
+  Future<void> sendDeviceToken() async {
+    String userId = sharedPreferences.getString('user_id')!;
+    final sendTokenCheck = await AuthServices().sendDeviceToken(token, userId);
+    if (sendTokenCheck == 'success') {
+      print(token);
+      return;
+    }
+    print('fail');
   }
 
   Future<void> fetchUserRole() async {
@@ -131,23 +138,23 @@ class _TabsScreenState extends State<TabsScreen> {
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_filled),
-              label: 'Home',
+              label: 'Trang chủ',
             ),
             BottomNavigationBarItem(
                 icon: Icon(
                   FontAwesomeIcons.clipboardList,
                 ),
-                label: 'Check-in'),
+                label: 'Điểm danh'),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.book_online,
                 ),
-                label: 'Booking tour'),
+                label: 'Mua vé'),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.report_outlined,
                 ),
-                label: 'Report')
+                label: 'Các loại đơn')
           ],
         ),
       ),

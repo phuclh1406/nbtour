@@ -109,7 +109,7 @@ class _BookingListScreenState extends State<BookingListScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (ctx) => BookingListCustomerScreen(
-                                      tourId: filteredSchedule[i].tourId,
+                                      tour: filteredSchedule[i],
                                     )));
                       }
                     },
@@ -193,13 +193,12 @@ class _BookingListScreenState extends State<BookingListScreen> {
                   //   Icons.search,
                   //   color: Colors.black, // Change icon color
                   // ),
-                  hintText: "Search by tour name...",
-                  hintStyle:
-                      TextStyle(color: Colors.black), // Change hint text color
+                  hintText: "Tìm kiếm bằng tên tour...",
+                  hintStyle: TextStyles.defaultStyle, // Change hint text color
                 ),
               )
             : Text(
-                'Choose a tour',
+                'Chọn một tour',
                 style: TextStyles.defaultStyle.bold.fontHeader,
               ),
         actions: <Widget>[

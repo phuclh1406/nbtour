@@ -20,6 +20,7 @@ class RescheduleScreen extends StatefulWidget {
 
 Tour? rescheduleTour;
 List<Tour>? thisUserTours;
+List<Tour>? otherUserTours;
 
 Future<List<Tour>?> loadAvailableTour() async {
   try {
@@ -48,6 +49,20 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
     }
 
     _toursFuture = loadAvailableTour();
+  }
+
+  Future<List<Tour>?> fetchTourOfOtherUser(String userId) async {
+    if (sharedPreferences.getString("role_name") == "TourGuide") {
+      otherUserTours = await TourService.getToursByTourGuideId(userId);
+    } else {
+      otherUserTours = await TourService.getToursByDriverId(userId);
+    }
+    if (otherUserTours!.isNotEmpty) {
+      print('${otherUserTours!.length}');
+      return otherUserTours;
+    } else {
+      return [];
+    }
   }
 
   Future<List<Tour>?> fetchTourOfUser(String userId) async {
@@ -207,7 +222,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Reschedule',
+                    Text('Chuyển lịch',
                         style: TextStyles.defaultStyle.subTitleTextColor),
                     const SizedBox(height: kDefaultIconSize / 2),
                     Text(tour.tourName!, style: TextStyles.regularStyle.bold),
@@ -225,9 +240,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                   prefixIconColor:
                                       Color.fromARGB(255, 112, 111, 111),
                                   labelText:
-                                      'Select the tour you want to switch',
+                                      'Chọn một tour bạn muốn chuyển đến',
                                   labelStyle: TextStyles.defaultStyle,
-                                  hintText: 'Select tour',
+                                  hintText: 'Chọn tour',
+                                  hintStyle: TextStyles.defaultStyle,
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(
                                       color: Color.fromARGB(255, 246, 243, 243),
@@ -251,7 +267,8 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                 items: filteredTour.map((tour) {
                                   return DropdownMenuItem<Tour>(
                                     value: tour,
-                                    child: Text(tour.tourName!),
+                                    child: Text(tour.tourName!,
+                                        style: TextStyles.defaultStyle),
                                   );
                                 }).toList(),
                                 onChanged: (Tour? newValue) {
@@ -276,7 +293,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             children: [
                                               Row(
                                                 children: [
-                                                  Text('Start time: ',
+                                                  Text('Khởi hành: ',
                                                       style: TextStyles
                                                           .defaultStyle
                                                           .subTitleTextColor),
@@ -301,7 +318,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                   width: kDefaultIconSize / 2),
                                               Row(
                                                 children: [
-                                                  Text('End time: ',
+                                                  Text('Kết thúc: ',
                                                       style: TextStyles
                                                           .defaultStyle
                                                           .subTitleTextColor),
@@ -319,12 +336,15 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             ],
                                           ),
                                           const SizedBox(
-                                              height: kDefaultIconSize),
+                                              height: kDefaultIconSize / 4),
+                                          const Divider(),
+                                          const SizedBox(
+                                              height: kDefaultIconSize / 4),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
-                                              Text('Route name: ',
+                                              Text('Tuyến: ',
                                                   style: TextStyles.defaultStyle
                                                       .subTitleTextColor),
                                               Text(
@@ -338,12 +358,15 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             ],
                                           ),
                                           const SizedBox(
-                                              height: kDefaultIconSize),
+                                              height: kDefaultIconSize / 4),
+                                          const Divider(),
+                                          const SizedBox(
+                                              height: kDefaultIconSize / 4),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
-                                              Text('Bus plate: ',
+                                              Text('Biển số xe: ',
                                                   style: TextStyles.defaultStyle
                                                       .subTitleTextColor),
                                               Text(
@@ -357,12 +380,15 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             ],
                                           ),
                                           const SizedBox(
-                                              height: kDefaultIconSize),
+                                              height: kDefaultIconSize / 4),
+                                          const Divider(),
+                                          const SizedBox(
+                                              height: kDefaultIconSize / 4),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
-                                              Text('Departure date: ',
+                                              Text('Ngày khởi hành: ',
                                                   style: TextStyles.defaultStyle
                                                       .subTitleTextColor),
                                               Text(
@@ -378,12 +404,15 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             ],
                                           ),
                                           const SizedBox(
-                                              height: kDefaultIconSize),
+                                              height: kDefaultIconSize / 4),
+                                          const Divider(),
+                                          const SizedBox(
+                                              height: kDefaultIconSize / 4),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
-                                              Text('Tour Guide: ',
+                                              Text('Hướng dẫn viên: ',
                                                   style: TextStyles.defaultStyle
                                                       .subTitleTextColor),
                                               Text(
@@ -397,7 +426,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             ],
                                           ),
                                           const SizedBox(
-                                              height: kDefaultIconSize),
+                                              height: kDefaultIconSize / 2),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
@@ -416,12 +445,15 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             ],
                                           ),
                                           const SizedBox(
-                                              height: kDefaultIconSize),
+                                              height: kDefaultIconSize / 4),
+                                          const Divider(),
+                                          const SizedBox(
+                                              height: kDefaultIconSize / 4),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
-                                              Text('Driver: ',
+                                              Text('Tài xế: ',
                                                   style: TextStyles.defaultStyle
                                                       .subTitleTextColor),
                                               Text(
@@ -434,7 +466,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             ],
                                           ),
                                           const SizedBox(
-                                              height: kDefaultIconSize),
+                                              height: kDefaultIconSize / 2),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
@@ -452,10 +484,13 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             ],
                                           ),
                                           const SizedBox(
-                                              height: kDefaultIconSize),
+                                              height: kDefaultIconSize / 4),
+                                          const Divider(),
+                                          const SizedBox(
+                                              height: kDefaultIconSize / 4),
                                           Align(
                                             alignment: Alignment.topLeft,
-                                            child: Text('Tour description',
+                                            child: Text('Mô tả',
                                                 style: TextStyles.regularStyle
                                                     .bold.subTitleTextColor),
                                           ),
@@ -478,12 +513,19 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                               height: kDefaultIconSize),
                                           ButtonWidget(
                                             isIcon: false,
-                                            title: 'Send request',
+                                            title: 'Gửi đơn',
                                             ontap: () {
-                                              _submit(
-                                                  rescheduleTour!.tourId!,
-                                                  rescheduleTour!
-                                                      .tourGuide!.id!);
+                                              sharedPreferences.getString(
+                                                          "role_name") ==
+                                                      "TourGuide"
+                                                  ? _submit(
+                                                      rescheduleTour!.tourId!,
+                                                      rescheduleTour!
+                                                          .tourGuide!.id!)
+                                                  : _submit(
+                                                      rescheduleTour!.tourId!,
+                                                      rescheduleTour!
+                                                          .driver!.id!);
                                             },
                                             color: const Color.fromARGB(
                                                 168, 0, 0, 0),

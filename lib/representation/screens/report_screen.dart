@@ -249,12 +249,13 @@ class _ReportScreenState extends State<ReportScreen>
                     //   Icons.search,
                     //   color: Colors.black, // Change icon color
                     // ),
-                    hintText: "Search by report title...",
+                    hintText: "Tìm kiếm bằng tiêu đề đơn...",
+                    hintStyle: TextStyles.defaultStyle, //
                     // Change hint text color
                   ),
                 )
               : Text(
-                  'Report screen',
+                  'Trang gửi đơn',
                   style: TextStyles.defaultStyle.bold.fontHeader,
                 ),
           actions: <Widget>[

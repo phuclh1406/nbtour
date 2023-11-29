@@ -6,6 +6,7 @@ import 'package:nbtour/services/models/image_model.dart';
 import 'package:nbtour/services/models/route_model.dart';
 import 'package:nbtour/services/models/station_model.dart';
 import 'package:nbtour/services/models/ticket_model.dart';
+import 'package:nbtour/services/models/ticket_type_model.dart';
 import 'package:nbtour/services/models/user_model.dart';
 
 List<Tour> toursFromJson(dynamic str) =>
@@ -28,6 +29,7 @@ class Tour {
     required this.tourImage,
     required this.tourRoute,
     required this.tourTicket,
+    required this.ticket,
     required this.tourGuide,
   });
   late String? tourId;
@@ -47,6 +49,7 @@ class Tour {
   late String? duration;
   late Routes? tourRoute;
   late List<BookingTickets>? tourTicket;
+  late List<Tickets> ticket;
   late UserModel? tourGuide;
   late UserModel? driver;
 
@@ -89,6 +92,13 @@ class Tour {
       );
     } else {
       tourTicket = [];
+    }
+    if (json['tour_ticket'] != null && json['tour_ticket'] is List) {
+      ticket = List<Tickets>.from(
+        json['tour_ticket'].map((x) => Tickets.fromJson(x)),
+      );
+    } else {
+      ticket = [];
     }
   }
 

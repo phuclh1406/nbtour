@@ -1,8 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nbtour/main.dart';
 import 'package:nbtour/representation/screens/notification_list_screen.dart';
 import 'package:nbtour/representation/screens/sent_request.dart';
 import 'package:nbtour/representation/screens/send_report_screen.dart';
+import 'package:nbtour/services/api/form_service.dart';
+import 'package:nbtour/services/api/notification_service.dart';
+import 'package:nbtour/services/models/notification.dart';
+import 'package:nbtour/services/models/reschedule_form_model.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
 import 'package:nbtour/utils/helper/asset_helper.dart';
@@ -27,12 +34,19 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
   String avatar = '';
   String userName = '';
 
+  int notiCount = 0;
+  int formCount = 0;
+  String userId = sharedPreferences.getString("user_id")!;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     fetchUserName();
     fetchUserAvatar();
+
+    fetchNotification(userId);
+    fetchIncomingRequest(userId);
   }
 
   Future<void> fetchUserName() async {
@@ -68,6 +82,30 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
     );
   }
 
+  Future<void> fetchNotification(String userId) async {
+    List<NotificationModel>? notiList =
+        await NotificationServices.getNotificationList(userId);
+    if (notiList!.isNotEmpty) {
+      setState(() {
+        notiCount = notiList.length;
+      });
+    }
+  }
+
+  Future<void> fetchIncomingRequest(String userId) async {
+    List<RescheduleForm>? formList =
+        await RescheduleServices.getFormList(userId);
+
+    if (formList!.isNotEmpty) {
+      List<RescheduleForm> pendingForms =
+          formList.where((form) => form.status == "Pending").toList();
+      print(pendingForms.length);
+      setState(() {
+        formCount = pendingForms.length;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -95,10 +133,19 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (ctx) => const NotificationListScreen()));
                   },
-                  icon: const Icon(
-                    Icons.notifications,
-                    color: Colors.white,
-                  ),
+                  icon: notiCount != 0
+                      ? Badge(
+                          backgroundColor: Colors.red,
+                          label: Text(notiCount.toString()),
+                          child: const Icon(
+                            Icons.notifications,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.notifications,
+                          color: Colors.white,
+                        ),
                 )
               ],
             )
@@ -128,6 +175,7 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         ActionCategoryWidget(
+                            count: 0,
                             icon: const Icon(
                               Icons.calendar_month_outlined,
                               size: kDefaultIconSize * 1.2,
@@ -141,6 +189,7 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                             title: 'View Schedule'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
+                            count: formCount,
                             icon: const Icon(
                               FontAwesomeIcons.clipboard,
                               size: kDefaultIconSize * 1.2,
@@ -156,6 +205,7 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                             title: 'Income Request'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
+                            count: 0,
                             icon: const Icon(
                               Icons.send_outlined,
                               size: kDefaultIconSize * 1.2,
@@ -172,6 +222,7 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                             title: 'Sent Request'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
+                            count: 0,
                             icon: const Icon(
                               Icons.work_history_outlined,
                               size: kDefaultIconSize * 1.2,
@@ -187,6 +238,7 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                             title: 'Your Activity'),
                         const SizedBox(width: kItemPadding / 1.5),
                         ActionCategoryWidget(
+                            count: 0,
                             icon: const Icon(
                               Icons.qr_code_scanner,
                               size: kDefaultIconSize * 1.2,

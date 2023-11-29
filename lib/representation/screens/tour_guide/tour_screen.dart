@@ -213,12 +213,13 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                   //   Icons.search,
                   //   color: Colors.black, // Change icon color
                   // ),
-                  hintText: "Search by tour name...",
+                  hintText: "Tìm kiếm bằng tên tour...",
+                  hintStyle: TextStyles.defaultStyle, //
                   // Change hint text color
                 ),
               )
             : Text(
-                'Tour Screen',
+                'Danh sách tour',
                 style: TextStyles.defaultStyle.bold.fontHeader,
               ),
         actions: <Widget>[

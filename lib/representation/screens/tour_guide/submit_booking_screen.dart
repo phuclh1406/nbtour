@@ -1,25 +1,22 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:nbtour/services/api/auth_service.dart';
+import 'package:nbtour/representation/screens/tab_screen.dart';
+import 'package:nbtour/representation/screens/tour_guide/home_screen.dart';
 import 'package:nbtour/services/api/booking_service.dart';
 import 'package:nbtour/services/api/payment_service.dart';
 import 'package:nbtour/services/api/tracking_service.dart';
-import 'package:nbtour/services/models/booking_model.dart';
 import 'package:nbtour/services/models/booking_ticket_model.dart';
-import 'package:nbtour/services/models/station_model.dart';
 import 'package:nbtour/services/models/ticket_model.dart';
-import 'package:nbtour/services/models/ticket_type_model.dart';
+
 import 'package:nbtour/services/models/tour_model.dart';
-import 'package:nbtour/services/models/tracking_model.dart';
+
 import 'package:nbtour/services/models/tracking_station_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
-
-import 'package:nbtour/representation/screens/tab_screen.dart';
 
 import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
 import 'package:quickalert/models/quickalert_type.dart';
@@ -75,24 +72,63 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
   var _enteredName = '';
   var price = 0;
   var checkoutPrice = 0;
-  List<BookingTickets> ticketList = [];
-  List<BookingTickets> ticketCheckoutList = [];
+  List<Tickets> ticketList = [];
+  List<Tickets> ticketCheckoutList = [];
 
   void showAlertSuccess() {
-    QuickAlert.show(
-        context: context,
-        type: QuickAlertType.success,
-        text: 'Payment successfully');
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.success,
+      title: 'Đã thanh toán',
+      desc: 'Thanh toán thành công',
+      btnOkOnPress: () {},
+      btnOkText: 'Xác nhận',
+      btnCancelText: 'Về trang chủ',
+      btnCancelOnPress: () {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (ctx) => const TabsScreen()));
+      },
+    ).show();
   }
 
   void showAlertFail(String response) {
-    QuickAlert.show(
-        context: context, type: QuickAlertType.error, text: response);
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.error,
+      title: 'Thanh toán thất bại',
+      desc: 'Thanh toán thất bại, vui lòng kiểm tra lại thông tin!',
+      btnOkOnPress: () {},
+      btnOkText: 'Thực hiện lại',
+      btnCancelText: 'Về trang chủ',
+      btnCancelOnPress: () {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (ctx) => const TabsScreen()));
+      },
+    ).show();
+  }
+
+  void showConfirmDialog(String id) {
+    AwesomeDialog(
+            context: context,
+            animType: AnimType.scale,
+            dialogType: DialogType.question,
+            title: 'Xác nhận thanh toán',
+            desc:
+                'Xác nhận đã nhận tiền đầy đủ và thanh toán tour này! Hành động này không thể hoàn tác sau khi bấm Xác nhận',
+            btnOkOnPress: () {
+              pay(id);
+            },
+            btnOkText: 'Xác nhận',
+            btnCancelText: 'Quay lại',
+            btnCancelOnPress: () {})
+        .show();
   }
 
   void pay(String bookingId) async {
     String paymentCheck = await PaymentServices.paymentOffline(bookingId);
-    if (paymentCheck == "Payment processed successfully") {
+    if (paymentCheck == "Payment process successfully") {
       Navigator.of(context).pop();
       showAlertSuccess();
     } else {
@@ -111,7 +147,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                 title: Row(
                   children: [
                     const Text(
-                      'Booking detail',
+                      'Chi tiết',
                       style:
                           TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
                     ),
@@ -148,7 +184,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                         Row(
                           children: [
                             Text(
-                              'Customer Name: ',
+                              'Họ và Tên: ',
                               style: TextStyles.defaultStyle.subTitleTextColor,
                             ),
                             Flexible(
@@ -164,7 +200,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Phone number: ',
+                              'Số điện thoại: ',
                               style: TextStyles.defaultStyle.subTitleTextColor,
                             ),
                             Flexible(
@@ -184,7 +220,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                                 children: [
                                   Text(
                                     ticketCheckoutList[i]
-                                        .bookingDetailTicket!
+                                        .ticketType!
                                         .ticketTypeName!,
                                     style: TextStyles
                                         .defaultStyle.subTitleTextColor,
@@ -202,7 +238,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Total price: ',
+                              'Tổng giá: ',
                               style: TextStyles.defaultStyle.subTitleTextColor,
                             ),
                             Flexible(
@@ -217,9 +253,9 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                         const SizedBox(height: kDefaultIconSize),
                         ButtonWidget(
                           isIcon: false,
-                          title: 'Checkout',
+                          title: 'Thanh toán',
                           ontap: () {
-                            pay(bookingId);
+                            showConfirmDialog(bookingId);
                           },
                           color: const Color.fromARGB(168, 0, 0, 0),
                           textStyle: TextStyles.regularStyle.whiteTextColor,
@@ -271,7 +307,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
   }
 
   void fetchTicketList() {
-    for (var ticket in widget.tour.tourTicket!) {
+    for (var ticket in widget.tour.ticket) {
       ticketList.add(ticket);
     }
   }
@@ -298,7 +334,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: kMediumPadding / 2),
-              child: Text('Booking',
+              child: Text('Mua vé',
                   style: TextStyles.regularStyle.subTitleTextColor),
             ),
             const SizedBox(height: kDefaultIconSize / 2),
@@ -323,7 +359,8 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.person_outline),
                             prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            hintText: 'Customer name (Required)',
+                            hintText: 'Tên khách hàng (Bắt buộc)',
+                            hintStyle: TextStyles.defaultStyle,
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 246, 243, 243)),
@@ -340,7 +377,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           textCapitalization: TextCapitalization.none,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Customer name is required';
+                              return 'Tên khách hàng không được bỏ trống';
                             }
                             return null;
                           },
@@ -358,7 +395,8 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.email_outlined),
                             prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            hintText: 'Enter email address (Optional)',
+                            hintText: 'Địa chỉ email (Không bắt buộc)',
+                            hintStyle: TextStyles.defaultStyle,
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 246, 243, 243)),
@@ -395,7 +433,8 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.phone_android_outlined),
                             prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            hintText: 'Phone number (Required)',
+                            hintText: 'Số điện thoại (Bắt buộc)',
+                            hintStyle: TextStyles.defaultStyle,
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 246, 243, 243)),
@@ -412,7 +451,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           textCapitalization: TextCapitalization.none,
                           validator: (value) {
                             if (value == null || value.trim().length != 10) {
-                              return 'Phone number must have 10 number';
+                              return 'Số điện thoại phải có 10 chữ số';
                             }
                             return null;
                           },
@@ -431,9 +470,10 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           decoration: const InputDecoration(
                             prefixIcon: Icon(FontAwesomeIcons.busSimple),
                             prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            labelText: 'Select departure station',
+                            labelText: 'Chọn trạm khởi hành',
                             labelStyle: TextStyles.defaultStyle,
-                            hintText: 'Select departure station',
+                            hintText: 'Chọn trạm khởi hành',
+                            hintStyle: TextStyles.defaultStyle,
                             border: OutlineInputBorder(
                               borderSide: BorderSide(
                                 color: Color.fromARGB(255, 246, 243, 243),
@@ -457,8 +497,9 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           items: stationList.map((station) {
                             return DropdownMenuItem<TrackingStations>(
                               value: station,
-                              child:
-                                  Text(station.tourDetailStation!.stationName!),
+                              child: Text(
+                                  station.tourDetailStation!.stationName!,
+                                  style: TextStyles.defaultStyle),
                             );
                           }).toList(),
                           onChanged: (TrackingStations? newValue) {
@@ -469,7 +510,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                         ),
                       ),
                       const SizedBox(height: kMediumPadding),
-                      for (var i = 0; i < widget.tour.tourTicket!.length; i++)
+                      for (var i = 0; i < widget.tour.ticket.length; i++)
                         Column(
                           children: [
                             Padding(
@@ -483,7 +524,8 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                                   prefixIconColor:
                                       const Color.fromARGB(255, 112, 111, 111),
                                   hintText:
-                                      'Input amount of ${widget.tour.tourTicket![i].bookingDetailTicket!.ticketTypeName}',
+                                      'Nhập số lượng ${widget.tour.ticket[i].ticketType!.ticketTypeName}',
+                                  hintStyle: TextStyles.defaultStyle,
                                   border: const OutlineInputBorder(
                                       borderSide: BorderSide(
                                           color: Color.fromARGB(
@@ -503,18 +545,14 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                                 autocorrect: false,
                                 textCapitalization: TextCapitalization.none,
                                 onSaved: (value) {
-                                  widget.tour.tourTicket![i].quantity =
+                                  widget.tour.ticket[i].quantity =
                                       int.parse(value!);
-                                  ticketList.add(widget.tour.tourTicket![i]);
+                                  ticketList.add(widget.tour.ticket[i]);
 
                                   price = price +
                                       int.parse(value) *
-                                          widget
-                                              .tour
-                                              .tourTicket![i]
-                                              .bookingDetailTicket!
-                                              .price!
-                                              .amount!;
+                                          widget.tour.ticket[i].ticketType!
+                                              .price!.amount!;
                                 },
                               ),
                             ),
@@ -523,7 +561,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                         ),
                       ButtonWidget(
                         isIcon: false,
-                        title: 'CONFIRM ORDER',
+                        title: 'Xác nhận đặt vé',
                         ontap: () {
                           _submit(context);
                         },

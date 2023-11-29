@@ -62,12 +62,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
-                'This account doesn\'t have permission to access this application')));
+                'Tài khoản này chưa được cấp phép truy cập vào hệ thống')));
       }
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Email is not existed or password is not correct')));
+          content: Text('Địa chỉ email không hợp lệ hoặc không đúng')));
     }
   }
 
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const EdgeInsets.symmetric(horizontal: kMediumPadding / 2),
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  Text('Sign in',
+                  Text('Đăng nhập',
                       style: TextStyles.defaultStyle.fontHeader.bold),
                 ])),
             const SizedBox(height: kMediumPadding),
@@ -108,16 +108,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         horizontal: kMediumPadding / 2),
                     child: TextFormField(
                       cursorColor: ColorPalette.primaryColor,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.email_outlined),
-                        prefixIconColor: Color.fromARGB(255, 112, 111, 111),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.email_outlined),
+                        prefixIconColor:
+                            const Color.fromARGB(255, 112, 111, 111),
                         hintText: 'phuclh1406@gmail.com',
-                        border: OutlineInputBorder(
+                        hintStyle: TextStyles.defaultStyle.subTitleTextColor,
+                        border: const OutlineInputBorder(
                             borderSide: BorderSide(
                                 color: Color.fromARGB(255, 246, 243, 243)),
                             borderRadius: BorderRadius.all(
                                 Radius.circular(kMediumPadding / 2.5))),
-                        focusedBorder: OutlineInputBorder(
+                        focusedBorder: const OutlineInputBorder(
                             borderSide: BorderSide(
                                 color: Color.fromARGB(255, 62, 62, 62)),
                             borderRadius: BorderRadius.all(
@@ -130,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value == null ||
                             value.trim().isEmpty ||
                             !value.contains('@')) {
-                          return 'Please enter a valid email address';
+                          return 'Địa chỉ email không hợp lệ';
                         }
                         return null;
                       },
@@ -150,16 +152,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         horizontal: kMediumPadding / 2),
                     child: TextFormField(
                       cursorColor: ColorPalette.primaryColor,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.lock_outline_rounded),
-                        prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                        hintText: 'Your Password',
-                        border: OutlineInputBorder(
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.lock_outline_rounded),
+                        prefixIconColor:
+                            const Color.fromARGB(255, 112, 111, 111),
+                        hintText: 'Mật khẩu của bạn',
+                        hintStyle: TextStyles.defaultStyle.subTitleTextColor,
+                        border: const OutlineInputBorder(
                             borderSide: BorderSide(
                                 color: Color.fromARGB(255, 246, 243, 243)),
                             borderRadius: BorderRadius.all(
                                 Radius.circular(kMediumPadding / 2.5))),
-                        focusedBorder: OutlineInputBorder(
+                        focusedBorder: const OutlineInputBorder(
                             borderSide: BorderSide(
                                 color: Color.fromARGB(255, 62, 62, 62)),
                             borderRadius: BorderRadius.all(
@@ -171,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.trim().length < 6) {
-                          return 'Password must have more than 5 characters';
+                          return 'Mật khẩu phải có ít nhất 6 kí tự';
                         }
                         return null;
                       },
@@ -186,15 +190,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextButton(
                           onPressed: () {},
                           child: const Text(
-                            'Forgot Password?',
+                            'Quên mật khẩu?',
                             style: TextStyles.defaultStyle,
                           )),
                     ],
                   ),
                   const SizedBox(height: kMediumPadding / 5),
                   ButtonWidget(
-                    isIcon: true,
-                    title: 'SIGN IN',
+                    isIcon: false,
+                    title: 'Đăng nhập',
                     ontap: () {
                       _submit(context);
                     },
@@ -209,13 +213,12 @@ class _LoginScreenState extends State<LoginScreen> {
             Text('OR', style: GoogleFonts.lato().subTitleTextColor.bold),
             const SizedBox(height: kMediumPadding / 2),
             ButtonLogoWidget(
-              title: 'Login with Google',
+              title: 'Đăng nhập bằng Google',
               ontap: () async {
                 final signInSuccessful =
                     await AuthServices().signInWithGoogle();
                 if (signInSuccessful) {
                   String roleName = await getUser();
-                  String userId = await getUserId();
                   if (roleName == 'TourGuide' || roleName == 'Driver') {
                     Navigator.push(
                       context,

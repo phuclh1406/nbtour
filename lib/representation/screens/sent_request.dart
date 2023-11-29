@@ -73,18 +73,6 @@ class _SentRequestScreenState extends State<SentRequestScreen>
     return isInSeason; // Return isInSeason after the loop has completed
   }
 
-  void _onCheckIn(id, status) {
-    setState(() {
-      RescheduleServices.updateRequestStatus(id, status);
-    });
-  }
-
-  void _onRemove(id, status) {
-    setState(() {
-      RescheduleServices.updateRequestStatus(id, status);
-    });
-  }
-
   // Store the filtered tours
   Widget loadScheduledTour() {
     return FutureBuilder<List<RescheduleForm>?>(
@@ -267,15 +255,16 @@ class _SentRequestScreenState extends State<SentRequestScreen>
               labelColor: ColorPalette.primaryColor,
               indicatorColor: ColorPalette.primaryColor,
               splashFactory: NoSplash.splashFactory,
+              labelStyle: TextStyles.defaultStyle,
               automaticIndicatorColorAdjustment: true,
               tabs: const [
                 Tab(
                   text: 'All',
                 ),
-                Tab(text: 'Pending'),
-                Tab(text: 'Accepted'),
-                Tab(text: 'Approved'),
-                Tab(text: 'Rejected')
+                Tab(text: 'Đang chờ'),
+                Tab(text: 'Chấp nhận'),
+                Tab(text: 'Đã duyệt'),
+                Tab(text: 'Từ chối')
               ]),
           backgroundColor: Colors.white,
           scrolledUnderElevation: 0,
@@ -298,13 +287,12 @@ class _SentRequestScreenState extends State<SentRequestScreen>
                     //   Icons.search,
                     //   color: Colors.black, // Change icon color
                     // ),
-                    hintText: "Search by requester name...",
-                    hintStyle: TextStyle(
-                        color: Colors.black), // Change hint text color
+                    hintText: "Tìm kiếm bằng tên người gửi...",
+                    hintStyle: TextStyles.defaultStyle, //Change hint text color
                   ),
                 )
               : Text(
-                  'My applications',
+                  'Đơn của tôi',
                   style: TextStyles.defaultStyle.bold.fontHeader,
                 ),
           actions: <Widget>[

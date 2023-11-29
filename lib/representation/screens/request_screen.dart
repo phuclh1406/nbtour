@@ -326,16 +326,19 @@ class _RequestScreenState extends State<RequestScreen>
               },
               labelColor: ColorPalette.primaryColor,
               indicatorColor: ColorPalette.primaryColor,
+              labelStyle: TextStyles.defaultStyle,
               splashFactory: NoSplash.splashFactory,
               automaticIndicatorColorAdjustment: true,
               tabs: const [
                 Tab(
                   text: 'All',
                 ),
-                Tab(text: 'Pending'),
-                Tab(text: 'Accepted'),
-                Tab(text: 'Approved'),
-                Tab(text: 'Rejected')
+                Tab(
+                  text: 'Đang chờ',
+                ),
+                Tab(text: 'Chấp thuận'),
+                Tab(text: 'Đã duyệt'),
+                Tab(text: 'Từ chối')
               ]),
           backgroundColor: Colors.white,
           scrolledUnderElevation: 0,
@@ -358,13 +361,13 @@ class _RequestScreenState extends State<RequestScreen>
                     //   Icons.search,
                     //   color: Colors.black, // Change icon color
                     // ),
-                    hintText: "Search by requester name...",
-                    hintStyle: TextStyle(
-                        color: Colors.black), // Change hint text color
+                    hintText: "tìm kiếm bằng tên người gửi...",
+                    hintStyle:
+                        TextStyles.defaultStyle, //// Change hint text color
                   ),
                 )
               : Text(
-                  'Request list',
+                  'Danh sách đơn đến',
                   style: TextStyles.defaultStyle.bold.fontHeader,
                 ),
           actions: <Widget>[

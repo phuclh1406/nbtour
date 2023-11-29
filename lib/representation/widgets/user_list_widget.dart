@@ -91,10 +91,13 @@ class UserListWidget extends StatelessWidget {
                                   const SizedBox(
                                     width: kDefaultIconSize / 2,
                                   ),
-                                  Text(
-                                    departureStation,
-                                    style: const TextStyle(
-                                      fontSize: 15,
+                                  Flexible(
+                                    child: Text(
+                                      departureStation,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],

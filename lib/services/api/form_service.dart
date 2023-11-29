@@ -24,6 +24,10 @@ class RescheduleServices {
         'changeEmployee': changeEmployee,
       });
 
+      print(currentTour);
+      print(desireTour);
+      print(changeEmployee);
+
       var response = await client.post(url, headers: headers, body: body);
       print(response.statusCode);
       print(response.body);
@@ -82,10 +86,10 @@ class RescheduleServices {
         listForm = rescheduleFormsFromJson(responseData['forms']);
         return listForm;
       } else {
-        return null;
+        return [];
       }
     } catch (e) {
-      return null;
+      return [];
     }
   }
 

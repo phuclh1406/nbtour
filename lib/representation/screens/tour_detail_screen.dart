@@ -16,6 +16,7 @@ import 'package:nbtour/representation/screens/reschedule_screen.dart';
 import 'package:nbtour/representation/screens/tab_screen.dart';
 
 import 'package:nbtour/representation/widgets/button_widget/rectangle_button_widget.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 String userId = '';
 String tourId = '';
@@ -37,6 +38,45 @@ class TourDetailScreen extends StatelessWidget {
         builder: (ctx) => SizedBox(
             height: MediaQuery.of(context).size.height * 0.8,
             child: RescheduleScreen(tour: scheduleTour)),
+      );
+    }
+
+    Widget showTourQr() {
+      return Center(
+        child: FutureBuilder<dynamic>(
+          future: showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return WillPopScope(
+                child: AlertDialog(
+                  title: Row(
+                    children: [
+                      const Text(
+                        'Đường dẫn',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.close))
+                    ],
+                  ),
+                  content: SizedBox(
+                    child: QrImageView(
+                        data:
+                            'https://walletfpt.com/view-route?id=${scheduleTour.tourRoute!.routeId}&tourId=${scheduleTour.tourId}'),
+                  ),
+                ),
+                onWillPop: () async => false,
+              );
+            },
+          ),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            throw UnimplementedError;
+          },
+        ),
       );
     }
 
@@ -151,7 +191,7 @@ class TourDetailScreen extends StatelessWidget {
                                                       .size
                                                       .width /
                                                   2,
-                                              title: "View in calendar",
+                                              title: "Xem trong lịch",
                                               ontap: () {
                                                 Navigator.of(context).push(
                                                     MaterialPageRoute(
@@ -277,8 +317,8 @@ class TourDetailScreen extends StatelessWidget {
                                             Text(
                                                 scheduleTour.tourBus!
                                                         .isDoubleDecker!
-                                                    ? 'Double Decker Bus (${scheduleTour.tourBus!.numberSeat} seats)'
-                                                    : 'One Decker Bus (${scheduleTour.tourBus!.numberSeat} seats)',
+                                                    ? 'Xe bus 2 tầng (${scheduleTour.tourBus!.numberSeat} ghế ngồi)'
+                                                    : 'Xe bus 1 tầng (${scheduleTour.tourBus!.numberSeat} ghế ngồi)',
                                                 style: TextStyles.defaultStyle),
                                         ],
                                       ),
@@ -316,7 +356,7 @@ class TourDetailScreen extends StatelessWidget {
                                                     scheduleTour.driver!.name!,
                                                     style: TextStyles
                                                         .regularStyle.bold)
-                                                : Text('Not assigned',
+                                                : Text('Chưa phân công',
                                                     style: TextStyles
                                                         .regularStyle.bold),
                                           const SizedBox(
@@ -362,7 +402,7 @@ class TourDetailScreen extends StatelessWidget {
                                                   scheduleTour.tourGuide!.name!,
                                                   style: TextStyles
                                                       .regularStyle.bold)
-                                              : Text('Not assigned',
+                                              : Text('Chưa phân công',
                                                   style: TextStyles
                                                       .regularStyle.bold),
                                         const SizedBox(
@@ -385,7 +425,7 @@ class TourDetailScreen extends StatelessWidget {
                                 const SizedBox(
                                   height: kMediumPadding,
                                 ),
-                                Text('About Tour',
+                                Text('Mô tả',
                                     style: TextStyles.regularStyle.bold),
                                 const SizedBox(height: kDefaultPadding / 2),
                                 Text(tour.description!,
@@ -393,7 +433,7 @@ class TourDetailScreen extends StatelessWidget {
                                       fontSize: 16,
                                       height: 1.5,
                                     )),
-                                const SizedBox(height: kMediumPadding),
+                                const SizedBox(height: kMediumPadding * 3),
                               ],
                             ),
                           ),
@@ -410,49 +450,75 @@ class TourDetailScreen extends StatelessWidget {
                           MediaQuery.of(context).size.width - kDefaultIconSize,
                       color: const Color.fromARGB(255, 251, 250, 250),
                       padding: const EdgeInsets.symmetric(
-                          vertical: kMediumPadding / 2),
-                      child: Row(
+                          vertical: kMediumPadding / 4),
+                      child: Column(
                         children: [
-                          const SizedBox(
-                            width: kMediumPadding / 2,
-                          ),
                           RectangleButtonWidget(
-                            width: MediaQuery.of(context).size.width / 2 -
-                                kMediumPadding / 1.7,
-                            title: 'View route',
+                            width: MediaQuery.of(context).size.width -
+                                kMediumPadding,
+                            title: 'Hiển thị mã QR theo dõi tour',
                             ontap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (ctx) => ReviewRideScreen(
-                                            tour: tour,
-                                          )));
+                              showTourQr();
                             },
-                            buttonColor: ColorPalette.primaryColor,
-                            textStyle: TextStyles.defaultStyle.whiteTextColor,
-                            isIcon: true,
-                            borderColor: ColorPalette.primaryColor,
-                            icon: const Icon(
-                              FontAwesomeIcons.diamondTurnRight,
-                              color: Colors.white,
-                              size: kDefaultIconSize + 3,
-                            ),
-                          ),
-                          const SizedBox(width: kDefaultIconSize / 4),
-                          RectangleButtonWidget(
-                            width: MediaQuery.of(context).size.width / 2 -
-                                kMediumPadding / 1.7,
-                            title: 'Reschedule tour',
-                            ontap: _openAddExpenseOverlay,
                             buttonColor: Colors.white,
                             textStyle: TextStyles.defaultStyle.primaryTextColor,
                             isIcon: true,
                             borderColor: ColorPalette.primaryColor,
                             icon: const Icon(
-                              Icons.change_circle_rounded,
+                              FontAwesomeIcons.qrcode,
                               color: ColorPalette.primaryColor,
                               size: kDefaultIconSize + 3,
                             ),
+                          ),
+                          const SizedBox(
+                            height: kMediumPadding / 4,
+                          ),
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: kMediumPadding / 2,
+                              ),
+                              RectangleButtonWidget(
+                                width: MediaQuery.of(context).size.width / 2 -
+                                    kMediumPadding / 1.7,
+                                title: 'Chỉ dẫn',
+                                ontap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (ctx) => ReviewRideScreen(
+                                                tour: tour,
+                                              )));
+                                },
+                                buttonColor: ColorPalette.primaryColor,
+                                textStyle:
+                                    TextStyles.defaultStyle.whiteTextColor,
+                                isIcon: true,
+                                borderColor: ColorPalette.primaryColor,
+                                icon: const Icon(
+                                  FontAwesomeIcons.diamondTurnRight,
+                                  color: Colors.white,
+                                  size: kDefaultIconSize + 3,
+                                ),
+                              ),
+                              const SizedBox(width: kDefaultIconSize / 4),
+                              RectangleButtonWidget(
+                                width: MediaQuery.of(context).size.width / 2 -
+                                    kMediumPadding / 1.7,
+                                title: 'Chuyển lịch',
+                                ontap: _openAddExpenseOverlay,
+                                buttonColor: Colors.white,
+                                textStyle:
+                                    TextStyles.defaultStyle.primaryTextColor,
+                                isIcon: true,
+                                borderColor: ColorPalette.primaryColor,
+                                icon: const Icon(
+                                  Icons.change_circle_rounded,
+                                  color: ColorPalette.primaryColor,
+                                  size: kDefaultIconSize + 3,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -461,7 +527,7 @@ class TourDetailScreen extends StatelessWidget {
                 ],
               );
             } else {
-              return const Text('No tour found.');
+              return const Text('Không tìm thấy tour.');
             }
           } else if (snapshot.hasError) {
             // Display an error message if the future completed with an error
@@ -479,7 +545,7 @@ class TourDetailScreen extends StatelessWidget {
           scrolledUnderElevation: 0,
           backgroundColor: Colors.white,
           title: Text(
-            'Tour Detail',
+            'Chi tiết',
             style: TextStyles.defaultStyle.fontHeader.bold,
           ),
           actions: <Widget>[

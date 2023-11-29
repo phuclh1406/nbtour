@@ -24,18 +24,19 @@ class ButtonLogoWidget extends StatelessWidget {
       onTap: ontap,
       child: Stack(children: [
         Container(
-          width: width - kMediumPadding * 4,
-          padding: const EdgeInsets.symmetric(vertical: kDefaultPadding * 1.5),
+          width: width - kMediumPadding,
+          padding: const EdgeInsets.symmetric(vertical: kDefaultPadding),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(kDefaultPadding),
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(color: const Color.fromARGB(148, 0, 0, 0)),
             color: color,
           ),
           alignment: Alignment.center,
           child: Text(title, style: textStyle),
         ),
         Positioned(
-            top: kDefaultPadding,
-            left: width / 22,
+            top: kDefaultPadding / 2,
+            right: width / 2 + kMediumPadding * 3.5,
             child: ImageHelper.loadFromAsset(AssetHelper.googleLogo,
                 width: kDefaultIconSize * 2, fit: BoxFit.fitWidth)),
       ]),

@@ -158,7 +158,7 @@ class RequestListWidget extends StatelessWidget {
                                     ),
                                   ),
                             const SizedBox(
-                              width: kDefaultPadding,
+                              width: kDefaultPadding / 1.5,
                             ),
                             if (status == "Pending")
                               Container(

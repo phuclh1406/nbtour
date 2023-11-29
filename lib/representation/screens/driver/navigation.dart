@@ -17,7 +17,6 @@ import 'package:nbtour/services/models/domain/usecases/get_location_from_latlng_
 import 'package:nbtour/services/models/domain/usecases/get_place_detail_usecase.dart';
 import 'package:nbtour/services/models/vietnam_map/vietmap_place_model.dart';
 import 'package:nbtour/services/models/vietnam_map/vietmap_reverse_model.dart';
-import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/helpers.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
@@ -598,7 +597,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            "Going to",
+                            "Trạm tiếp theo",
                             style: TextStyle(
                                 color: ColorPalette.primaryColor,
                                 fontSize: 17,
@@ -657,7 +656,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                                       child: Align(
                                         alignment: AlignmentDirectional.center,
                                         child: Text(
-                                          'Start Navigation',
+                                          'Bắt đầu định vị',
                                           style: TextStyles
                                               .defaultStyle.whiteTextColor,
                                         ),

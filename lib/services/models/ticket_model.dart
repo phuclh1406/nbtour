@@ -1,5 +1,4 @@
 import 'package:nbtour/services/models/ticket_type_model.dart';
-import 'package:nbtour/services/models/tour_model.dart';
 
 List<Tickets> ticketsFromJson(dynamic str) =>
     List<Tickets>.from((str).map((x) => Tickets.fromJson(x)));
@@ -7,38 +6,26 @@ List<Tickets> ticketsFromJson(dynamic str) =>
 class Tickets {
   Tickets({
     required this.ticketId,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
     required this.ticketType,
-    required this.ticketTour,
+    required this.quantity,
   });
 
   late String? ticketId;
-  late String? status;
-  late String? createdAt;
-  late String? updatedAt;
+  late int? quantity;
   late TicketTypes? ticketType;
-  late Tour? ticketTour;
 
   Tickets.fromJson(Map<String, dynamic> json) {
     ticketId = json['ticketId'];
-    status = json['status'];
-    createdAt = json['createdAt'];
-    updatedAt = json['updatedAt'];
+    quantity = json['quantity'];
     ticketType = json['ticket_type'] != null
         ? TicketTypes.fromJson(json['ticket_type'])
         : null;
-    ticketTour =
-        json['ticket_tour'] != null ? Tour.fromJson(json['ticket_tour']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['ticketId'] = ticketId;
-    data['status'] = status;
-    data['createdAt'] = createdAt;
-    data['updatedAt'] = updatedAt;
+    data['quantity'] = quantity;
     if (ticketType != null) {
       data['ticket_type'] = {
         'ticketTypeId': ticketType?.ticketTypeId,
@@ -47,20 +34,7 @@ class Tickets {
         'status': ticketType?.status,
       };
     }
-    if (ticketTour != null) {
-      data['ticket_tour'] = {
-        'tourId': ticketTour?.tourId,
-        'tourName': ticketTour?.tourName,
-        'description': ticketTour?.description,
-        'note': ticketTour?.note,
-        'beginBookingDate': ticketTour?.beginBookingDate,
-        'endBookingDate': ticketTour?.endBookingDate,
-        'departureDate': ticketTour?.departureDate,
-        'routeId': ticketTour?.tourRoute?.routeId,
-        'tourStatus': ticketTour?.tourStatus,
-        'status': ticketTour?.status,
-      };
-    }
+
     return data;
   }
 }

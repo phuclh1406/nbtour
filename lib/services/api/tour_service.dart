@@ -59,6 +59,7 @@ class TourService {
       var url = Uri.parse(
           'https://${Config.apiURL}${Config.getTour}?tourGuideId=$userId');
       var response = await client.get(url, headers: headers);
+      print(userId);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         List<Tour> tour = toursFromJson(data["tours"]);
@@ -72,14 +73,14 @@ class TourService {
         // Return the result here
         return result;
       } else {
-        return null;
+        return [];
       }
     } catch (e) {
       throw Exception(e);
     }
   }
 
-  static Future<Tour?> getTourByTourStatusAndDriverId(
+  static Future<List<Tour>?> getTourByTourStatusAndDriverId(
       String? userId, String? status) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -92,12 +93,14 @@ class TourService {
           'https://${Config.apiURL}${Config.getTour}?driverId=$userId&tourStatus=$status');
       var response = await client.get(url, headers: headers);
 
+      print(response.body);
+      print(response.statusCode);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        Tour tour = Tour.fromJson(data["tours"][0]);
+        List<Tour> listTour = toursFromJson(data["tours"]);
 
         // Return the result here
-        return tour;
+        return listTour;
       } else {
         return null;
       }
@@ -120,6 +123,8 @@ class TourService {
       var url = Uri.parse('https://${Config.apiURL}${Config.getTour}/$tourId');
       var response = await client.put(url, headers: headers, body: body);
 
+      print(response.statusCode);
+      print(response.body);
       if (response.statusCode == 200) {
         return "Update success";
       } else {
@@ -139,10 +144,12 @@ class TourService {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
+      print(userId);
       var url = Uri.parse(
           'https://${Config.apiURL}${Config.getTour}?driverId=$userId');
       var response = await client.get(url, headers: headers);
 
+      print(response.body);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         List<Tour> tour = toursFromJson(data["tours"]);
@@ -156,7 +163,7 @@ class TourService {
         // Return the result here
         return result;
       } else {
-        return null;
+        return [];
       }
     } catch (e) {
       throw Exception(e);

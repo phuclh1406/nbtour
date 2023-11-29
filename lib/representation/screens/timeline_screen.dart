@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:nbtour/main.dart';
 import 'package:nbtour/representation/screens/driver/navigation.dart';
@@ -117,7 +116,7 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
             if (context.mounted) {
               ScaffoldMessenger.of(context).clearSnackBars();
               ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Tour is finished')));
+                  const SnackBar(content: Text('Tour đã hoàn tất')));
             }
           } else {
             if (context.mounted) {
@@ -129,8 +128,9 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
         } else {
           if (context.mounted) {
             ScaffoldMessenger.of(context).clearSnackBars();
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Required arrived all stations')));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text(
+                    'Cần phải đến tất cả các trạm trước khi hoàn thành tour')));
           }
         }
       }
@@ -226,8 +226,8 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                                 kMediumPadding / 1.7,
                             title: trackingList[0].tourDetail!.tourStatus !=
                                     "Started"
-                                ? "Start tour"
-                                : "End tour",
+                                ? "Bắt đầu"
+                                : "Hoàn thành",
                             ontap: () {
                               trackingList[0].tourDetail!.tourStatus !=
                                       "Started"
@@ -257,7 +257,7 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                           RectangleButtonWidget(
                             width: MediaQuery.of(context).size.width / 2 -
                                 kMediumPadding / 1.7,
-                            title: 'View direction',
+                            title: 'Chỉ dẫn',
                             ontap: () {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (ctx) => VietMapNavigationScreen(

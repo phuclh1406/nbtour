@@ -25,10 +25,10 @@ class ButtonWidget extends StatelessWidget {
       onTap: ontap,
       child: Stack(children: [
         Container(
-          width: width - kMediumPadding * 4,
-          padding: const EdgeInsets.symmetric(vertical: kDefaultPadding * 1.5),
+          width: width - kMediumPadding,
+          padding: const EdgeInsets.symmetric(vertical: kDefaultPadding),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(kDefaultPadding),
+            borderRadius: BorderRadius.circular(5),
             color: color,
           ),
           alignment: Alignment.center,

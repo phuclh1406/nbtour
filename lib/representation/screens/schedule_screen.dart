@@ -23,8 +23,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title:
-              Text('Schedule', style: TextStyles.regularStyle.fontHeader.bold),
+          title: Text('Thời gian biểu',
+              style: TextStyles.regularStyle.fontHeader.bold),
         ),
         body: SafeArea(child: CalendarWidget(initDate: widget.initDate)));
   }

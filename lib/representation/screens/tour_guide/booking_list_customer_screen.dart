@@ -1,9 +1,11 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nbtour/representation/screens/tab_screen.dart';
 import 'package:nbtour/services/api/booking_service.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
@@ -16,22 +18,19 @@ import 'package:nbtour/services/models/tour_model.dart';
 import 'package:nbtour/representation/screens/qr_scanner.dart';
 import 'package:nbtour/representation/widgets/user_list_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lottie/lottie.dart';
 
 String userId = '';
 String tourId = '';
 
 class BookingListCustomerScreen extends StatefulWidget {
-  const BookingListCustomerScreen({super.key, required this.tourId});
+  const BookingListCustomerScreen({super.key, required this.tour});
 
-  final String? tourId;
+  final Tour? tour;
 
   @override
   State<BookingListCustomerScreen> createState() =>
       _BookingListCustomerScreenState();
 }
-
-late Tour scheduleTour;
 
 class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
   bool isSearching = false;
@@ -65,13 +64,64 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
   Future<List<Booking>?> fetchBooking() async {
     try {
       final updatedBookingList =
-          await BookingServices.getUserList(widget.tourId!);
-
+          await BookingServices.getUserList(widget.tour!.tourId!);
+      print(updatedBookingList!.length);
       return updatedBookingList;
     } catch (e) {
       // Handle error as needed
       return null;
     }
+  }
+
+  void showAlertSuccess() {
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.success,
+      title: 'Đã điểm danh',
+      desc: 'Điểm danh thành công',
+      btnOkOnPress: () {},
+      btnOkText: 'Xác nhận',
+      btnCancelText: 'Về trang chủ',
+      btnCancelOnPress: () {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (ctx) => const TabsScreen()));
+      },
+    ).show();
+  }
+
+  void showConfirmDialog(int i, String id) {
+    AwesomeDialog(
+            context: context,
+            animType: AnimType.scale,
+            dialogType: DialogType.question,
+            title: 'Xác nhận điểm danh',
+            desc:
+                'Xác nhận điểm danh cho khách hàng? Bạn khong thể hoàn tác tác vụ này sau khi nhấn Xác Nhận!',
+            btnOkOnPress: () {
+              _onCheckIn(i, id);
+            },
+            btnOkText: 'Xác nhận',
+            btnCancelText: 'Quay lại',
+            btnCancelOnPress: () {})
+        .show();
+  }
+
+  void showAlertFail(String response) {
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.error,
+      title: 'Điểm danh thất bại',
+      desc: response,
+      btnOkOnPress: () {},
+      btnOkText: 'Thực hiện lại',
+      btnCancelText: 'Về trang chủ',
+      btnCancelOnPress: () {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (ctx) => const TabsScreen()));
+      },
+    ).show();
   }
 
   void sortBookingsByAttendance(List<Booking> bookings) {
@@ -91,12 +141,17 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
   }
 
   void _onCheckIn(i, id) async {
-    await BookingServices.checkInCustomer(id);
-
+    String check =
+        await BookingServices.checkInCustomer(id, widget.tour!.tourId!);
+    if (check == 'Check-in success') {
+      showAlertSuccess();
+      setState(() {
+        filteredSchedule[i].isAttended = true;
+      });
+    } else {
+      showAlertFail(check);
+    }
     // Update the local state after a successful API call
-    setState(() {
-      filteredSchedule[i].isAttended = true;
-    });
   }
 
   // void _onRemoveCheckIn(i, id, isAttended) async {
@@ -162,11 +217,11 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
                             motion: const StretchMotion(),
                             children: [
                               SlidableAction(
-                                  onPressed: (context) => _onCheckIn(
+                                  onPressed: (context) => showConfirmDialog(
                                       i, filteredSchedule[i].bookingId!),
                                   backgroundColor: Colors.green,
                                   icon: FontAwesomeIcons.check,
-                                  label: 'Check-in')
+                                  label: 'Điểm danh')
                             ],
                           ),
                           child: UserListWidget(
@@ -294,13 +349,14 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
                   //   Icons.search,
                   //   color: Colors.black, // Change icon color
                   // ),
-                  hintText: "Search by customer name...",
-                  hintStyle:
-                      TextStyle(color: Colors.black), // Change hint text color
+                  hintText: "Tìm kiếm bằng tên người đặt...",
+                  hintStyle: TextStyles.defaultStyle,
+
+                  /// Change hint text color
                 ),
               )
             : Text(
-                'User list',
+                'Danh sách',
                 style: TextStyles.defaultStyle.bold.fontHeader,
               ),
         actions: <Widget>[
@@ -328,8 +384,8 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
                 ),
           IconButton(
             onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (ctx) => const QRScanner()));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (ctx) => QRScanner(tour: widget.tour!)));
             },
             icon: const Icon(
               Icons.qr_code_scanner,

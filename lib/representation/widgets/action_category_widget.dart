@@ -6,11 +6,13 @@ class ActionCategoryWidget extends StatelessWidget {
       {super.key,
       required this.icon,
       required this.onTap,
-      required this.title});
+      required this.title,
+      required this.count});
 
   final Widget icon;
   final Function() onTap;
   final String title;
+  final int count;
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +23,31 @@ class ActionCategoryWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: kDefaultIconSize * 2,
-              height: kDefaultIconSize * 2,
-              padding:
-                  const EdgeInsets.symmetric(vertical: kDefaultIconSize / 3),
-              decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 89, 0),
-                  borderRadius: BorderRadius.circular(kItemPadding)),
-              child: icon,
-            ),
+            count != 0
+                ? Badge(
+                    backgroundColor: Colors.red,
+                    label: Text(count.toString()),
+                    child: Container(
+                      width: kDefaultIconSize * 2,
+                      height: kDefaultIconSize * 2,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: kDefaultIconSize / 3),
+                      decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 255, 89, 0),
+                          borderRadius: BorderRadius.circular(kItemPadding)),
+                      child: icon,
+                    ),
+                  )
+                : Container(
+                    width: kDefaultIconSize * 2,
+                    height: kDefaultIconSize * 2,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: kDefaultIconSize / 3),
+                    decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 255, 89, 0),
+                        borderRadius: BorderRadius.circular(kItemPadding)),
+                    child: icon,
+                  ),
             const SizedBox(
               height: kItemPadding / 2,
             ),

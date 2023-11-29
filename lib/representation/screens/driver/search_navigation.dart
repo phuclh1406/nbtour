@@ -35,7 +35,7 @@ class _SearchNavigationState extends State<SearchNavigation> {
   MapNavigationViewController? _controller;
   late MapOptions _navigationOption;
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
-
+  String apiKey = dotenv.env['VIETMAP_API_KEY']!;
   List<WayPoint> wayPoints = [
     WayPoint(name: "origin point", latitude: 10.759091, longitude: 106.675817),
     WayPoint(
@@ -59,15 +59,18 @@ class _SearchNavigationState extends State<SearchNavigation> {
   }
 
   Future<void> initialize() async {
+    Geolocator.getPositionStream().listen((Position position) {
+      // Handle the location updates here
+      print('Latitude: ${position.latitude}, Longitude: ${position.longitude}');
+    });
     if (!mounted) return;
 
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
-    _navigationOption.simulateRoute = false;
+    _navigationOption.simulateRoute = true;
 
-    _navigationOption.apiKey =
-        _navigationOption.apiKey = dotenv.env['VIETMAP_API_KEY']!;
+    _navigationOption.apiKey = dotenv.env['VIETMAP_API_KEY']!;
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=$apiKey";
     _navigationOption.customLocationCenterIcon =
         await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
