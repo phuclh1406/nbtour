@@ -23,14 +23,7 @@ class RescheduleServices {
         'desireTour': desireTour,
         'changeEmployee': changeEmployee,
       });
-
-      print(currentTour);
-      print(desireTour);
-      print(changeEmployee);
-
       var response = await client.post(url, headers: headers, body: body);
-      print(response.statusCode);
-      print(response.body);
       if (response.statusCode == 200) {
         return "Send form success";
       } else {
@@ -82,6 +75,9 @@ class RescheduleServices {
 
       final response = await client.get(url, headers: headers);
       final responseData = json.decode(response.body);
+
+      print(response.statusCode);
+      print(response.body);
       if (response.statusCode == 200) {
         listForm = rescheduleFormsFromJson(responseData['forms']);
         return listForm;

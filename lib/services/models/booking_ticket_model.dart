@@ -28,7 +28,6 @@ class BookingTickets {
     if (bookingDetailTicket != null) {
       data['booking_detail_ticket'] = {
         'ticketId': bookingDetailTicket?.ticketId,
-        'ticket_tour': bookingDetailTicket?.ticketTour,
         'ticket_type': bookingDetailTicket?.ticketType,
       };
     }

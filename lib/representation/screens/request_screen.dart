@@ -1,6 +1,9 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nbtour/representation/screens/form_detail.dart';
+import 'package:nbtour/representation/screens/tab_screen.dart';
 import 'package:nbtour/services/api/form_service.dart';
 import 'package:nbtour/services/api/tour_service.dart';
 import 'package:nbtour/utils/constant/colors.dart';
@@ -47,12 +50,84 @@ class _RequestScreenState extends State<RequestScreen>
   }
 
   Future<String>? fetchRequestTour(String tourId) async {
-    oldTour = await TourService.getTourByTourId(tourId);
-    if (oldTour != null) {
-      return oldTour!.tourName!;
-    } else {
-      return "";
+    try {
+      oldTour = await TourService.getTourByTourId(tourId);
+      if (oldTour != null) {
+        return oldTour!.tourName!;
+      } else {
+        return "";
+      }
+    } catch (e) {
+      return e.toString();
     }
+  }
+
+  void showAlertSuccess(String response) {
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.success,
+      title: 'Thành công',
+      desc: response,
+      btnOkOnPress: () {},
+      btnOkText: 'Xác nhận',
+      btnCancelText: 'Về trang chủ',
+      btnCancelOnPress: () {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (ctx) => const TabsScreen()));
+      },
+    ).show();
+  }
+
+  void showConfirmDialogAccept(String id, String status) {
+    AwesomeDialog(
+            context: context,
+            animType: AnimType.scale,
+            dialogType: DialogType.question,
+            title: 'Chấp nhận?',
+            desc:
+                'Bạn không thể hoàn tác hành động này sau khi đã nhấn Xác nhận!',
+            btnOkOnPress: () {
+              _onCheckIn(id, status);
+            },
+            btnOkText: 'Xác nhận',
+            btnCancelText: 'Quay lại',
+            btnCancelOnPress: () {})
+        .show();
+  }
+
+  void showConfirmDialogReject(String id, String status) {
+    AwesomeDialog(
+            context: context,
+            animType: AnimType.scale,
+            dialogType: DialogType.question,
+            title: 'Từ chối?',
+            desc:
+                'Bạn không thể hoàn tác hành động này sau khi đã nhấn Xác nhận!',
+            btnOkOnPress: () {
+              _onRemove(id, status);
+            },
+            btnOkText: 'Xác nhận',
+            btnCancelText: 'Quay lại',
+            btnCancelOnPress: () {})
+        .show();
+  }
+
+  void showAlertFail(String response) {
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.error,
+      title: 'Thất bại',
+      desc: response,
+      btnOkOnPress: () {},
+      btnOkText: 'Thực hiện lại',
+      btnCancelText: 'Về trang chủ',
+      btnCancelOnPress: () {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (ctx) => const TabsScreen()));
+      },
+    ).show();
   }
 
   bool isDateInSeason({
@@ -73,17 +148,48 @@ class _RequestScreenState extends State<RequestScreen>
     return isInSeason; // Return isInSeason after the loop has completed
   }
 
-  void _onCheckIn(id, status) {
-    setState(() {
-      RescheduleServices.updateRequestStatus(id, status);
-    });
+  void _onCheckIn(id, status) async {
+    try {
+      String check = await RescheduleServices.updateRequestStatus(id, status);
+      if (check == "Update request success") {
+        showAlertSuccess("Đã chấp nhận đề nghị chuyển lịch làm việc");
+      } else {
+        showAlertFail("Chấp nhận đề nghị chuyển lịch làm việc thất bại");
+      }
+    } catch (e) {
+      showAlertFail(e.toString());
+    }
   }
 
-  void _onRemove(id, status) {
-    setState(() {
-      RescheduleServices.updateRequestStatus(id, status);
-    });
+  void _onRemove(id, status) async {
+    try {
+      String check = await RescheduleServices.updateRequestStatus(id, status);
+      if (check == "Update request success") {
+        showAlertSuccess("Đã từ chối đề nghị chuyển lịch làm việc");
+      } else {
+        showAlertFail("Từ chối đề nghị chuyển lịch làm việc thất bại");
+      }
+    } catch (e) {
+      showAlertFail(e.toString());
+    }
   }
+
+  // void openFormOverlay(RescheduleForm form) {
+  //   showModalBottomSheet(
+  //     showDragHandle: true,
+  //     elevation: 0,
+  //     backgroundColor: Colors.white,
+  //     isScrollControlled: true,
+  //     context: context,
+  //     builder: (ctx) => SizedBox(
+  //         height: MediaQuery.of(context).size.height * 0.8,
+
+  //         // child: TimelinesScreen(route: route)),
+  //         child: RescheduleFormDetailScreen(
+  //           form: form,
+  //         )),
+  //   );
+  // }
 
   // Store the filtered tours
   Widget loadScheduledTour() {
@@ -191,16 +297,18 @@ class _RequestScreenState extends State<RequestScreen>
                                 motion: const StretchMotion(),
                                 children: [
                                   SlidableAction(
-                                      onPressed: (context) => _onCheckIn(
-                                          filteredSchedule[i].formId!,
-                                          "Accepted"),
+                                      onPressed: (context) =>
+                                          showConfirmDialogAccept(
+                                              filteredSchedule[i].formId!,
+                                              "Accepted"),
                                       backgroundColor: Colors.green,
                                       icon: FontAwesomeIcons.check,
                                       label: 'Accept'),
                                   SlidableAction(
-                                      onPressed: (context) => _onRemove(
-                                          filteredSchedule[i].formId!,
-                                          "Rejected"),
+                                      onPressed: (context) =>
+                                          showConfirmDialogReject(
+                                              filteredSchedule[i].formId!,
+                                              "Rejected"),
                                       backgroundColor: Colors.red,
                                       icon: FontAwesomeIcons.trash,
                                       label: 'Reject')
@@ -296,7 +404,17 @@ class _RequestScreenState extends State<RequestScreen>
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error
-          return Text('Error: ${snapshot.error}');
+          return Center(
+              child: Column(
+            children: [
+              ImageHelper.loadFromAsset(AssetHelper.error),
+              const SizedBox(height: 10),
+              Text(
+                snapshot.error.toString(),
+                style: TextStyles.regularStyle,
+              )
+            ],
+          ));
         } else {
           return Padding(
             padding: const EdgeInsets.only(top: kMediumPadding * 5),

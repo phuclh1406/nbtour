@@ -22,6 +22,7 @@ class Tour {
     required this.endBookingDate,
     required this.departureDate,
     required this.endDate,
+    required this.isScheduled,
     required this.tourStatus,
     required this.status,
     required this.createdAt,
@@ -38,6 +39,7 @@ class Tour {
   late String? note;
   late String? beginBookingDate;
   late String? endBookingDate;
+  late bool? isScheduled;
   late String? departureDate;
   late String? endDate;
   late String? tourStatus;
@@ -58,7 +60,7 @@ class Tour {
     tourName = json['tourName'];
     description = json['description'];
     note = json['note'];
-
+    isScheduled = json['isScheduled'];
     beginBookingDate = json['beginBookingDate'];
     endBookingDate = json['endBookingDate'];
     departureDate = json['departureDate'];
@@ -108,6 +110,7 @@ class Tour {
     data['tourName'] = tourName;
     data['description'] = description;
     data['note'] = note;
+    data['isScheduled'] = isScheduled;
     data['beginBookingDate'] = beginBookingDate;
     data['endBookingDate'] = endBookingDate;
     data['departureDate'] = departureDate;

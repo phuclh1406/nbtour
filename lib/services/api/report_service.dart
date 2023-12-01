@@ -21,8 +21,6 @@ class ReportServices {
       final body = json.encode(
           {'reportUserId': userId, 'title': title, 'description': description});
       var response = await client.post(url, headers: headers, body: body);
-      print(response.statusCode);
-      print(response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         return 'Send report successfully';
       } else {
@@ -44,11 +42,11 @@ class ReportServices {
         'Authorization': 'Bearer $token'
       };
       var response = await client.get(url, headers: headers);
-      print(response.statusCode);
-      print(response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         var data = jsonDecode(response.body);
         var reportList = reportsFromJson(data['reports']);
+        reportList =
+            reportList.where((report) => report.status == 'Active').toList();
         return reportList;
       } else {
         return json.decode(response.body)['msg'];
@@ -67,12 +65,13 @@ class ReportServices {
         'Authorization': 'Bearer $token'
       };
       var response = await client.get(url, headers: headers);
-      print(response.statusCode);
-      print(response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         var data = jsonDecode(response.body);
         var report = Reports.fromJson(data['reports']);
-        return report;
+        if (report.status == 'Active') {
+          return report;
+        }
+        return null;
       } else {
         return json.decode(response.body)['msg'];
       }

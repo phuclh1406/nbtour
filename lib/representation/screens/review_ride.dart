@@ -18,6 +18,8 @@ import 'package:nbtour/services/models/point_of_interest_model.dart';
 import 'package:nbtour/services/models/route_model.dart';
 import 'package:nbtour/services/models/station_model.dart';
 import 'package:nbtour/services/models/tracking_model.dart';
+import 'package:nbtour/utils/helper/asset_helper.dart';
+import 'package:nbtour/utils/helper/image_helper.dart';
 
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
@@ -87,9 +89,6 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
   void initState() {
     super.initState();
     initializeLocationAndSave();
-    timer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
-      // checkLocation();
-    });
   }
 
   void openStationsOverlay(Tour tour) {
@@ -350,7 +349,17 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error
-          return Text('Error: ${snapshot.error}');
+          return Center(
+              child: Column(
+            children: [
+              ImageHelper.loadFromAsset(AssetHelper.error),
+              const SizedBox(height: 10),
+              Text(
+                snapshot.error.toString(),
+                style: TextStyles.regularStyle,
+              )
+            ],
+          ));
         } else {
           return const SizedBox(); // Return an empty container or widget if data is null
         }

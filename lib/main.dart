@@ -21,6 +21,10 @@ import 'firebase_options.dart';
 late SharedPreferences sharedPreferences;
 
 final theme = ThemeData(
+    textSelectionTheme: const TextSelectionThemeData(
+        selectionHandleColor: ColorPalette.primaryColor,
+        selectionColor: Color.fromARGB(103, 255, 89, 0),
+        cursorColor: ColorPalette.primaryColor),
     useMaterial3: true,
     bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white, modalBackgroundColor: Colors.white),

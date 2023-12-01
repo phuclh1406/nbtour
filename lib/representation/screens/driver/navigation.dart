@@ -6,17 +6,18 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nbtour/utils/components/bottom_sheet_address_info.dart';
-import 'package:nbtour/utils/components/floating_search_bar.dart';
+
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
-import 'package:nbtour/utils/helper/shared_prefs.dart';
+
 import 'package:nbtour/main.dart';
 import 'package:nbtour/services/models/domain/repositories/vietmap_api_repositories.dart';
 import 'package:nbtour/services/models/domain/usecases/get_location_from_latlng_usecase.dart';
-import 'package:nbtour/services/models/domain/usecases/get_place_detail_usecase.dart';
-import 'package:nbtour/services/models/vietnam_map/vietmap_place_model.dart';
+
 import 'package:nbtour/services/models/vietnam_map/vietmap_reverse_model.dart';
+import 'package:nbtour/utils/helper/asset_helper.dart';
+import 'package:nbtour/utils/helper/image_helper.dart';
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/helpers.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
@@ -93,21 +94,26 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   // }
 
   Future<void> initialize() async {
-    Geolocator.getPositionStream().listen((Position position) {
-      // Handle the location updates here
-      print('Latitude: ${position.latitude}, Longitude: ${position.longitude}');
-    });
-    if (!mounted) return;
+    try {
+      Geolocator.getPositionStream().listen((Position position) {
+        // Handle the location updates here
+        print(
+            'Latitude: ${position.latitude}, Longitude: ${position.longitude}');
+      });
+      if (!mounted) return;
 
-    _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
-    _navigationOption.simulateRoute = true;
+      _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
+      _navigationOption.simulateRoute = true;
 
-    _navigationOption.apiKey = dotenv.env['VIETMAP_API_KEY']!;
-    _navigationOption.mapStyle =
-        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=$apiKey";
-    _navigationOption.customLocationCenterIcon =
-        await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
-    _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
+      _navigationOption.apiKey = dotenv.env['VIETMAP_API_KEY']!;
+      _navigationOption.mapStyle =
+          "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=$apiKey";
+      _navigationOption.customLocationCenterIcon =
+          await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
+      _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   void _startNavigationForNextWayPoints() async {
@@ -414,51 +420,56 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   // }
 
   Widget _buildWaypointButton(int index, BuildContext context) {
-    // return index % 2 == 0
-    return SizedBox(
-      width: MediaQuery.of(context).size.width - kMediumPadding,
-      child: ElevatedButton(
-        style: ButtonStyle(
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: const BorderSide(color: ColorPalette.primaryColor),
+    try {
+      return SizedBox(
+        width: MediaQuery.of(context).size.width - kMediumPadding,
+        child: ElevatedButton(
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: ColorPalette.primaryColor),
+              ),
+            ),
+          ),
+          onPressed: () async {
+            currentWayPointIndex = index;
+            setState(() {
+              stationName = widget.wayPoints[currentWayPointIndex].name!;
+              isBuild = true;
+              _isRunning = true;
+              _isRouteBuilt = false;
+            });
+            currentWayPoints.clear();
+            // var location = await Geolocator.getCurrentPosition();
+
+            currentWayPoints.add(WayPoint(
+                name: 'PCE44', latitude: 12.253289, longitude: 109.195175));
+
+            currentWayPoints.add(WayPoint(
+                name: widget.wayPoints[currentWayPointIndex].name,
+                latitude: widget.wayPoints[currentWayPointIndex].latitude,
+                longitude: widget.wayPoints[currentWayPointIndex].longitude));
+            _controller?.buildAndStartNavigation(
+                wayPoints: currentWayPoints,
+                profile: DrivingProfile.drivingTraffic);
+            sharedPreferences.setInt("currentWayPointIndex", index);
+            sharedPreferences.setString("tourCheck", widget.tourId);
+          },
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              '${index + 1}. ${widget.wayPoints[index].name}',
+              style: TextStyles.defaultStyle.primaryTextColor,
             ),
           ),
         ),
-        onPressed: () async {
-          currentWayPointIndex = index;
-          setState(() {
-            stationName = widget.wayPoints[currentWayPointIndex].name!;
-            isBuild = true;
-            _isRunning = true;
-            _isRouteBuilt = false;
-          });
-          currentWayPoints.clear();
-          // var location = await Geolocator.getCurrentPosition();
+      );
+    } catch (e) {
+      return Text(e.toString());
+    }
+    // return index % 2 == 0
 
-          currentWayPoints.add(WayPoint(
-              name: 'PCE44', latitude: 12.253289, longitude: 109.195175));
-
-          currentWayPoints.add(WayPoint(
-              name: widget.wayPoints[currentWayPointIndex].name,
-              latitude: widget.wayPoints[currentWayPointIndex].latitude,
-              longitude: widget.wayPoints[currentWayPointIndex].longitude));
-          _controller?.buildAndStartNavigation(
-              wayPoints: currentWayPoints,
-              profile: DrivingProfile.drivingTraffic);
-          sharedPreferences.setInt("currentWayPointIndex", index);
-          sharedPreferences.setString("tourCheck", widget.tourId);
-        },
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Text(
-            '${index + 1}. ${widget.wayPoints[index].name}',
-            style: TextStyles.defaultStyle.primaryTextColor,
-          ),
-        ),
-      ),
-    );
     // : const SizedBox.shrink();
   }
 

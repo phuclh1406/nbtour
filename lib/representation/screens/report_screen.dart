@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nbtour/representation/screens/report_detail.dart';
 import 'package:nbtour/representation/screens/send_report_screen.dart';
 import 'package:nbtour/representation/widgets/report_list_widget.dart';
 import 'package:nbtour/services/api/report_service.dart';
@@ -73,6 +74,23 @@ class _ReportScreenState extends State<ReportScreen>
           },
         ),
       ),
+    );
+  }
+
+  void openReportOverlay(Reports report) {
+    showModalBottomSheet(
+      showDragHandle: true,
+      elevation: 0,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      context: context,
+      builder: (ctx) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+
+          // child: TimelinesScreen(route: route)),
+          child: ReportDetailScreen(
+            report: report,
+          )),
     );
   }
 
@@ -166,12 +184,7 @@ class _ReportScreenState extends State<ReportScreen>
                         isSearching = false;
                         filteredSchedule = listScheduledTour;
                       });
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (ctx) => TourDetailScreen(
-                      //               scheduleTour: filteredSchedule[i],
-                      //             )));
+                      openReportOverlay(filteredSchedule[i]);
                     },
 
                     // announcementImage: Image.network(),
@@ -194,7 +207,17 @@ class _ReportScreenState extends State<ReportScreen>
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error
-          return Text('Error: ${snapshot.error}');
+          return Center(
+              child: Column(
+            children: [
+              ImageHelper.loadFromAsset(AssetHelper.error),
+              const SizedBox(height: 10),
+              Text(
+                snapshot.error.toString(),
+                style: TextStyles.regularStyle,
+              )
+            ],
+          ));
         } else {
           return const SizedBox(); // Return an empty container or widget if data is null
         }

@@ -23,9 +23,13 @@ class BookingServices {
 
     final response = await client.get(url, headers: headers);
     final responseData = json.decode(response.body);
-    print(response.statusCode);
+
     if (response.statusCode == 200) {
       listBooking = bookingsFromJson(responseData['bookings']);
+      listBooking = listBooking
+          .where((booking) =>
+              booking.status != 'Draft' || booking.status != 'Canceled')
+          .toList();
       return listBooking;
     } else {
       return [];
@@ -75,8 +79,10 @@ class BookingServices {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         var booking = Booking.fromJson(data['booking']);
-        print(booking);
-        return booking;
+        if (booking.status != 'Draft' && booking.status != 'Canceled') {
+          return booking;
+        }
+        return null;
       } else {
         return json.decode(response.body)['msg'];
       }

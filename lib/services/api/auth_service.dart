@@ -245,7 +245,7 @@ class AuthServices {
     }
   }
 
-  Future<String> sendDeviceToken(String? token, String? userId) async {
+  Future<String> sendDeviceToken(String? deviceToken, String? userId) async {
     try {
       String token = sharedPreferences.getString('accesstoken')!;
       var url =
@@ -255,9 +255,9 @@ class AuthServices {
         'Authorization': 'Bearer $token',
       };
 
-      final body = json.encode({"deviceToken": token});
+      final body = json.encode({"deviceToken": deviceToken});
       final response = await http.put(url, headers: headers, body: body);
-
+      print(deviceToken);
       print(response.statusCode);
       print(response.body);
       if (response.statusCode == 200) {

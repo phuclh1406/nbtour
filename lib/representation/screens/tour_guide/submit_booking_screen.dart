@@ -19,6 +19,8 @@ import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
 
 import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
+import 'package:nbtour/utils/helper/asset_helper.dart';
+import 'package:nbtour/utils/helper/image_helper.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
@@ -50,19 +52,24 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
   }
 
   Future<List<TrackingStations>?> fetchStations(String tourId) async {
-    futureList = await TrackingServices.getTrackingStationsByTourId(tourId);
-    if (futureList!.isNotEmpty) {
-      stationList = [];
-      for (var i = 0; i < futureList!.length - 1; i++) {
-        if (futureList![i].status == "NotArrived" ||
-            futureList![i].status == "Active") {
-          stationList.add(futureList![i]);
-          print(stationList.length);
+    try {
+      futureList = await TrackingServices.getTrackingStationsByTourId(tourId);
+      if (futureList!.isNotEmpty) {
+        stationList = [];
+        for (var i = 0; i < futureList!.length - 1; i++) {
+          if (futureList![i].status == "NotArrived" ||
+              futureList![i].status == "Active") {
+            stationList.add(futureList![i]);
+            print(stationList.length);
+          }
         }
+        stationList.removeAt(futureList!.length - 1);
+        return stationList;
+      } else {
+        return [];
       }
-      return stationList;
-    } else {
-      return [];
+    } catch (e) {
+      futureList = [];
     }
   }
 
@@ -127,182 +134,215 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
   }
 
   void pay(String bookingId) async {
-    String paymentCheck = await PaymentServices.paymentOffline(bookingId);
-    if (paymentCheck == "Payment process successfully") {
-      Navigator.of(context).pop();
-      showAlertSuccess();
-    } else {
-      showAlertFail(paymentCheck);
+    try {
+      String paymentCheck = await PaymentServices.paymentOffline(bookingId);
+      if (paymentCheck == "Payment process successfully") {
+        Navigator.of(context).pop();
+        showAlertSuccess();
+      } else {
+        showAlertFail(paymentCheck);
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 
   Widget checkout(String bookingId) {
-    return Center(
-      child: FutureBuilder<dynamic>(
-        future: showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return WillPopScope(
-              child: AlertDialog(
-                title: Row(
-                  children: [
-                    const Text(
-                      'Chi tiết',
-                      style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                content: SizedBox(
-                  width: MediaQuery.of(context).size.width - kMediumPadding,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Email: ',
-                              style: TextStyles.defaultStyle.subTitleTextColor,
-                            ),
-                            Flexible(
-                              child: Text(
-                                _enteredEmail,
-                                style: TextStyles.defaultStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: kDefaultIconSize / 2),
-                        Row(
-                          children: [
-                            Text(
-                              'Họ và Tên: ',
-                              style: TextStyles.defaultStyle.subTitleTextColor,
-                            ),
-                            Flexible(
-                              child: Text(
-                                _enteredName,
-                                style: TextStyles.defaultStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: kDefaultIconSize / 2),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Số điện thoại: ',
-                              style: TextStyles.defaultStyle.subTitleTextColor,
-                            ),
-                            Flexible(
-                              child: Text(
-                                _enteredPhone,
-                                style: TextStyles.defaultStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: kDefaultIconSize / 2),
-                        for (var i = 0; i < ticketCheckoutList.length; i++)
-                          Column(
+    try {
+      return Center(
+        child: FutureBuilder<dynamic>(
+          future: showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return WillPopScope(
+                child: AlertDialog(
+                  title: Row(
+                    children: [
+                      const Text(
+                        'Chi tiết',
+                        style: TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.w600),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  content: SizedBox(
+                    width: MediaQuery.of(context).size.width - kMediumPadding,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    ticketCheckoutList[i]
-                                        .ticketType!
-                                        .ticketTypeName!,
-                                    style: TextStyles
-                                        .defaultStyle.subTitleTextColor,
-                                  ),
-                                  Text(
-                                    ': ${ticketCheckoutList[i].quantity}',
-                                    style: TextStyles.defaultStyle,
-                                  ),
-                                ],
+                              Text(
+                                'Email: ',
+                                style:
+                                    TextStyles.defaultStyle.subTitleTextColor,
                               ),
-                              const SizedBox(height: kDefaultIconSize / 2),
+                              Flexible(
+                                child: Text(
+                                  _enteredEmail,
+                                  style: TextStyles.defaultStyle,
+                                ),
+                              ),
                             ],
                           ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Tổng giá: ',
-                              style: TextStyles.defaultStyle.subTitleTextColor,
-                            ),
-                            Flexible(
-                              child: Text(
-                                '${checkoutPrice.toString()} vnđ',
-                                style: TextStyles.defaultStyle,
+                          const SizedBox(height: kDefaultIconSize / 4),
+                          const Divider(),
+                          const SizedBox(height: kDefaultIconSize / 4),
+                          Row(
+                            children: [
+                              Text(
+                                'Họ và Tên: ',
+                                style:
+                                    TextStyles.defaultStyle.subTitleTextColor,
                               ),
+                              Flexible(
+                                child: Text(
+                                  _enteredName,
+                                  style: TextStyles.defaultStyle,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: kDefaultIconSize / 4),
+                          const Divider(),
+                          const SizedBox(height: kDefaultIconSize / 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Số điện thoại: ',
+                                style:
+                                    TextStyles.defaultStyle.subTitleTextColor,
+                              ),
+                              Flexible(
+                                child: Text(
+                                  _enteredPhone,
+                                  style: TextStyles.defaultStyle,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: kDefaultIconSize / 4),
+                          const Divider(),
+                          const SizedBox(height: kDefaultIconSize / 4),
+                          for (var i = 0; i < ticketCheckoutList.length; i++)
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      ticketCheckoutList[i]
+                                          .ticketType!
+                                          .ticketTypeName!,
+                                      style: TextStyles
+                                          .defaultStyle.subTitleTextColor,
+                                    ),
+                                    Text(
+                                      ': ${ticketCheckoutList[i].quantity}',
+                                      style: TextStyles.defaultStyle,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: kDefaultIconSize / 4),
+                                const Divider(),
+                                const SizedBox(height: kDefaultIconSize / 4),
+                              ],
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: kDefaultIconSize),
-                        const SizedBox(height: kDefaultIconSize),
-                        ButtonWidget(
-                          isIcon: false,
-                          title: 'Thanh toán',
-                          ontap: () {
-                            showConfirmDialog(bookingId);
-                          },
-                          color: const Color.fromARGB(168, 0, 0, 0),
-                          textStyle: TextStyles.regularStyle.whiteTextColor,
-                        ),
-                        const SizedBox(height: kMediumPadding * 2),
-                      ],
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Tổng giá: ',
+                                style:
+                                    TextStyles.defaultStyle.subTitleTextColor,
+                              ),
+                              Flexible(
+                                child: Text(
+                                  '${checkoutPrice.toString()} vnđ',
+                                  style: TextStyles.defaultStyle,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: kDefaultIconSize),
+                          const SizedBox(height: kDefaultIconSize),
+                          ButtonWidget(
+                            isIcon: false,
+                            title: 'Thanh toán',
+                            ontap: () {
+                              showConfirmDialog(bookingId);
+                            },
+                            color: const Color.fromARGB(168, 0, 0, 0),
+                            textStyle: TextStyles.regularStyle.whiteTextColor,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              onWillPop: () async => false,
-            );
+                onWillPop: () async => false,
+              );
+            },
+          ),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            throw UnimplementedError;
           },
         ),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          throw UnimplementedError;
-        },
-      ),
-    );
+      );
+    } catch (e) {
+      return Center(
+          child: Column(
+        children: [
+          ImageHelper.loadFromAsset(AssetHelper.error),
+          const SizedBox(height: 10),
+          Text(
+            e.toString(),
+            style: TextStyles.regularStyle,
+          )
+        ],
+      ));
+    }
   }
 
   void _submit(BuildContext context) async {
-    final isValid = _form.currentState!.validate();
+    try {
+      final isValid = _form.currentState!.validate();
 
-    if (!isValid) {
-      return;
-    }
-    _form.currentState!.save();
-    bookingId = await BookingServices.bookingOffline(
-        price,
-        selectedStation!,
-        widget.tour.tourId!,
-        _enteredEmail,
-        _enteredName,
-        _enteredPhone,
-        ticketList.toList());
-    checkoutPrice = price;
-    ticketCheckoutList = ticketList;
-    print(ticketCheckoutList.length);
-    price = 0;
-    ticketList = [];
-    if (bookingId != null) {
-      checkout(bookingId!);
-    } else {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Fail')));
+      if (!isValid) {
+        return;
+      }
+      _form.currentState!.save();
+      bookingId = await BookingServices.bookingOffline(
+          price,
+          selectedStation!,
+          widget.tour.tourId!,
+          _enteredEmail,
+          _enteredName,
+          _enteredPhone,
+          ticketList.toList());
+      checkoutPrice = price;
+      ticketCheckoutList = ticketList;
+      print(ticketCheckoutList.length);
+      price = 0;
+      ticketList = [];
+      if (bookingId != null) {
+        checkout(bookingId!);
+      } else {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Fail')));
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 
@@ -315,8 +355,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
   @override
   void initState() {
     super.initState();
-
-    selectedStation = null;
+    selectedStation = stationList.isNotEmpty ? stationList[0] : null;
     fetchStations(widget.tour.tourId!);
   }
 
@@ -412,10 +451,12 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           autocorrect: false,
                           textCapitalization: TextCapitalization.none,
                           validator: (value) {
-                            if (value == null ||
-                                value.trim().isEmpty ||
-                                !value.contains('@')) {
-                              return 'Please enter a valid email address';
+                            if (value == null || value.trim().isEmpty) {
+                              return null; // Allow empty input
+                            }
+
+                            if (!value.contains('@')) {
+                              return 'Vui lòng nhập đúng format của email';
                             }
                             return null;
                           },
@@ -503,9 +544,13 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                             );
                           }).toList(),
                           onChanged: (TrackingStations? newValue) {
-                            setState(() {
-                              selectedStation = newValue!;
-                            });
+                            try {
+                              setState(() {
+                                selectedStation = newValue!;
+                              });
+                            } catch (e) {
+                              print(e.toString());
+                            }
                           },
                         ),
                       ),

@@ -13,6 +13,7 @@ class TourListWidget extends StatelessWidget {
     required this.departureDate,
     required this.startTime,
     required this.endTime,
+    required this.borderColor,
   }) : super(key: key);
 
   final void Function() onTap;
@@ -21,6 +22,7 @@ class TourListWidget extends StatelessWidget {
   final String departureDate;
   final String startTime;
   final String endTime;
+  final Color borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class TourListWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 255, 255, 255),
                 borderRadius: BorderRadius.circular(kItemPadding),
+                border: Border.all(color: borderColor, width: 2),
                 boxShadow: const [
                   BoxShadow(
                       blurRadius: 20.0,

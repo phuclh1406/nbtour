@@ -22,7 +22,10 @@ class TourService {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       var tour = Tour.fromJson(data['tour'][0]);
-      return tour;
+      if (tour.status == 'Active') {
+        return tour;
+      }
+      return null;
     } else {
       return null;
     }
@@ -41,6 +44,7 @@ class TourService {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       var tour = toursFromJson(data['tours']);
+      tour = tour.where((tour) => tour.status == 'Active').toList();
       return tour;
     } else {
       return null;
@@ -71,6 +75,7 @@ class TourService {
         }
 
         // Return the result here
+        result = result.where((result) => result.status == 'Active').toList();
         return result;
       } else {
         return [];
@@ -98,7 +103,6 @@ class TourService {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         List<Tour> listTour = toursFromJson(data["tours"]);
-
         // Return the result here
         return listTour;
       } else {
@@ -159,7 +163,7 @@ class TourService {
         } else {
           result = tour;
         }
-
+        result = result.where((result) => result.status == 'Active').toList();
         // Return the result here
         return result;
       } else {

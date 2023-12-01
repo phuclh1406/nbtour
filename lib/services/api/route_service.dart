@@ -20,7 +20,10 @@ class RouteService {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       var route = Routes.fromJson(data['route'][0]);
-      return route;
+      if (route.status == 'Active') {
+        return route;
+      }
+      return null;
     } else {
       return null;
     }

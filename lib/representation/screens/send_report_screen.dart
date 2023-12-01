@@ -69,7 +69,6 @@ class _SendReportScreenState extends State<SendReportScreen> {
     );
 
     if (reportResult == 'Send report successfully') {
-      Navigator.of(context).pop();
       showAlertSuccess();
       if (widget.onReportSent != null) {
         widget.onReportSent!();
@@ -112,17 +111,21 @@ class _SendReportScreenState extends State<SendReportScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: kMediumPadding / 2),
                         child: TextFormField(
+                          maxLines: null,
                           cursorColor: ColorPalette.primaryColor,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.title_outlined),
-                            prefixIconColor: Color.fromARGB(255, 112, 111, 111),
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.title_outlined),
+                            prefixIconColor:
+                                const Color.fromARGB(255, 112, 111, 111),
                             hintText: 'Nhập tiêu đề (Bắt buộc)',
-                            border: OutlineInputBorder(
+                            hintStyle:
+                                TextStyles.defaultStyle.subTitleTextColor,
+                            border: const OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 246, 243, 243)),
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(kMediumPadding / 2.5))),
-                            focusedBorder: OutlineInputBorder(
+                            focusedBorder: const OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 62, 62, 62)),
                                 borderRadius: BorderRadius.all(
@@ -147,17 +150,21 @@ class _SendReportScreenState extends State<SendReportScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: kMediumPadding / 2),
                         child: TextFormField(
+                          maxLines: null,
                           cursorColor: ColorPalette.primaryColor,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.description_outlined),
-                            prefixIconColor: Color.fromARGB(255, 112, 111, 111),
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.description_outlined),
+                            prefixIconColor:
+                                const Color.fromARGB(255, 112, 111, 111),
                             hintText: 'Nhập mô tả (Bắt buộc)',
-                            border: OutlineInputBorder(
+                            hintStyle:
+                                TextStyles.defaultStyle.subTitleTextColor,
+                            border: const OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 246, 243, 243)),
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(kMediumPadding / 2.5))),
-                            focusedBorder: OutlineInputBorder(
+                            focusedBorder: const OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 62, 62, 62)),
                                 borderRadius: BorderRadius.all(

@@ -30,6 +30,8 @@ class TourGuideHomeScreen extends StatefulWidget {
   State<TourGuideHomeScreen> createState() => _TourGuideHomeScreenState();
 }
 
+Timer? timer;
+
 class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
   String avatar = '';
   String userName = '';
@@ -44,7 +46,6 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
     super.initState();
     fetchUserName();
     fetchUserAvatar();
-
     fetchNotification(userId);
     fetchIncomingRequest(userId);
   }
@@ -83,26 +84,31 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
   }
 
   Future<void> fetchNotification(String userId) async {
-    List<NotificationModel>? notiList =
-        await NotificationServices.getNotificationList(userId);
-    if (notiList!.isNotEmpty) {
-      setState(() {
+    try {
+      List<NotificationModel>? notiList =
+          await NotificationServices.getNotificationList(userId);
+      if (notiList!.isNotEmpty) {
         notiCount = notiList.length;
-      });
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 
   Future<void> fetchIncomingRequest(String userId) async {
-    List<RescheduleForm>? formList =
-        await RescheduleServices.getFormList(userId);
+    try {
+      List<RescheduleForm>? formList =
+          await RescheduleServices.getFormList(userId);
 
-    if (formList!.isNotEmpty) {
-      List<RescheduleForm> pendingForms =
-          formList.where((form) => form.status == "Pending").toList();
-      print(pendingForms.length);
-      setState(() {
+      if (formList!.isNotEmpty) {
+        List<RescheduleForm> pendingForms =
+            formList.where((form) => form.status == "Pending").toList();
+        print(pendingForms.length);
+
         formCount = pendingForms.length;
-      });
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 
@@ -120,10 +126,19 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
         headerSliverBuilder: (BuildContext context, bool isScrolled) {
           return [
             SliverAppBar(
-              title: const Center(
-                child: Text(
-                  'Welcome to NBTour',
-                  style: TextStyle(fontSize: 16),
+              title: Center(
+                child: Column(
+                  children: [
+                    const Text(
+                      'Xin chào',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(sharedPreferences.getString('user_name') ?? '',
+                        style: const TextStyle(fontSize: 16))
+                  ],
                 ),
               ),
               iconTheme: const IconThemeData(color: Colors.white),

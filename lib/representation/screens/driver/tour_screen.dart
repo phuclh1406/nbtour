@@ -70,6 +70,20 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
     }
   }
 
+  bool isRightTime(Tour tour) {
+    DateTime departureDate =
+        DateTime.parse(tour.departureDate!.replaceAll('Z', '000'));
+    DateTime endDate = DateTime.parse(tour.endDate!.replaceAll('Z', '000'));
+    DateTime now = DateTime.now();
+
+    if (now.isAfter(departureDate.subtract(const Duration(minutes: 30))) &&
+        now.isBefore(endDate)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   bool isDateInSeason({
     required DateTime date,
     required List<Season> seasons,
@@ -103,6 +117,20 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
           ));
         } else if (snapshot.hasData) {
           List<Tour>? listScheduledTour = snapshot.data!;
+          listScheduledTour
+              .sort((a, b) => b.departureDate!.compareTo(a.departureDate!));
+          listScheduledTour.sort((a, b) {
+            bool isRightTimeA = isRightTime(a);
+            bool isRightTimeB = isRightTime(b);
+
+            if (isRightTimeA && !isRightTimeB) {
+              return -1; // a should come before b
+            } else if (!isRightTimeA && isRightTimeB) {
+              return 1; // b should come before a
+            } else {
+              return b.departureDate!.compareTo(a.departureDate!);
+            }
+          });
           List<Tour> filteredSchedule = listScheduledTour
               .where((schedule) => schedule.tourName!
                   .toLowerCase()
@@ -121,6 +149,9 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
                 ),
                 for (var i = 0; i < filteredSchedule.length; i++)
                   TourListWidget(
+                    borderColor: isRightTime(filteredSchedule[i]) == true
+                        ? ColorPalette.primaryColor
+                        : Colors.white,
                     onTap: () {
                       setState(() {
                         isSearching = false;
@@ -180,7 +211,17 @@ class _DriverTourScreenState extends State<DriverTourScreen> {
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error
-          return Text('Error: ${snapshot.error}');
+          return Center(
+              child: Column(
+            children: [
+              ImageHelper.loadFromAsset(AssetHelper.error),
+              const SizedBox(height: 10),
+              Text(
+                snapshot.toString(),
+                style: TextStyles.regularStyle,
+              )
+            ],
+          ));
         } else {
           return const SizedBox(); // Return an empty container or widget if data is null
         }

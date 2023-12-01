@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nbtour/main.dart';
 import 'package:nbtour/representation/screens/tour_guide/booking_tour_list_screen.dart';
 import 'package:nbtour/representation/screens/report_screen.dart';
+import 'package:nbtour/representation/screens/tour_guide/booking_tour_screen.dart';
 import 'package:nbtour/services/api/auth_service.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/representation/screens/driver/home_screen.dart';
@@ -28,6 +29,9 @@ class _TabsScreenState extends State<TabsScreen> {
     final fcm = FirebaseMessaging.instance;
     await fcm.requestPermission();
     token = await fcm.getToken();
+    if (token != null) {
+      sendDeviceToken(token!);
+    }
   }
 
   @override
@@ -36,10 +40,9 @@ class _TabsScreenState extends State<TabsScreen> {
     // Fetch roleName from SharedPreferences when the widget is initialized
     setupPushNotification();
     fetchUserRole();
-    sendDeviceToken();
   }
 
-  Future<void> sendDeviceToken() async {
+  Future<void> sendDeviceToken(String token) async {
     String userId = sharedPreferences.getString('user_id')!;
     final sendTokenCheck = await AuthServices().sendDeviceToken(token, userId);
     if (sendTokenCheck == 'success') {
@@ -83,7 +86,7 @@ class _TabsScreenState extends State<TabsScreen> {
       }
 
       if (_selectPageIndex == 2) {
-        activePage = const BookingTourListScreen();
+        activePage = const BookingTourScreen();
       }
 
       if (_selectPageIndex == 3) {
@@ -92,7 +95,7 @@ class _TabsScreenState extends State<TabsScreen> {
     } else {
       activePage = const DriverHomeScreen();
       if (_selectPageIndex == 1) {
-        activePage = const DriverHomeScreen();
+        activePage = const ReportScreen();
       }
     }
 
@@ -127,36 +130,57 @@ class _TabsScreenState extends State<TabsScreen> {
         data: ThemeData(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          fixedColor: ColorPalette.primaryColor,
-          unselectedItemColor: const Color.fromARGB(255, 202, 193, 193),
-          onTap: (index) {
-            _selectPage(index);
-          },
-          currentIndex: _selectPageIndex,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_filled),
-              label: 'Trang chủ',
-            ),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  FontAwesomeIcons.clipboardList,
-                ),
-                label: 'Điểm danh'),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.book_online,
-                ),
-                label: 'Mua vé'),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.report_outlined,
-                ),
-                label: 'Các loại đơn')
-          ],
-        ),
+        child: roleName == 'TourGuide'
+            ? BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                fixedColor: ColorPalette.primaryColor,
+                unselectedItemColor: const Color.fromARGB(255, 202, 193, 193),
+                onTap: (index) {
+                  _selectPage(index);
+                },
+                currentIndex: _selectPageIndex,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_filled),
+                    label: 'Trang chủ',
+                  ),
+                  BottomNavigationBarItem(
+                      icon: Icon(
+                        FontAwesomeIcons.clipboardList,
+                      ),
+                      label: 'Danh sách'),
+                  BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.book_online,
+                      ),
+                      label: 'Mua vé'),
+                  BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.report_outlined,
+                      ),
+                      label: 'Các loại đơn')
+                ],
+              )
+            : BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                fixedColor: ColorPalette.primaryColor,
+                unselectedItemColor: const Color.fromARGB(255, 202, 193, 193),
+                onTap: (index) {
+                  _selectPage(index);
+                },
+                currentIndex: _selectPageIndex,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_filled),
+                    label: 'Trang chủ',
+                  ),
+                  BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.report_outlined,
+                      ),
+                      label: 'Các loại đơn')
+                ],
+              ),
       ),
     );
   }

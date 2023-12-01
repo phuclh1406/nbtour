@@ -103,7 +103,7 @@ class UserListWidget extends StatelessWidget {
                                 ],
                               )
                             : const Text(
-                                'Not defined',
+                                'Chưa có thông tin',
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: ColorPalette.primaryColor,
@@ -122,7 +122,7 @@ class UserListWidget extends StatelessWidget {
                             ),
                             Flexible(
                               child: Text(
-                                email != "" ? email : "Not defined",
+                                email != "" ? email : "Chưa có thông tin",
                                 style: const TextStyle(
                                     fontSize: 15,
                                     overflow: TextOverflow.ellipsis),
@@ -146,7 +146,7 @@ class UserListWidget extends StatelessWidget {
                             ),
                             Flexible(
                               child: Text(
-                                code != "" ? code : "Not defined",
+                                code != "" ? code : "Chưa có thông tin",
                                 style: const TextStyle(
                                     fontSize: 15,
                                     overflow: TextOverflow.ellipsis),

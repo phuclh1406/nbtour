@@ -26,13 +26,38 @@ class NotificationServices {
 
       if (response.statusCode == 200) {
         notiList = notificationsFromJson(responseData['notifications']);
-
+        notiList = notiList.where((noti) => noti.status == 'Active').toList();
         return notiList;
       } else {
         return [];
       }
     } catch (e) {
       return [];
+    }
+  }
+
+  static Future<String> removeNotification(String? notiId) async {
+    try {
+      var url =
+          Uri.parse('https://${Config.apiURL}${Config.notification}/$notiId');
+      String token = sharedPreferences.getString('accesstoken')!;
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+
+      final response = await client.delete(url, headers: headers);
+
+      print(response.statusCode);
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        return "Delete successfully";
+      } else {
+        return json.decode(response.body)['msg'];
+      }
+    } catch (e) {
+      return "Delete fail";
     }
   }
 }

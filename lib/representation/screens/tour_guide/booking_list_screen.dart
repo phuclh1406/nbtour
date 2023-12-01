@@ -48,6 +48,20 @@ class _BookingListScreenState extends State<BookingListScreen> {
     }
   }
 
+  bool isRightTime(Tour tour) {
+    DateTime departureDate =
+        DateTime.parse(tour.departureDate!.replaceAll('Z', '000'));
+    DateTime endDate = DateTime.parse(tour.endDate!.replaceAll('Z', '000'));
+    DateTime now = DateTime.now();
+
+    if (now.isAfter(departureDate.subtract(const Duration(minutes: 30))) &&
+        now.isBefore(endDate)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   bool isDateInSeason({
     required DateTime date,
     required List<Season> seasons,
@@ -70,102 +84,137 @@ class _BookingListScreenState extends State<BookingListScreen> {
 
   List<Season> selectedCategories = [];
   Widget loadScheduledTour() {
-    return FutureBuilder<List<Tour>?>(
-      future: TourService.getToursByTourGuideId(userId),
-      builder: (BuildContext context, AsyncSnapshot<List<Tour>?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child: Padding(
-            padding: EdgeInsets.only(top: kMediumPadding * 6),
-            child: CircularProgressIndicator(color: ColorPalette.primaryColor),
-          ));
-        } else if (snapshot.hasData) {
-          List<Tour>? listScheduledTour = snapshot.data!;
-          List<Tour> filteredSchedule = listScheduledTour
-              .where((schedule) => schedule.tourName!
-                  .toLowerCase()
-                  .contains(_searchValue.toLowerCase()))
-              .toList();
+    try {
+      return FutureBuilder<List<Tour>?>(
+        future: TourService.getToursByTourGuideId(userId),
+        builder: (BuildContext context, AsyncSnapshot<List<Tour>?> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+                child: Padding(
+              padding: EdgeInsets.only(top: kMediumPadding * 6),
+              child:
+                  CircularProgressIndicator(color: ColorPalette.primaryColor),
+            ));
+          } else if (snapshot.hasData) {
+            List<Tour>? listScheduledTour = snapshot.data!;
+            listScheduledTour
+                .sort((a, b) => b.departureDate!.compareTo(a.departureDate!));
+            listScheduledTour.sort((a, b) {
+              bool isRightTimeA = isRightTime(a);
+              bool isRightTimeB = isRightTime(b);
 
-          filteredSchedule;
-          if (!isSearching) {
-            filteredSchedule = listScheduledTour;
-          }
-          if (filteredSchedule.isNotEmpty) {
-            return Column(
-              children: [
-                const SizedBox(
-                  height: kDefaultPadding / 5,
-                ),
-                for (var i = 0; i < filteredSchedule.length; i++)
-                  TourListWidget(
-                    onTap: () {
-                      setState(() {
-                        isSearching = false;
-                        filteredSchedule = listScheduledTour;
-                      });
-                      if (filteredSchedule[i].tourId != null) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (ctx) => BookingListCustomerScreen(
-                                      tour: filteredSchedule[i],
-                                    )));
-                      }
-                    },
+              if (isRightTimeA && !isRightTimeB) {
+                return -1; // a should come before b
+              } else if (!isRightTimeA && isRightTimeB) {
+                return 1; // b should come before a
+              } else {
+                return b.departureDate!.compareTo(a.departureDate!);
+              }
+            });
+            List<Tour> filteredSchedule = listScheduledTour
+                .where((schedule) => schedule.tourName!
+                    .toLowerCase()
+                    .contains(_searchValue.toLowerCase()))
+                .toList();
 
-                    announcementImage: filteredSchedule[i].tourImage!.isNotEmpty
-                        ? Image.network(
-                            filteredSchedule[i].tourImage![0].image!,
-                            loadingBuilder: (context, child, loadingProgress) =>
-                                (loadingProgress == null)
-                                    ? child
-                                    : const Text(''),
-                            errorBuilder: (context, error, stackTrace) =>
-                                ImageHelper.loadFromAsset(
-                                    AssetHelper.announcementImage,
-                                    width: kMediumPadding * 3,
-                                    height: kMediumPadding * 5),
-                            width: kMediumPadding * 3,
-                            height: kMediumPadding * 5)
-                        : ImageHelper.loadFromAsset(
-                            AssetHelper.announcementImage,
-                            width: kMediumPadding * 3,
-                            height: kMediumPadding * 5),
-
-                    // announcementImage: Image.network(),
-                    title: filteredSchedule[i].tourName!,
-                    departureDate: filteredSchedule[i].departureDate != null
-                        ? filteredSchedule[i].departureDate!.toString()
-                        : "",
-                    startTime: filteredSchedule[i].departureDate != null
-                        ? filteredSchedule[i].departureDate!
-                        : "",
-                    endTime: filteredSchedule[i].endDate != null
-                        ? filteredSchedule[i].endDate!
-                        : "",
+            filteredSchedule;
+            if (!isSearching) {
+              filteredSchedule = listScheduledTour;
+            }
+            if (filteredSchedule.isNotEmpty) {
+              return Column(
+                children: [
+                  const SizedBox(
+                    height: kDefaultPadding / 5,
                   ),
-                const SizedBox(
-                  height: kDefaultPadding / 2,
-                ),
-              ],
-            );
+                  for (var i = 0; i < filteredSchedule.length; i++)
+                    TourListWidget(
+                      borderColor: isRightTime(filteredSchedule[i]) == true
+                          ? ColorPalette.primaryColor
+                          : Colors.white,
+                      onTap: () {
+                        setState(() {
+                          isSearching = false;
+                          filteredSchedule = listScheduledTour;
+                        });
+                        if (filteredSchedule[i].tourId != null) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (ctx) => BookingListCustomerScreen(
+                                        tour: filteredSchedule[i],
+                                      )));
+                        }
+                      },
+
+                      announcementImage: filteredSchedule[i]
+                              .tourImage!
+                              .isNotEmpty
+                          ? Image.network(
+                              filteredSchedule[i].tourImage![0].image!,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) =>
+                                      (loadingProgress == null)
+                                          ? child
+                                          : const Text(''),
+                              errorBuilder: (context, error, stackTrace) =>
+                                  ImageHelper.loadFromAsset(
+                                      AssetHelper.announcementImage,
+                                      width: kMediumPadding * 3,
+                                      height: kMediumPadding * 5),
+                              width: kMediumPadding * 3,
+                              height: kMediumPadding * 5)
+                          : ImageHelper.loadFromAsset(
+                              AssetHelper.announcementImage,
+                              width: kMediumPadding * 3,
+                              height: kMediumPadding * 5),
+
+                      // announcementImage: Image.network(),
+                      title: filteredSchedule[i].tourName!,
+                      departureDate: filteredSchedule[i].departureDate != null
+                          ? filteredSchedule[i].departureDate!.toString()
+                          : "",
+                      startTime: filteredSchedule[i].departureDate != null
+                          ? filteredSchedule[i].departureDate!
+                          : "",
+                      endTime: filteredSchedule[i].endDate != null
+                          ? filteredSchedule[i].endDate!
+                          : "",
+                    ),
+                  const SizedBox(
+                    height: kDefaultPadding / 2,
+                  ),
+                ],
+              );
+            } else {
+              return Padding(
+                padding: const EdgeInsets.only(top: kMediumPadding * 5),
+                child: Center(
+                    child: ImageHelper.loadFromAsset(AssetHelper.noData,
+                        width: 300, fit: BoxFit.fitWidth)),
+              );
+            }
+          } else if (snapshot.hasError) {
+            // Display an error message if the future completed with an error
+            return Text('Error: ${snapshot.error}');
           } else {
-            return Padding(
-              padding: const EdgeInsets.only(top: kMediumPadding * 5),
-              child: Center(
-                  child: ImageHelper.loadFromAsset(AssetHelper.noData,
-                      width: 300, fit: BoxFit.fitWidth)),
-            );
+            return const SizedBox(); // Return an empty container or widget if data is null
           }
-        } else if (snapshot.hasError) {
-          // Display an error message if the future completed with an error
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return const SizedBox(); // Return an empty container or widget if data is null
-        }
-      },
-    );
+        },
+      );
+    } catch (e) {
+      return Center(
+          child: Column(
+        children: [
+          ImageHelper.loadFromAsset(AssetHelper.error),
+          const SizedBox(height: 10),
+          Text(
+            e.toString(),
+            style: TextStyles.regularStyle,
+          )
+        ],
+      ));
+    }
   }
 
   @override
@@ -198,7 +247,7 @@ class _BookingListScreenState extends State<BookingListScreen> {
                 ),
               )
             : Text(
-                'Chọn một tour',
+                'Xem danh sách của',
                 style: TextStyles.defaultStyle.bold.fontHeader,
               ),
         actions: <Widget>[
