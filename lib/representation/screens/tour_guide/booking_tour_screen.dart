@@ -71,7 +71,9 @@ class BookingTourScreen extends StatelessWidget {
 
             print(filteredTours.length);
             if (filteredTours.isEmpty) {
-              return const Center(child: Text('No tour available'));
+              return const Center(
+                  child:
+                      Text('Không có tour nào đang chạy trong thời gian này'));
             } else {
               tour = filteredTours[0];
             }
@@ -114,7 +116,7 @@ class BookingTourScreen extends StatelessWidget {
                   //       )),
                   // ),
                   Positioned(
-                    top: screenSize.height / 4,
+                    top: screenSize.height / 7,
                     child: Container(
                       width: screenSize.width,
                       height: screenSize.height,
@@ -136,7 +138,7 @@ class BookingTourScreen extends StatelessWidget {
                               style: TextStyles.defaultStyle.fontHeader.bold,
                             ),
                             SizedBox(
-                              height: screenSize.height * 0.48,
+                              height: screenSize.height * 0.6,
                               child: SingleChildScrollView(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

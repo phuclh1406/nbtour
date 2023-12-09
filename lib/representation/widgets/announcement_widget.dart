@@ -66,7 +66,7 @@ class AnnouncementWidget extends StatelessWidget {
                     Row(
                       children: [
                         const Text(
-                          'Author:',
+                          'Loại:',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 13,
@@ -88,7 +88,7 @@ class AnnouncementWidget extends StatelessWidget {
                     Row(
                       children: [
                         const Text(
-                          'Date of public:',
+                          'Ngày:',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 13,

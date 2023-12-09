@@ -10,7 +10,7 @@ class Config {
   static const String trackingStations = "/api/v1/trackings/stations";
   static const String getBookingUserList = "/api/v1/bookings";
   static const String form = "/api/v1/forms";
-  static const String checkInQr = "/api/v1/bookings/checkin";
+  static const String checkInQr = "/api/v1/bookings";
   static const String booking = "/api/v1/bookings/";
   static const String bookingOffline = "/api/v1/bookings/offline";
   static const String paymentOffline = "/api/v1/payments/offline";

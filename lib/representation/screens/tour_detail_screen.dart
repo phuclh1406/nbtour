@@ -509,7 +509,7 @@ class TourDetailScreen extends StatelessWidget {
                                 RectangleButtonWidget(
                                   width: MediaQuery.of(context).size.width / 2 -
                                       kMediumPadding / 1.7,
-                                  title: 'Chỉ dẫn',
+                                  title: 'Tuyến đường',
                                   ontap: () {
                                     Navigator.push(
                                         context,

@@ -36,6 +36,7 @@ class ReviewRideScreen extends StatefulWidget {
 
 List<PointOfInterest> _kTripPoints = [];
 List<Stations> _kTripStations = [];
+List<LatLng> _kTripRoute = [];
 UserLocation? userLocation;
 List<PointOfInterest>? pointList = [];
 Timer? timer;
@@ -161,7 +162,12 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
                   route.routeSegment![0].segmentDepartureStation!.latitude!),
               double.parse(
                   route.routeSegment![0].segmentDepartureStation!.longitude!));
-
+          wayPoints.add(WayPoint(
+              name: route.routeSegment![0].segmentDepartureStation!.stationName,
+              latitude: double.parse(
+                  route.routeSegment![0].segmentDepartureStation!.latitude!),
+              longitude: double.parse(
+                  route.routeSegment![0].segmentDepartureStation!.longitude!)));
           if (route != null) {
             if (route.routeSegment != null) {
               _kTripStations
@@ -177,6 +183,12 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
                 if (segment.segmentRoutePoiDetail != null) {
                   for (var poi in segment.segmentRoutePoiDetail!) {
                     pointList!.add(poi.routePoiDetailPoi!);
+                    wayPoints.add(WayPoint(
+                        name: poi.routePoiDetailPoi!.poiName,
+                        latitude:
+                            double.parse(poi.routePoiDetailPoi!.latitude!),
+                        longitude:
+                            double.parse(poi.routePoiDetailPoi!.longitude!)));
                     _kTripPoints.add(poi.routePoiDetailPoi!);
                   }
                 }

@@ -42,7 +42,7 @@ class BookingServices {
   static Future<String> checkInCustomer(String id, String tourId) async {
     try {
       var url = Uri.parse(
-          'https://${Config.apiURL}${Config.checkInQr}/$id?tourId=$tourId');
+          'https://${Config.apiURL}${Config.checkInQr}/$id/checkin?tourId=$tourId');
       String token = sharedPreferences.getString('accesstoken')!;
       final headers = {
         'Content-Type': 'application/json',
@@ -51,8 +51,6 @@ class BookingServices {
 
       final response = await client.put(url, headers: headers);
 
-      print(response.statusCode);
-      print(response.body);
       if (response.statusCode == 200) {
         return "Check-in success";
       } else {

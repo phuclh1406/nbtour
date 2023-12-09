@@ -88,8 +88,11 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
       List<NotificationModel>? notiList =
           await NotificationServices.getNotificationList(userId);
       if (notiList!.isNotEmpty) {
-        notiCount = notiList.length;
+        setState(() {
+          notiCount = notiList.length;
+        });
       }
+      print(notiCount);
     } catch (e) {
       print(e.toString());
     }
@@ -103,9 +106,10 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
       if (formList!.isNotEmpty) {
         List<RescheduleForm> pendingForms =
             formList.where((form) => form.status == "Pending").toList();
-        print(pendingForms.length);
-
-        formCount = pendingForms.length;
+        setState(() {
+          formCount = pendingForms.length;
+        });
+        print(formCount);
       }
     } catch (e) {
       print(e.toString());

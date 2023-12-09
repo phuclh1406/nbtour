@@ -21,6 +21,7 @@ class ButtonLogoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return InkWell(
+      focusColor: const Color.fromARGB(255, 220, 216, 216),
       onTap: ontap,
       child: Stack(children: [
         Container(

@@ -26,8 +26,7 @@ class RectangleButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
+      focusColor: const Color.fromARGB(255, 220, 216, 216),
       onTap: ontap,
       child: Container(
         width: width,

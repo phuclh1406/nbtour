@@ -281,7 +281,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                             ontap: () {
                               showConfirmDialog(bookingId);
                             },
-                            color: const Color.fromARGB(168, 0, 0, 0),
+                            color: ColorPalette.primaryColor,
                             textStyle: TextStyles.regularStyle.whiteTextColor,
                           ),
                         ],

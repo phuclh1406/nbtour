@@ -22,6 +22,7 @@ class ButtonSelectYearWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      focusColor: const Color.fromARGB(255, 220, 216, 216),
       onTap: ontap,
       child: Stack(children: [
         Container(

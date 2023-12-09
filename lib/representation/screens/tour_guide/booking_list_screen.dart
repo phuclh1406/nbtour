@@ -187,12 +187,9 @@ class _BookingListScreenState extends State<BookingListScreen> {
                 ],
               );
             } else {
-              return Padding(
-                padding: const EdgeInsets.only(top: kMediumPadding * 5),
-                child: Center(
-                    child: ImageHelper.loadFromAsset(AssetHelper.noData,
-                        width: 300, fit: BoxFit.fitWidth)),
-              );
+              return const Center(
+                  child:
+                      Text('Không có tour nào đang chạy trong thời gian này'));
             }
           } else if (snapshot.hasError) {
             // Display an error message if the future completed with an error

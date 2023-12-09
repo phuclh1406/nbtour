@@ -89,9 +89,11 @@ void fetchLoginUser() async {
 
       bool newIsRunning = tour!.isNotEmpty;
       // Only update shared preferences if the value of isRunning changes
-      sharedPreferences.setString('isRunning', newIsRunning.toString());
-      sharedPreferences.setString('running_tour_name', tour[0].tourName!);
-      sharedPreferences.setString('running_tour_id', tour[0].tourId!);
+      if (newIsRunning) {
+        sharedPreferences.setString('isRunning', newIsRunning.toString());
+        sharedPreferences.setString('running_tour_name', tour[0].tourName!);
+        sharedPreferences.setString('running_tour_id', tour[0].tourId!);
+      }
 
       if (newIsRunning) {
         print('Tour is running, show overlay and start location checks.');

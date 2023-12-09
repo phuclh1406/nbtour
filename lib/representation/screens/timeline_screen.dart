@@ -227,11 +227,6 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                             Text(widget.tour.tourName!,
                                 style: TextStyles.regularStyle.bold),
                             const SizedBox(height: kDefaultIconSize),
-                            Text(widget.tour.tourRoute!.routeName!,
-                                style: TextStyles.regularStyle.bold),
-                            const SizedBox(height: kDefaultIconSize),
-                            Text('${widget.tour.tourRoute!.distance!}m',
-                                style: TextStyles.regularStyle.bold),
                             trackingList!.isNotEmpty
                                 ? trackingList[0].tourDetail!.tourStatus ==
                                         "Started"
@@ -241,9 +236,9 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                                       )
                                     : const SizedBox.shrink()
                                 : const Text('No tracking found'),
-                            const SizedBox(height: kDefaultIconSize),
-                            Text('Current',
-                                style: TextStyles.regularStyle.bold),
+                            Text('Hiện tại',
+                                style: TextStyles
+                                    .regularStyle.bold.primaryTextColor),
                             for (var i = 0; i < trackingList.length; i++)
                               TimelinesWidget(
                                   isFirst: i == 0 ? true : false,
@@ -398,7 +393,7 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                             RectangleButtonWidget(
                               width: MediaQuery.of(context).size.width / 2 -
                                   kMediumPadding / 1.7,
-                              title: 'Chỉ dẫn',
+                              title: 'Định vị',
                               ontap: () {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (ctx) => VietMapNavigationScreen(

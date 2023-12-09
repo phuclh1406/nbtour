@@ -492,12 +492,7 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
                 ],
               );
             } else {
-              return Padding(
-                padding: const EdgeInsets.only(top: kMediumPadding * 5),
-                child: Center(
-                    child: ImageHelper.loadFromAsset(AssetHelper.noData,
-                        width: 300, fit: BoxFit.fitWidth)),
-              );
+              return const Center(child: Text('Danh sách hiện tại đang trống'));
             }
           } else if (snapshot.hasError) {
             // Display an error message if the future completed with an error

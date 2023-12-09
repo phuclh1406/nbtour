@@ -180,10 +180,6 @@ class _ReportScreenState extends State<ReportScreen>
                 for (var i = 0; i < filteredSchedule.length; i++)
                   ReportListWidget(
                     onTap: () {
-                      setState(() {
-                        isSearching = false;
-                        filteredSchedule = listScheduledTour;
-                      });
                       openReportOverlay(filteredSchedule[i]);
                     },
 

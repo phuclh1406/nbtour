@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:nbtour/main.dart';
 import 'package:nbtour/representation/screens/notification_list_screen.dart';
 import 'package:nbtour/representation/screens/request_screen.dart';
@@ -39,6 +40,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   String userName = '';
   OverlayEntry? entry;
   Timer? timer;
+  List<NotificationModel> listNoti = [];
   bool isCircle = false;
   Offset offset = const Offset(14, 610);
   int notiCount = 0;
@@ -61,7 +63,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
       List<NotificationModel>? notiList =
           await NotificationServices.getNotificationList(userId);
       if (notiList!.isNotEmpty) {
-        notiCount = notiList.length;
+        notiList.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+        setState(() {
+          listNoti = notiList;
+          notiCount = notiList.length;
+        });
       }
     } catch (e) {
       Text(e.toString());
@@ -77,8 +83,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
         List<RescheduleForm> pendingForms =
             formList.where((form) => form.status == "Pending").toList();
         print(pendingForms.length);
-
-        formCount = pendingForms.length;
+        setState(() {
+          formCount = pendingForms.length;
+        });
       }
     } catch (e) {
       formCount = 0;
@@ -262,27 +269,27 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           const SizedBox(
                             width: kDefaultIconSize / 2,
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Đang trên đường di chuyển',
-                                style: TextStyles.defaultStyle.bold,
-                              ),
-                              const SizedBox(
-                                height: kDefaultIconSize / 2,
-                              ),
-                              Flexible(
-                                child: Text(
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Đang trên đường di chuyển',
+                                  style: TextStyles.defaultStyle.bold,
+                                ),
+                                const SizedBox(
+                                  height: kDefaultIconSize / 2,
+                                ),
+                                Text(
                                   sharedPreferences
                                           .getString('running_tour_name') ??
                                       "",
                                   style: TextStyles.defaultStyle,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                              )
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -491,7 +498,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                 const SizedBox(height: kMediumPadding / 2),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                  child: Text('Announcement',
+                  child: Text('Thông báo mới',
                       style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -500,52 +507,33 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                 const SizedBox(height: kMediumPadding / 2),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage: ImageHelper.loadFromAsset(
-                            AssetHelper.announcementImage),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage: ImageHelper.loadFromAsset(
-                            AssetHelper.announcementImage),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage: ImageHelper.loadFromAsset(
-                            AssetHelper.announcementImage),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                    ],
-                  ),
+                  child: listNoti.isNotEmpty
+                      ? Row(
+                          children: [
+                            for (var i = 0; i < listNoti.length; i++)
+                              AnnouncementWidget(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const RequestScreen(),
+                                      ));
+                                },
+                                announcementImage: ImageHelper.loadFromAsset(
+                                    AssetHelper.announcementImage),
+                                title: listNoti[i].title ?? 'Chưa có tiêu đề',
+                                author:
+                                    listNoti[i].notiType ?? 'Chưa có phân loại',
+                                dateOfPublic: DateFormat.yMMMd().format(
+                                    DateTime.parse(listNoti[i].createdAt!)),
+                              ),
+                          ],
+                        )
+                      : const Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: kDefaultPadding),
+                          child: Text('Chưa có thông báo')),
                 ),
                 const SizedBox(height: kMediumPadding / 2),
                 const Padding(

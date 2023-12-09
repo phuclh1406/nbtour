@@ -76,6 +76,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
     } else {
       thisUserTours = await TourService.getToursByDriverId(userId);
     }
+    thisUserTours?.removeWhere((tour) => tour.tourId == widget.tour.tourId);
     if (thisUserTours!.isNotEmpty) {
       print('${thisUserTours!.length}');
       return thisUserTours;
@@ -107,10 +108,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
   bool isTourInPast(Tour tour) {
     // Convert the tour's departure and end times to DateTime objects
 
-    DateTime tourEndTime = DateTime.parse(tour.endDate!);
+    DateTime tourEndTime = DateTime.parse(tour.endDate!.replaceAll('Z', '000'));
 
     // Check for conflicts
-    if (tourEndTime.isBefore(DateTime.now().add(const Duration(days: 1)))) {
+    if (tourEndTime.isBefore(DateTime.now())) {
       // There is a scheduling conflict
       return true;
     }
@@ -129,6 +130,8 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
       } else {
         otherTours = await TourService.getToursByDriverId(employee);
       }
+
+      otherTours?.removeWhere((tour) => tour.tourId == desireTour);
 
       for (var tour in otherTours!) {
         bool isSchedulingConflict = hasSchedulingConflict(widget.tour, tour);
@@ -245,6 +248,8 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                     // Assuming tourId is unique
                   });
                 });
+
+                tourList.removeWhere((tour) => tour.tourStatus != "Available");
                 print(tourList.length);
               } else {
                 tourList.removeWhere((tour) {
@@ -254,12 +259,14 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                         userTour.driver?.id; // Assuming tourId is unique
                   });
                 });
+                tourList.removeWhere((tour) => tour.tourStatus != "Available");
               }
-
+              tourList
+                  .removeWhere((tour) => tour.tourId == widget.tour.tourId!);
               for (var i = 0; i < tourList.length; i++) {
                 bool isCurrentTourPast = isTourInPast(widget.tour);
                 bool isDesireTourInPast = isTourInPast(tourList[i]);
-                bool isTourListScheduled = tourList[i].isScheduled! == false;
+                bool isTourListScheduled = tourList[i].isScheduled! != true;
                 bool shouldAddTour = true;
 
                 for (var j = 0; j < thisUserTours!.length; j++) {
