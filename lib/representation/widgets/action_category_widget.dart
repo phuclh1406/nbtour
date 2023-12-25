@@ -28,8 +28,8 @@ class ActionCategoryWidget extends StatelessWidget {
                     backgroundColor: Colors.red,
                     label: Text(count.toString()),
                     child: Container(
-                      width: kDefaultIconSize * 2,
-                      height: kDefaultIconSize * 2,
+                      width: kDefaultIconSize * 2.5,
+                      height: kDefaultIconSize * 2.5,
                       padding: const EdgeInsets.symmetric(
                           vertical: kDefaultIconSize / 3),
                       decoration: BoxDecoration(
@@ -39,8 +39,8 @@ class ActionCategoryWidget extends StatelessWidget {
                     ),
                   )
                 : Container(
-                    width: kDefaultIconSize * 2,
-                    height: kDefaultIconSize * 2,
+                    width: kDefaultIconSize * 2.5,
+                    height: kDefaultIconSize * 2.5,
                     padding: const EdgeInsets.symmetric(
                         vertical: kDefaultIconSize / 3),
                     decoration: BoxDecoration(

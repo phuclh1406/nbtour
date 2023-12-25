@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nbtour/representation/screens/form_detail.dart';
+import 'package:nbtour/representation/screens/reschedule_detail_screen.dart';
 import 'package:nbtour/representation/screens/tab_screen.dart';
 import 'package:nbtour/services/api/form_service.dart';
 import 'package:nbtour/services/api/tour_service.dart';
@@ -42,11 +43,26 @@ class _RequestScreenState extends State<RequestScreen>
   Tour? oldTour;
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
+  Stream<List<RescheduleForm>?>? requestStream;
 
   @override
   initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    requestStream = Stream.periodic(const Duration(seconds: 3), (_) {
+      return fetchRequest();
+    }).asyncMap((_) => fetchRequest());
+  }
+
+  Future<List<RescheduleForm>?> fetchRequest() async {
+    try {
+      final updatedBookingList = await RescheduleServices.getFormList(userId);
+      print(updatedBookingList!.length);
+      return updatedBookingList;
+    } catch (e) {
+      // Handle error as needed
+      return null;
+    }
   }
 
   Future<String>? fetchRequestTour(String tourId) async {
@@ -59,6 +75,33 @@ class _RequestScreenState extends State<RequestScreen>
       }
     } catch (e) {
       return e.toString();
+    }
+  }
+
+  void openRescheduleFormOverlay(RescheduleForm rescheduleForm) async {
+    Tour? currentTour =
+        await TourService.getTourByTourId(rescheduleForm.currentTour!.tourId);
+    Tour? desireTour =
+        await TourService.getTourByTourId(rescheduleForm.desireTour!.tourId);
+    if (currentTour != null && desireTour != null) {
+      if (context.mounted) {
+        showModalBottomSheet(
+          showDragHandle: true,
+          elevation: 0,
+          backgroundColor: Colors.white,
+          isScrollControlled: true,
+          context: context,
+          builder: (ctx) => SizedBox(
+              height: MediaQuery.of(context).size.height * 0.8,
+
+              // child: TimelinesScreen(route: route)),
+              child: RescheduleDetailScreen(
+                currentTour: currentTour,
+                desireTour: desireTour,
+                rescheduleForm: rescheduleForm,
+              )),
+        );
+      }
     }
   }
 
@@ -193,8 +236,8 @@ class _RequestScreenState extends State<RequestScreen>
 
   // Store the filtered tours
   Widget loadScheduledTour() {
-    return FutureBuilder<List<RescheduleForm>?>(
-      future: RescheduleServices.getFormList(userId),
+    return StreamBuilder<List<RescheduleForm>?>(
+      stream: requestStream,
       builder: (BuildContext context,
           AsyncSnapshot<List<RescheduleForm>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -316,16 +359,8 @@ class _RequestScreenState extends State<RequestScreen>
                               ),
                               child: RequestListWidget(
                                 onTap: () {
-                                  // setState(() {
-                                  //   isSearching = false;
-                                  //   filteredSchedule = listScheduledTour;
-                                  // });
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (ctx) => TourGuideTourDetailScreen(
-                                  //               scheduleTour: filteredSchedule[i],
-                                  //             )));
+                                  openRescheduleFormOverlay(
+                                      filteredSchedule[i]);
                                 },
 
                                 announcementImage: ImageHelper.loadFromAsset(
@@ -335,10 +370,7 @@ class _RequestScreenState extends State<RequestScreen>
 
                                 // announcementImage: Image.network(),
                                 email: filteredSchedule[i].formUser!.email!,
-                                tour: filteredSchedule[i]
-                                            .currentTour!
-                                            .tourName !=
-                                        null
+                                tour: filteredSchedule[i].currentTour != null
                                     ? filteredSchedule[i].currentTour!.tourName!
                                     : "",
                                 name: filteredSchedule[i].formUser!.name != null
@@ -354,16 +386,7 @@ class _RequestScreenState extends State<RequestScreen>
                             )
                           : RequestListWidget(
                               onTap: () {
-                                // setState(() {
-                                //   isSearching = false;
-                                //   filteredSchedule = listScheduledTour;
-                                // });
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (ctx) => TourGuideTourDetailScreen(
-                                //               scheduleTour: filteredSchedule[i],
-                                //             )));
+                                openRescheduleFormOverlay(filteredSchedule[i]);
                               },
 
                               announcementImage: ImageHelper.loadFromAsset(
@@ -373,11 +396,10 @@ class _RequestScreenState extends State<RequestScreen>
 
                               // announcementImage: Image.network(),
                               email: filteredSchedule[i].formUser!.email!,
-                              tour: filteredSchedule[i].currentTour!.tourName !=
-                                      null
+                              tour: filteredSchedule[i].currentTour != null
                                   ? filteredSchedule[i].currentTour!.tourName!
                                   : "",
-                              name: filteredSchedule[i].formUser!.name != null
+                              name: filteredSchedule[i].formUser != null
                                   ? filteredSchedule[i].formUser!.name!
                                   : "",
                               status: filteredSchedule[i].status != null
@@ -395,12 +417,13 @@ class _RequestScreenState extends State<RequestScreen>
               ],
             );
           } else {
-            return Padding(
-              padding: const EdgeInsets.only(top: kMediumPadding * 5),
-              child: Center(
-                  child: ImageHelper.loadFromAsset(AssetHelper.noData,
-                      width: 300, fit: BoxFit.fitWidth)),
-            );
+            return const Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Không có dữ liệu'),
+              ],
+            ));
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error
@@ -416,12 +439,9 @@ class _RequestScreenState extends State<RequestScreen>
             ],
           ));
         } else {
-          return Padding(
-            padding: const EdgeInsets.only(top: kMediumPadding * 5),
-            child: Center(
-                child: ImageHelper.loadFromAsset(AssetHelper.noData,
-                    width: 300, fit: BoxFit.fitWidth)),
-          ); // Return an empty container or widget if data is null
+          return const Center(
+              child: Text(
+                  'Không có dữ liệu')); // Return an empty container or widget if data is null
         }
       },
     );

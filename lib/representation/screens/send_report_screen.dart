@@ -3,8 +3,10 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:nbtour/main.dart';
+import 'package:nbtour/representation/screens/driver/tour_screen.dart';
 
 import 'package:nbtour/services/api/report_service.dart';
+import 'package:nbtour/services/models/tour_model.dart';
 
 import 'package:nbtour/services/models/tracking_station_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
@@ -14,8 +16,9 @@ import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
 import 'package:quickalert/quickalert.dart';
 
 class SendReportScreen extends StatefulWidget {
-  const SendReportScreen({super.key, this.onReportSent});
+  const SendReportScreen({super.key, this.onReportSent, this.tour});
   final Function()? onReportSent;
+  final Tour? tour;
   @override
   State<SendReportScreen> createState() => _SendReportScreenState();
 }
@@ -55,18 +58,46 @@ class _SendReportScreenState extends State<SendReportScreen> {
     ).show();
   }
 
+  void showConfirmDialog(BuildContext context) {
+    AwesomeDialog(
+            context: context,
+            animType: AnimType.scale,
+            dialogType: DialogType.question,
+            title: 'Xác nhận gửi đơn',
+            desc:
+                'Xác nhận đã kiểm tra thông tin của đơn này! Hành động này không thể hoàn tác sau khi bấm Xác nhận',
+            btnOkOnPress: () {
+              _submit(context);
+            },
+            btnOkText: 'Xác nhận',
+            btnCancelText: 'Quay lại',
+            btnCancelOnPress: () {})
+        .show();
+  }
+
   void _submit(BuildContext context) async {
     final isValid = _form.currentState!.validate();
-
+    String? reportResult;
     if (!isValid) {
       return;
     }
     _form.currentState!.save();
-    String reportResult = await ReportServices.sendReport(
-      userId,
-      _enteredTitle,
-      _enteredDescription,
-    );
+    if (widget.tour != null) {
+      if (widget.tour!.tourId != '') {
+        reportResult = await ReportServices.sendReport(
+          widget.tour!.tourId,
+          userId,
+          _enteredTitle,
+          _enteredDescription,
+        );
+      }
+    } else {
+      reportResult = await ReportServices.sendReportWithoutTourId(
+        userId,
+        _enteredTitle,
+        _enteredDescription,
+      );
+    }
 
     if (reportResult == 'Send report successfully') {
       showAlertSuccess();
@@ -107,6 +138,105 @@ class _SendReportScreenState extends State<SendReportScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+                      widget.tour != null
+                          ? Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: kMediumPadding / 2),
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    maxLines: null,
+                                    cursorColor: ColorPalette.primaryColor,
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: const Color.fromARGB(
+                                          26, 131, 131, 131),
+                                      prefixIcon:
+                                          const Icon(Icons.email_outlined),
+                                      prefixIconColor: const Color.fromARGB(
+                                          255, 112, 111, 111),
+                                      hintText: widget.tour!.tourName,
+                                      hintStyle: TextStyles.defaultStyle,
+                                      border: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Color.fromARGB(
+                                                  255, 246, 243, 243)),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(
+                                                  kMediumPadding / 2.5))),
+                                      focusedBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Color.fromARGB(
+                                                  255, 62, 62, 62)),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(
+                                                  kMediumPadding / 2.5))),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: kMediumPadding),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: kMediumPadding / 2),
+                        child: TextFormField(
+                          readOnly: true,
+                          maxLines: null,
+                          cursorColor: ColorPalette.primaryColor,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromARGB(26, 131, 131, 131),
+                            prefixIcon: const Icon(Icons.person_2_outlined),
+                            prefixIconColor:
+                                const Color.fromARGB(255, 112, 111, 111),
+                            hintText: sharedPreferences.getString('user_name'),
+                            hintStyle: TextStyles.defaultStyle,
+                            border: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color.fromARGB(255, 246, 243, 243)),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(kMediumPadding / 2.5))),
+                            focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color.fromARGB(255, 62, 62, 62)),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(kMediumPadding / 2.5))),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: kMediumPadding),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: kMediumPadding / 2),
+                        child: TextFormField(
+                          readOnly: true,
+                          maxLines: null,
+                          cursorColor: ColorPalette.primaryColor,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromARGB(26, 131, 131, 131),
+                            prefixIcon: const Icon(Icons.email_outlined),
+                            prefixIconColor:
+                                const Color.fromARGB(255, 112, 111, 111),
+                            hintText: sharedPreferences.getString('email'),
+                            hintStyle: TextStyles.defaultStyle,
+                            border: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color.fromARGB(255, 246, 243, 243)),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(kMediumPadding / 2.5))),
+                            focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color.fromARGB(255, 62, 62, 62)),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(kMediumPadding / 2.5))),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: kMediumPadding),
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: kMediumPadding / 2),
@@ -189,18 +319,19 @@ class _SendReportScreenState extends State<SendReportScreen> {
                         isIcon: false,
                         title: 'Gửi đơn',
                         ontap: () {
-                          _submit(context);
+                          showConfirmDialog(context);
                         },
                         color: ColorPalette.primaryColor,
                         textStyle: TextStyles.regularStyle.whiteTextColor,
                       ),
-                      const SizedBox(height: kMediumPadding / 2),
+                      SizedBox(
+                          height:
+                              MediaQuery.of(context).viewInsets.bottom + 20),
                     ],
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: kMediumPadding / 2),
           ]),
         ),
       ),

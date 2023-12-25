@@ -25,7 +25,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
   @override
   void initState() {
     super.initState();
-    notificationStream = Stream.periodic(const Duration(seconds: 10), (_) {
+    notificationStream = Stream.periodic(const Duration(seconds: 3), (_) {
       return fetchNotifications();
     }).asyncMap((_) => fetchNotifications());
   }

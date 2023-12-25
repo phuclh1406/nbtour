@@ -1,26 +1,23 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:nbtour/main.dart';
-import 'package:nbtour/representation/screens/notification_list_screen.dart';
-import 'package:nbtour/representation/screens/sent_request.dart';
-import 'package:nbtour/representation/screens/send_report_screen.dart';
-import 'package:nbtour/services/api/form_service.dart';
-import 'package:nbtour/services/api/notification_service.dart';
-import 'package:nbtour/services/models/notification.dart';
-import 'package:nbtour/services/models/reschedule_form_model.dart';
-import 'package:nbtour/utils/constant/dimension.dart';
-import 'package:nbtour/utils/constant/text_style.dart';
-import 'package:nbtour/utils/helper/asset_helper.dart';
-import 'package:nbtour/utils/helper/image_helper.dart';
 import 'package:nbtour/representation/screens/login_screen.dart';
+import 'package:nbtour/representation/screens/notification_list_screen.dart';
+import 'package:nbtour/representation/screens/profile_screen.dart';
 import 'package:nbtour/representation/screens/request_screen.dart';
 import 'package:nbtour/representation/screens/schedule_screen.dart';
+import 'package:nbtour/representation/screens/sent_request.dart';
 import 'package:nbtour/representation/screens/tour_guide/tour_screen.dart';
-import 'package:nbtour/representation/widgets/action_category_widget.dart';
-import 'package:nbtour/representation/widgets/announcement_widget.dart';
-import 'package:nbtour/representation/widgets/main_drawer.dart';
+import 'package:nbtour/services/api/auth_service.dart';
+import 'package:nbtour/services/api/notification_service.dart';
+import 'package:nbtour/services/api/payment_stripe_service.dart';
+import 'package:nbtour/services/models/notification.dart';
+import 'package:nbtour/utils/constant/colors.dart';
+import 'package:nbtour/utils/constant/dimension.dart';
+import 'package:nbtour/utils/constant/text_style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TourGuideHomeScreen extends StatefulWidget {
@@ -30,57 +27,25 @@ class TourGuideHomeScreen extends StatefulWidget {
   State<TourGuideHomeScreen> createState() => _TourGuideHomeScreenState();
 }
 
-Timer? timer;
-
 class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
+  Map<String, dynamic>? paymentIntent;
   String avatar = '';
   String userName = '';
-
+  OverlayEntry? entry;
+  Timer? timer;
+  List<NotificationModel> listNoti = [];
+  bool isCircle = false;
+  Offset offset = const Offset(14, 610);
   int notiCount = 0;
   int formCount = 0;
   String userId = sharedPreferences.getString("user_id")!;
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     fetchUserName();
-    fetchUserAvatar();
     fetchNotification(userId);
-    fetchIncomingRequest(userId);
-  }
-
-  Future<void> fetchUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? fetchUserName = prefs.getString('user_name');
-    if (fetchUserName != null) {
-      setState(() {
-        userName = fetchUserName;
-      });
-    }
-  }
-
-  Future<void> fetchUserAvatar() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? fetchUserAvatar = prefs.getString('avatar');
-    if (fetchUserAvatar != null) {
-      setState(() {
-        avatar = fetchUserAvatar;
-      });
-    }
-  }
-
-  void openAddExpenseOverlay() {
-    showModalBottomSheet(
-      showDragHandle: true,
-      elevation: 0,
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
-      context: context,
-      builder: (ctx) => SizedBox(
-          height: MediaQuery.of(context).size.height * 0.8,
-          child: const SendReportScreen()),
-    );
   }
 
   Future<void> fetchNotification(String userId) async {
@@ -88,318 +53,312 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
       List<NotificationModel>? notiList =
           await NotificationServices.getNotificationList(userId);
       if (notiList!.isNotEmpty) {
+        notiList.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
         setState(() {
+          listNoti = notiList;
           notiCount = notiList.length;
         });
       }
-      print(notiCount);
+    } catch (e) {
+      Text(e.toString());
+    }
+  }
+
+  Future<void> fetchUserName() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? fetchUserName = prefs.getString('user_name');
+      if (fetchUserName != null) {
+        setState(() {
+          userName = fetchUserName;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        userName = 'Minh Huy';
+      });
+    }
+  }
+
+  void hideOverlay() {
+    try {
+      if (entry != null) {
+        entry?.remove();
+        entry = null;
+      }
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Future<void> fetchIncomingRequest(String userId) async {
+  void makePayment() async {
     try {
-      List<RescheduleForm>? formList =
-          await RescheduleServices.getFormList(userId);
-
-      if (formList!.isNotEmpty) {
-        List<RescheduleForm> pendingForms =
-            formList.where((form) => form.status == "Pending").toList();
-        setState(() {
-          formCount = pendingForms.length;
-        });
-        print(formCount);
-      }
+      paymentIntent = await PaymentStripeServices.paymentStripe("30000");
+      var gPay = const PaymentSheetGooglePay(
+          merchantCountryCode: "SG", currencyCode: "VND", testEnv: true);
+      await Stripe.instance.initPaymentSheet(
+          paymentSheetParameters: SetupPaymentSheetParameters(
+              paymentIntentClientSecret: paymentIntent!["client_secret"],
+              style: ThemeMode.dark,
+              customFlow: true,
+              allowsDelayedPaymentMethods: true,
+              merchantDisplayName: "Phuc",
+              googlePay: gPay));
+      displayPaymentSheet();
     } catch (e) {
-      print(e.toString());
+      print('FAIL');
     }
+  }
+
+  void displayPaymentSheet() async {
+    // try {
+    await Stripe.instance.presentPaymentSheet();
+    print('Done');
+    // } catch (e) {
+    //   print('Fail');
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    List imgSrc = [
+      "assets/images/incomming_app.png",
+      "assets/images/send_app.png",
+      "assets/images/calendar.png",
+      "assets/images/list.png"
+    ];
+
+    List titles = [
+      "Đơn đến",
+      "Đơn gửi",
+      "Xem lịch",
+      "Chuyến đi",
+    ];
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 250, 250, 250),
-      drawer: MainDrawer(
-        userName: userName,
-        avatar: avatar,
-        onSelectScreen: (ex) {},
-      ),
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool isScrolled) {
-          return [
-            SliverAppBar(
-              title: Center(
-                child: Column(
-                  children: [
-                    const Text(
-                      'Xin chào',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(sharedPreferences.getString('user_name') ?? '',
-                        style: const TextStyle(fontSize: 16))
-                  ],
-                ),
-              ),
-              iconTheme: const IconThemeData(color: Colors.white),
-              actions: <Widget>[
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (ctx) => const NotificationListScreen()));
-                  },
-                  icon: notiCount != 0
-                      ? Badge(
-                          backgroundColor: Colors.red,
-                          label: Text(notiCount.toString()),
-                          child: const Icon(
-                            Icons.notifications,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                        ),
-                )
-              ],
-            )
-          ];
-        },
-        floatHeaderSlivers: true,
-        body: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: screenWidth - kItemPadding * 2,
-                    decoration: const BoxDecoration(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(kDefaultPadding),
-                          bottomRight: Radius.circular(kDefaultPadding)),
-                    ),
-                    padding: const EdgeInsets.all(kDefaultPadding),
+        body: Container(
+      color: ColorPalette.primaryColor,
+      child: Column(
+        children: [
+          SizedBox(
+              height: height * 0.25,
+              width: width,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 50, left: 15, right: 15),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ActionCategoryWidget(
-                            count: 0,
-                            icon: const Icon(
-                              Icons.calendar_month_outlined,
-                              size: kDefaultIconSize * 1.2,
+                        InkWell(
+                          onTap: () {
+                            showMenu(
                               color: Colors.white,
+                              context: context,
+                              elevation: 1,
+                              items: [
+                                PopupMenuItem(
+                                  child: const Text(
+                                    'Trang cá nhân',
+                                    style: TextStyles.defaultStyle,
+                                  ),
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (ctx) =>
+                                                const ProfileScreen()));
+                                  },
+                                ),
+                                PopupMenuItem(
+                                  child: const Text(
+                                    'Thanh toán',
+                                    style: TextStyles.defaultStyle,
+                                  ),
+                                  onTap: () {
+                                    makePayment();
+                                  },
+                                ),
+                                PopupMenuItem(
+                                  child: const Text('Đăng xuất',
+                                      style: TextStyles.defaultStyle),
+                                  onTap: () {
+                                    AuthServices().googleSignOut();
+                                    final fcm = FirebaseMessaging.instance;
+                                    fcm.deleteToken();
+
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const LoginScreen(),
+                                        ));
+                                    sharedPreferences.clear();
+                                  },
+                                ),
+                              ],
+                              position:
+                                  const RelativeRect.fromLTRB(0, 0, 0, 100),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(kMediumPadding * 2),
+                            child: Image.network(
+                              sharedPreferences.getString('avatar') ?? '',
+                              height: 50,
+                              width: 50,
                             ),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (ctx) => ScheduleScreen(
-                                      initDate: DateTime.now())));
-                            },
-                            title: 'View Schedule'),
-                        const SizedBox(width: kItemPadding / 1.5),
-                        ActionCategoryWidget(
-                            count: formCount,
-                            icon: const Icon(
-                              FontAwesomeIcons.clipboard,
-                              size: kDefaultIconSize * 1.2,
-                              color: Colors.white,
-                            ),
-                            onTap: () {
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (ctx) =>
+                                    const NotificationListScreen()));
+                          },
+                          icon: notiCount != 0
+                              ? Badge(
+                                  backgroundColor: Colors.red,
+                                  label: Text(notiCount.toString()),
+                                  child: const Icon(
+                                    Icons.notifications,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.notifications,
+                                  color: Colors.white,
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 15, left: 15, right: 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Xin chào nhân viên',
+                          style: TextStyles
+                              .regularStyle.bold.whiteTextColor.fontHeader,
+                        ),
+                        const SizedBox(
+                          height: kDefaultIconSize / 2,
+                        ),
+                        Text(
+                          sharedPreferences.getString('user_name') ?? '',
+                          style: TextStyles.regularStyle.whiteTextColor,
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              )),
+          Expanded(
+            child: Container(
+              height: height * 0.75,
+              width: width,
+              decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(30),
+                      topLeft: Radius.circular(30))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 35, left: 20, right: 15),
+                    child: Text(
+                      'Danh sách các tác vụ',
+                      style: TextStyles.defaultStyle.bold.fontHeader,
+                    ),
+                  ),
+                  GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.1,
+                      mainAxisSpacing: 30,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          switch (titles[index]) {
+                            case "Đơn đến":
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => const RequestScreen(),
                                   ));
-                            },
-                            title: 'Income Request'),
-                        const SizedBox(width: kItemPadding / 1.5),
-                        ActionCategoryWidget(
-                            count: 0,
-                            icon: const Icon(
-                              Icons.send_outlined,
-                              size: kDefaultIconSize * 1.2,
-                              color: Colors.white,
-                            ),
-                            onTap: () {
+                              break;
+                            case "Đơn gửi":
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
                                         const SentRequestScreen(),
                                   ));
-                            },
-                            title: 'Sent Request'),
-                        const SizedBox(width: kItemPadding / 1.5),
-                        ActionCategoryWidget(
-                            count: 0,
-                            icon: const Icon(
-                              Icons.work_history_outlined,
-                              size: kDefaultIconSize * 1.2,
-                              color: Colors.white,
-                            ),
-                            onTap: () {
+                              break;
+                            case "Xem lịch":
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (ctx) =>
-                                          const TourGuideTourScreen()));
-                            },
-                            title: 'Your Activity'),
-                        const SizedBox(width: kItemPadding / 1.5),
-                        ActionCategoryWidget(
-                            count: 0,
-                            icon: const Icon(
-                              Icons.qr_code_scanner,
-                              size: kDefaultIconSize * 1.2,
-                              color: Colors.white,
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const RequestScreen(),
+                                    builder: (context) => ScheduleScreen(
+                                      initDate: DateTime.now(),
+                                    ),
                                   ));
-                            },
-                            title: 'QR Scanner'),
-                      ],
-                    ),
+                              break;
+                            case "Chuyến đi":
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TourGuideTourScreen(),
+                                  ));
+                              break;
+                          }
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 20),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white,
+                              boxShadow: const [
+                                BoxShadow(
+                                    color: Colors.black26,
+                                    spreadRadius: 1,
+                                    blurRadius: 6)
+                              ]),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Image.asset(imgSrc[index],
+                                    width: 100, height: 100),
+                                Text(
+                                  titles[index],
+                                  style: TextStyles.defaultStyle.bold,
+                                )
+                              ]),
+                        ),
+                      );
+                    },
                   ),
-                ),
-                const SizedBox(height: kMediumPadding / 2),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                  child: Text('Announcement',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20)),
-                ),
-                const SizedBox(height: kMediumPadding / 2),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage: ImageHelper.loadFromAsset(
-                            AssetHelper.announcementImage),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage: ImageHelper.loadFromAsset(
-                            AssetHelper.announcementImage),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage: ImageHelper.loadFromAsset(
-                            AssetHelper.announcementImage),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: kMediumPadding / 2),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                  child: Text('New Product',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20)),
-                ),
-                const SizedBox(height: kMediumPadding / 2),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage:
-                            ImageHelper.loadFromAsset(AssetHelper.productImage),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage:
-                            ImageHelper.loadFromAsset(AssetHelper.productImage),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                      AnnouncementWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RequestScreen(),
-                              ));
-                        },
-                        announcementImage: Container(
-                            child: ImageHelper.loadFromAsset(
-                                AssetHelper.productImage)),
-                        title: 'International Band Museum312312321312',
-                        author: 'Nhan Nguyen',
-                        dateOfPublic: '15/09/2023',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: kMediumPadding),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          )
+        ],
       ),
-    );
+    ));
   }
 }

@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:nbtour/representation/screens/schedule_screen.dart';
+import 'package:nbtour/representation/screens/send_report_screen.dart';
 import 'package:nbtour/services/api/tour_service.dart';
 
 import 'package:nbtour/utils/constant/colors.dart';
@@ -38,6 +39,20 @@ class TourDetailScreen extends StatelessWidget {
         builder: (ctx) => SizedBox(
             height: MediaQuery.of(context).size.height * 0.8,
             child: RescheduleScreen(tour: scheduleTour)),
+      );
+    }
+
+    void openSendReportOverlay(String tourId) {
+      showModalBottomSheet(
+        showDragHandle: true,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        isScrollControlled: true,
+        context: context,
+        builder: (ctx) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: SendReportScreen(onReportSent: () {}, tour: scheduleTour),
+        ),
       );
     }
 
@@ -361,7 +376,7 @@ class TourDetailScreen extends StatelessWidget {
                                           child: scheduleTour.driver != null
                                               ? Image.network(
                                                   scheduleTour.driver!.avatar!,
-                                                  width: 55,
+                                                  width: 57,
                                                   fit: BoxFit.fitWidth)
                                               : const SizedBox.shrink(),
                                         ),
@@ -395,6 +410,12 @@ class TourDetailScreen extends StatelessWidget {
                                                   : Text('',
                                                       style: TextStyles
                                                           .defaultStyle.bold),
+                                            const SizedBox(
+                                              height: kDefaultIconSize / 4,
+                                            ),
+                                            Text('Tài xế',
+                                                style: TextStyles.defaultStyle
+                                                    .subTitleTextColor.bold)
                                           ],
                                         ),
                                       ],
@@ -411,7 +432,7 @@ class TourDetailScreen extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(30),
                                         child: Image.network(
                                             scheduleTour.tourGuide!.avatar!,
-                                            width: 55,
+                                            width: 57,
                                             fit: BoxFit.fitWidth),
                                       ),
                                       const SizedBox(
@@ -445,6 +466,12 @@ class TourDetailScreen extends StatelessWidget {
                                                 : Text('',
                                                     style: TextStyles
                                                         .defaultStyle.bold),
+                                          const SizedBox(
+                                            height: kDefaultIconSize / 4,
+                                          ),
+                                          Text('Hướng dẫn viên',
+                                              style: TextStyles.defaultStyle
+                                                  .subTitleTextColor.bold)
                                         ],
                                       ),
                                     ],
@@ -480,27 +507,27 @@ class TourDetailScreen extends StatelessWidget {
                             vertical: kMediumPadding / 4),
                         child: Column(
                           children: [
-                            RectangleButtonWidget(
-                              width: MediaQuery.of(context).size.width -
-                                  kMediumPadding,
-                              title: 'Hiển thị mã QR theo dõi tour',
-                              ontap: () {
-                                showTourQr();
-                              },
-                              buttonColor: Colors.white,
-                              textStyle:
-                                  TextStyles.defaultStyle.primaryTextColor,
-                              isIcon: true,
-                              borderColor: ColorPalette.primaryColor,
-                              icon: const Icon(
-                                FontAwesomeIcons.qrcode,
-                                color: ColorPalette.primaryColor,
-                                size: kDefaultIconSize + 3,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: kMediumPadding / 4,
-                            ),
+                            // RectangleButtonWidget(
+                            //   width: MediaQuery.of(context).size.width -
+                            //       kMediumPadding,
+                            //   title: 'Hiển thị mã QR theo dõi tour',
+                            //   ontap: () {
+                            //     showTourQr();
+                            //   },
+                            //   buttonColor: Colors.white,
+                            //   textStyle:
+                            //       TextStyles.defaultStyle.primaryTextColor,
+                            //   isIcon: true,
+                            //   borderColor: ColorPalette.primaryColor,
+                            //   icon: const Icon(
+                            //     FontAwesomeIcons.qrcode,
+                            //     color: ColorPalette.primaryColor,
+                            //     size: kDefaultIconSize + 3,
+                            //   ),
+                            // ),
+                            // const SizedBox(
+                            //   height: kMediumPadding / 4,
+                            // ),
                             Row(
                               children: [
                                 const SizedBox(
@@ -590,12 +617,30 @@ class TourDetailScreen extends StatelessWidget {
             style: TextStyles.defaultStyle.fontHeader.bold,
           ),
           actions: <Widget>[
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (ctx) => const TabsScreen()));
-                },
-                icon: const Icon(Icons.home))
+            PopupMenuButton(
+                color: Colors.white,
+                itemBuilder: (context) => [
+                      PopupMenuItem(
+                          onTap: () {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (ctx) => const TabsScreen()));
+                          },
+                          child: const Text('Trang chủ',
+                              style: TextStyles.defaultStyle)),
+                      PopupMenuItem(
+                          onTap: () {
+                            openSendReportOverlay(scheduleTour.tourId ?? '');
+                          },
+                          child: const Text('Sự cố',
+                              style: TextStyles.defaultStyle)),
+                      PopupMenuItem(
+                          onTap: () {
+                            showTourQr();
+                          },
+                          child: const Text('Theo dõi',
+                              style: TextStyles.defaultStyle))
+                    ])
           ],
         ),
         body: loadTour());

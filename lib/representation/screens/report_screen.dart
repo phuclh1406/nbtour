@@ -194,12 +194,13 @@ class _ReportScreenState extends State<ReportScreen>
               ],
             );
           } else {
-            return Padding(
-              padding: const EdgeInsets.only(top: kMediumPadding * 5),
-              child: Center(
-                  child: ImageHelper.loadFromAsset(AssetHelper.noData,
-                      width: 300, fit: BoxFit.fitWidth)),
-            );
+            return const Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Không có dữ liệu'),
+              ],
+            ));
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error

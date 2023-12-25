@@ -1,20 +1,21 @@
+import 'package:nbtour/services/models/tour_model.dart';
 import 'package:nbtour/services/models/user_model.dart';
 
 List<Reports> reportsFromJson(dynamic str) =>
     List<Reports>.from((str).map((x) => Reports.fromJson(x)));
 
 class Reports {
-  Reports({
-    required this.reportId,
-    required this.title,
-    required this.description,
-    required this.response,
-    required this.reportStatus,
-    required this.status,
-    required this.createdAt,
-    required this.reportUser,
-    required this.responseUser,
-  });
+  Reports(
+      {required this.reportId,
+      required this.title,
+      required this.description,
+      required this.response,
+      required this.reportStatus,
+      required this.status,
+      required this.createdAt,
+      required this.reportUser,
+      required this.responseUser,
+      required this.reportTour});
 
   late String? reportId;
   late String? title;
@@ -25,6 +26,7 @@ class Reports {
   late String? createdAt;
   late UserModel? reportUser;
   late UserModel? responseUser;
+  late Tour? reportTour;
 
   Reports.fromJson(Map<String, dynamic> json) {
     reportId = json['reportId'];
@@ -40,6 +42,8 @@ class Reports {
     responseUser = json['response_user'] != null
         ? UserModel.fromJson(json['response_user'])
         : null;
+    reportTour =
+        json['report_tour'] != null ? Tour.fromJson(json['report_tour']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -63,6 +67,12 @@ class Reports {
         'userId': responseUser?.id,
         'userName': responseUser?.name,
         'user_role': responseUser?.roleModel,
+      };
+    }
+    if (reportTour != null) {
+      data['report_tour'] = {
+        'tourId': reportTour?.tourId,
+        'tourName': reportTour?.tourName,
       };
     }
     return data;

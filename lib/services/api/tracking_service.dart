@@ -8,7 +8,7 @@ import 'package:nbtour/services/models/tracking_station_model.dart';
 class TrackingServices {
   static var client = http.Client();
   static Future<String> trackingWithCoordinates(
-      String tourId, double lat, double long, String status) async {
+      String tourId, double lat, double long) async {
     var url = Uri.https(Config.apiURL, Config.trackingCoordinates);
     String token = sharedPreferences.getString("accesstoken")!;
     final headers = {
@@ -19,7 +19,6 @@ class TrackingServices {
       'tourId': tourId,
       'latitude': lat,
       'longitude': long,
-      'status': status,
     });
     final response = await client.post(url, headers: headers, body: body);
 

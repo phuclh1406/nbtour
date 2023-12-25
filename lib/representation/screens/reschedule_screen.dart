@@ -240,6 +240,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
               print('${tourList.length} lengtthhhhhhhhhhhh');
               if (sharedPreferences.getString("role_name") == "TourGuide") {
                 tourList.removeWhere((tour) {
+                  thisUserTours ?? [];
                   return thisUserTours!.any((userTour) {
                     // Customize this condition based on how you want to compare the Tour objects
 
@@ -252,6 +253,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                 tourList.removeWhere((tour) => tour.tourStatus != "Available");
                 print(tourList.length);
               } else {
+                thisUserTours ?? [];
                 tourList.removeWhere((tour) {
                   return thisUserTours!.any((userTour) {
                     // Customize this condition based on how you want to compare the Tour objects
@@ -261,8 +263,17 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                 });
                 tourList.removeWhere((tour) => tour.tourStatus != "Available");
               }
-              tourList
-                  .removeWhere((tour) => tour.tourId == widget.tour.tourId!);
+              tourList.removeWhere((tour) =>
+                  tour.tourId == widget.tour.tourId! ||
+                  DateTime.parse(tour.departureDate!.replaceAll('Z', '000'))
+                      .subtract(const Duration(hours: 24))
+                      .isBefore(DateTime.now()));
+              if (DateTime.parse(
+                      widget.tour.departureDate!.replaceAll('Z', '000'))
+                  .subtract(const Duration(hours: 24))
+                  .isBefore(DateTime.now())) {
+                tourList.clear();
+              }
               for (var i = 0; i < tourList.length; i++) {
                 bool isCurrentTourPast = isTourInPast(widget.tour);
                 bool isDesireTourInPast = isTourInPast(tourList[i]);

@@ -44,7 +44,10 @@ class TourService {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       var tour = toursFromJson(data['tours']);
-      tour = tour.where((tour) => tour.status == 'Active').toList();
+      tour = tour
+          .where((tour) =>
+              tour.status == 'Active' && tour.tourStatus != 'Canceled')
+          .toList();
       return tour;
     } else {
       return null;

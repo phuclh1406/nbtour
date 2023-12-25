@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -37,30 +38,30 @@ final theme = ThemeData(
         titleTextStyle:
             TextStyle(color: Colors.white, fontSize: kMediumPadding)));
 
-void initializeLocationAndSave() async {
-  // Ensure all permissions are collected for Locations
+// void initializeLocationAndSave() async {
+//   // Ensure all permissions are collected for Locations
 
-  Location location = Location();
-  bool? serviceEnabled;
-  PermissionStatus? permissionGranted;
-  serviceEnabled = await location.serviceEnabled();
-  if (!serviceEnabled) {
-    serviceEnabled = await location.requestService();
-  }
+//   Location location = Location();
+//   bool? serviceEnabled;
+//   PermissionStatus? permissionGranted;
+//   serviceEnabled = await location.serviceEnabled();
+//   if (!serviceEnabled) {
+//     serviceEnabled = await location.requestService();
+//   }
 
-  permissionGranted = await location.hasPermission();
-  if (permissionGranted == PermissionStatus.denied) {
-    permissionGranted = await location.requestPermission();
-  }
+//   permissionGranted = await location.hasPermission();
+//   if (permissionGranted == PermissionStatus.denied) {
+//     permissionGranted = await location.requestPermission();
+//   }
 
-  // Get the current user location
-  LocationData locationData = await location.getLocation();
-  // Get the current user address
+//   // Get the current user location
+//   LocationData locationData = await location.getLocation();
+//   // Get the current user address
 
-  // Store the user location in sharedPreferences
-  sharedPreferences.setDouble('latitude', locationData.latitude!);
-  sharedPreferences.setDouble('longitude', locationData.longitude!);
-}
+//   // Store the user location in sharedPreferences
+//   sharedPreferences.setDouble('latitude', locationData.latitude!);
+//   sharedPreferences.setDouble('longitude', locationData.longitude!);
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,7 +69,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   try {
+    // initializeLocationAndSave();
     await dotenv.load(fileName: "assets/config/.env");
+    Stripe.publishableKey = dotenv.env['STRIPE_PUB_KEY'] ?? '';
     runApp(const App());
     Timer.periodic(const Duration(seconds: 3), (timer) {
       fetchLoginUser();
@@ -88,11 +91,14 @@ void fetchLoginUser() async {
           await TourService.getTourByTourStatusAndDriverId(userId, "Started");
 
       bool newIsRunning = tour!.isNotEmpty;
+
       // Only update shared preferences if the value of isRunning changes
       if (newIsRunning) {
         sharedPreferences.setString('isRunning', newIsRunning.toString());
         sharedPreferences.setString('running_tour_name', tour[0].tourName!);
         sharedPreferences.setString('running_tour_id', tour[0].tourId!);
+      } else {
+        sharedPreferences.setString('isRunning', newIsRunning.toString());
       }
 
       if (newIsRunning) {
@@ -117,11 +123,15 @@ void checkLocationCoordinates(String toudId) async {
       await TrackingServices.updateTrackingWithCoordinates(tracking.trackingId!,
           location.latitude, location.longitude, "Active");
     } else {
+      print('tracking 3 ');
       await TrackingServices.trackingWithCoordinates(
-          toudId, location.latitude, location.longitude, "Active");
+        toudId,
+        location.latitude,
+        location.longitude,
+      );
     }
   } catch (e) {
-    "Error";
+    print(e);
   }
 }
 
@@ -131,11 +141,12 @@ void checkLocation(String tourId) async {
 
     List<TrackingStations>? trackingList =
         await TrackingServices.getTrackingStationsByTourId(tourId) ?? [];
-
+    print(trackingList.length);
     for (var i = 0; i < trackingList.length; i++) {
       if (trackingList[i].tourDetail!.tourStatus == "Started") {
+        await TrackingServices.trackingStations(trackingList[0].tourDetailId!);
         if (i <= 0
-            ? trackingList[i].status == "NotArrived"
+            ? trackingList[i].status == "Arrived"
             : trackingList[i - 1].status == "Arrived") {
           double distance = Geolocator.distanceBetween(
               double.parse(trackingList[i].tourDetailStation!.latitude!),
@@ -143,7 +154,7 @@ void checkLocation(String tourId) async {
               location.latitude,
               location.longitude);
 
-          if (distance <= 100) {
+          if (distance <= 70) {
             await TrackingServices.trackingStations(
                 trackingList[i].tourDetailId!);
           }
@@ -151,7 +162,7 @@ void checkLocation(String tourId) async {
       }
     }
   } catch (e) {
-    "Error";
+    print(e);
   }
 }
 

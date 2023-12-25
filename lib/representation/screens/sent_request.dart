@@ -39,11 +39,26 @@ class _SentRequestScreenState extends State<SentRequestScreen>
   Tour? oldTour;
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
+  Stream<List<RescheduleForm>?>? requestStream;
 
   @override
   initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    requestStream = Stream.periodic(const Duration(seconds: 3), (_) {
+      return fetchRequest();
+    }).asyncMap((_) => fetchRequest());
+  }
+
+  Future<List<RescheduleForm>?> fetchRequest() async {
+    try {
+      final updatedBookingList = await RescheduleServices.getSentForm(userId);
+      print(updatedBookingList!.length);
+      return updatedBookingList;
+    } catch (e) {
+      // Handle error as needed
+      return null;
+    }
   }
 
   Future<String>? fetchRequestTour(String tourId) async {
@@ -75,8 +90,8 @@ class _SentRequestScreenState extends State<SentRequestScreen>
 
   // Store the filtered tours
   Widget loadScheduledTour() {
-    return FutureBuilder<List<RescheduleForm>?>(
-      future: RescheduleServices.getSentForm(userId),
+    return StreamBuilder<List<RescheduleForm>?>(
+      stream: requestStream,
       builder: (BuildContext context,
           AsyncSnapshot<List<RescheduleForm>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -194,7 +209,7 @@ class _SentRequestScreenState extends State<SentRequestScreen>
 
                         // announcementImage: Image.network(),
                         email: filteredSchedule[i].formUser!.email!,
-                        tour: filteredSchedule[i].currentTour!.tourName != null
+                        tour: filteredSchedule[i].currentTour != null
                             ? filteredSchedule[i].currentTour!.tourName!
                             : "",
                         name: filteredSchedule[i].formUser!.name != null
@@ -215,23 +230,25 @@ class _SentRequestScreenState extends State<SentRequestScreen>
               ],
             );
           } else {
-            return Padding(
-              padding: const EdgeInsets.only(top: kMediumPadding * 5),
-              child: Center(
-                  child: ImageHelper.loadFromAsset(AssetHelper.noData,
-                      width: 300, fit: BoxFit.fitWidth)),
-            );
+            return const Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Không có dữ liệu'),
+              ],
+            ));
           }
         } else if (snapshot.hasError) {
           // Display an error message if the future completed with an error
           return Text('Error: ${snapshot.error}');
         } else {
-          return Padding(
-            padding: const EdgeInsets.only(top: kMediumPadding * 5),
-            child: Center(
-                child: ImageHelper.loadFromAsset(AssetHelper.noData,
-                    width: 300, fit: BoxFit.fitWidth)),
-          ); // Return an empty container or widget if data is null
+          return const Center(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Không có dữ liệu'),
+            ],
+          ));
         }
       },
     );

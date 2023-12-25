@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nbtour/utils/constant/colors.dart';
 
 import 'package:nbtour/utils/constant/dimension.dart';
 
@@ -26,7 +27,7 @@ class RectangleButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      focusColor: const Color.fromARGB(255, 220, 216, 216),
+      focusColor: const Color.fromARGB(117, 255, 89, 0),
       onTap: ontap,
       child: Container(
         width: width,

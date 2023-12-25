@@ -91,9 +91,9 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
     DateTime now = DateTime.now();
 
     print('Departure Date: $departureDate');
-    print('Current Date: ${now}');
+    print('Current Date: $now');
 
-    if (now.isAfter(departureDate) && now.isBefore(endDate)) {
+    if (now.isAfter(departureDate)) {
       print('After departure date: true');
       return true;
     } else {
@@ -106,7 +106,7 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
     AwesomeDialog(
       context: context,
       animType: AnimType.scale,
-      dialogType: DialogType.error,
+      dialogType: DialogType.warning,
       title: 'Khởi hành thất bại',
       desc: response,
       btnOkOnPress: () {},
@@ -118,7 +118,7 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
     AwesomeDialog(
       context: context,
       animType: AnimType.scale,
-      dialogType: DialogType.error,
+      dialogType: DialogType.warning,
       title: 'Hoàn thành',
       desc: 'Chuyến đi đã hoàn thành',
       btnOkOnPress: () {},
@@ -145,13 +145,20 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
 
   void _onStartTour(String tourId, String tourName) async {
     try {
-      String response =
-          await TourService.updateTourStatus(tourId, "Started", tourName);
-      if (response == "Update success") {
-        sharedPreferences.remove("tracking_tour_id");
-        sharedPreferences.setString("tracking_tour_id", tourId);
+      var tour = await TourService.getTourByTourStatusAndDriverId(
+          sharedPreferences.getString('user_id'), "Started");
+      if (tour!.isEmpty) {
+        String response =
+            await TourService.updateTourStatus(tourId, "Started", tourName);
+        if (response == "Update success") {
+          sharedPreferences.remove("tracking_tour_id");
+          sharedPreferences.setString("tracking_tour_id", tourId);
+        } else {
+          showAlertFail('Không thể bắt đầu');
+        }
       } else {
-        showAlertFail('Không thể bắt đầu');
+        showAlertFail(
+            'Bạn cần hoàn tất chuyến đi hiện tại để bắt đầu chuyến đi mới');
       }
     } catch (e) {
       showAlertFail(e.toString());
@@ -163,20 +170,12 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
       List<TrackingStations>? trackingList =
           await TrackingServices.getTrackingStationsByTourId(tourId);
       if (trackingList != []) {
-        for (var tracking in trackingList!) {
-          print(tracking.status);
-          if (tracking.status == "Arrived") {
-            String response = await TourService.updateTourStatus(
-                tourId, "Finished", tourName);
-            if (response == "Update success") {
-              sharedPreferences.remove("tracking_tour_id");
-            } else {
-              showSuccessDialog();
-            }
-          } else {
-            showAlertFail(
-                'Chỉ có thể hoàn thành chuyến đi khi qua tất cả các trạm');
-          }
+        String response =
+            await TourService.updateTourStatus(tourId, "Finished", tourName);
+        if (response == "Update success") {
+          sharedPreferences.remove("tracking_tour_id");
+        } else {
+          showSuccessDialog();
         }
       } else {
         showAlertFail('Không thể hoàn thành tour');
@@ -312,6 +311,14 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                                             'Finished') {
                                           showAlertFail(
                                               'Chuyến đi này đã hoàn thành');
+                                        }
+
+                                        if (trackingList[0]
+                                                .tourDetail!
+                                                .tourStatus ==
+                                            'Canceled') {
+                                          showAlertFail(
+                                              'Chuyến đi này đã bị hủy');
                                         }
                                       } else {
                                         showAlertFail(

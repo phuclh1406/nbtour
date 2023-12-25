@@ -82,6 +82,27 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                       Text(widget.report.title!,
                           style: TextStyles.regularStyle.bold),
                       const SizedBox(height: kMediumPadding),
+                      widget.report.reportTour != null
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Chuyến đi: ',
+                                    style: TextStyles
+                                        .defaultStyle.subTitleTextColor),
+                                const SizedBox(
+                                  height: kDefaultIconSize / 2,
+                                ),
+                                Text(
+                                    widget.report.reportTour!.tourName != null
+                                        ? widget.report.reportTour!.tourName!
+                                        : "",
+                                    style: TextStyles.defaultStyle),
+                                const SizedBox(height: kDefaultIconSize / 4),
+                                const Divider(),
+                                const SizedBox(height: kDefaultIconSize / 4),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
                       Text('Nội dung: ',
                           style: TextStyles.defaultStyle.subTitleTextColor),
                       const SizedBox(

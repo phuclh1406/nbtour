@@ -8,11 +8,40 @@ import 'package:nbtour/services/models/report_model.dart';
 class ReportServices {
   static var client = http.Client();
 
-  static Future<String> sendReport(
+  static Future<String> sendReport(String? tourId, String? userId,
+      String? title, String? description) async {
+    try {
+      var url = Uri.parse('https://${Config.apiURL}${Config.report}');
+      String token = sharedPreferences.getString('accesstoken')!;
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+
+      final body = json.encode({
+        'tourId': tourId,
+        'reportUserId': userId,
+        'title': title,
+        'description': description
+      });
+      var response = await client.post(url, headers: headers, body: body);
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return 'Send report successfully';
+      } else {
+        return json.decode(response.body)['msg'];
+      }
+    } catch (e) {
+      return "Send report fail";
+    }
+  }
+
+  static Future<String> sendReportWithoutTourId(
       String? userId, String? title, String? description) async {
     try {
       var url = Uri.parse('https://${Config.apiURL}${Config.report}');
       String token = sharedPreferences.getString('accesstoken')!;
+
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'

@@ -66,7 +66,7 @@ class AnnouncementWidget extends StatelessWidget {
                     Row(
                       children: [
                         const Text(
-                          'Loại:',
+                          'Phân loại: ',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 13,

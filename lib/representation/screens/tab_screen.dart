@@ -1,8 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:nbtour/main.dart';
-import 'package:nbtour/representation/screens/tour_guide/booking_tour_list_screen.dart';
 import 'package:nbtour/representation/screens/report_screen.dart';
 import 'package:nbtour/representation/screens/tour_guide/booking_tour_screen.dart';
 import 'package:nbtour/services/api/auth_service.dart';
@@ -38,8 +38,32 @@ class _TabsScreenState extends State<TabsScreen> {
   void initState() {
     super.initState();
     // Fetch roleName from SharedPreferences when the widget is initialized
+    getLocation();
     setupPushNotification();
     fetchUserRole();
+  }
+
+  Future<Position> getLocation() async {
+    // Test if location services are enabled.
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        permission = await Geolocator.requestPermission();
+        return Future.error(
+            Exception('Location permissions are permanently denied.'));
+      }
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        return Future.error(Exception('Location permissions are denied.'));
+      }
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
   }
 
   Future<void> sendDeviceToken(String token) async {
@@ -158,7 +182,7 @@ class _TabsScreenState extends State<TabsScreen> {
                       icon: Icon(
                         Icons.report_outlined,
                       ),
-                      label: 'Các loại đơn')
+                      label: 'Báo cáo')
                 ],
               )
             : BottomNavigationBar(
