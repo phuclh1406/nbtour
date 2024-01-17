@@ -8,7 +8,8 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/representation/screens/tour_guide/payment_screen.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
 import 'package:nbtour/services/api/tracking_service.dart';
 import 'package:nbtour/services/models/tracking_model.dart';
 import 'package:nbtour/services/models/tracking_station_model.dart';
@@ -87,24 +88,27 @@ void fetchLoginUser() async {
     String? roleName = sharedPreferences.getString('role_name');
     if (roleName != null && roleName == "Driver") {
       String userId = sharedPreferences.getString("user_id")!;
-      var tour =
-          await TourService.getTourByTourStatusAndDriverId(userId, "Started");
+      var schedule =
+          await ScheduleService.getScheduleByScheduleStatusAndDriverId(
+              userId, "Started");
 
-      bool newIsRunning = tour!.isNotEmpty;
+      bool newIsRunning = schedule!.isNotEmpty;
 
       // Only update shared preferences if the value of isRunning changes
       if (newIsRunning) {
         sharedPreferences.setString('isRunning', newIsRunning.toString());
-        sharedPreferences.setString('running_tour_name', tour[0].tourName!);
-        sharedPreferences.setString('running_tour_id', tour[0].tourId!);
+        sharedPreferences.setString(
+            'running_schedule_id', schedule[0].scheduleId!);
+        sharedPreferences.setString(
+            'running_tour_name', schedule[0].scheduleTour!.tourName!);
       } else {
         sharedPreferences.setString('isRunning', newIsRunning.toString());
       }
 
       if (newIsRunning) {
         print('Tour is running, show overlay and start location checks.');
-        checkLocation(tour[0].tourId!);
-        checkLocationCoordinates(tour[0].tourId!);
+        checkLocation(schedule[0].scheduleId!);
+        checkLocationCoordinates(schedule[0].scheduleId!);
       }
     }
   } catch (e) {
@@ -112,12 +116,13 @@ void fetchLoginUser() async {
   }
 }
 
-void checkLocationCoordinates(String toudId) async {
+void checkLocationCoordinates(String scheduleId) async {
   try {
     var location = await Geolocator.getCurrentPosition();
 
     print('tracking 1');
-    Tracking? tracking = await TrackingServices.getTrackingByTourId(toudId);
+    Tracking? tracking =
+        await TrackingServices.getTrackingByScheduleId(scheduleId);
     if (tracking != null) {
       print('tracking2 ');
       await TrackingServices.updateTrackingWithCoordinates(tracking.trackingId!,
@@ -125,7 +130,7 @@ void checkLocationCoordinates(String toudId) async {
     } else {
       print('tracking 3 ');
       await TrackingServices.trackingWithCoordinates(
-        toudId,
+        scheduleId,
         location.latitude,
         location.longitude,
       );
@@ -135,15 +140,16 @@ void checkLocationCoordinates(String toudId) async {
   }
 }
 
-void checkLocation(String tourId) async {
+void checkLocation(String scheduleId) async {
   try {
     var location = await Geolocator.getCurrentPosition();
 
     List<TrackingStations>? trackingList =
-        await TrackingServices.getTrackingStationsByTourId(tourId) ?? [];
+        await TrackingServices.getTrackingStationsByScheduleId(scheduleId) ??
+            [];
     print(trackingList.length);
     for (var i = 0; i < trackingList.length; i++) {
-      if (trackingList[i].tourDetail!.tourStatus == "Started") {
+      if (trackingList[i].detailSchedule!.scheduleStatus == "Started") {
         await TrackingServices.trackingStations(trackingList[0].tourDetailId!);
         if (i <= 0
             ? trackingList[i].status == "Arrived"

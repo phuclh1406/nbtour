@@ -12,6 +12,7 @@ import 'package:nbtour/services/models/booking_ticket_model.dart';
 import 'package:nbtour/services/models/ticket_model.dart';
 
 import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 
 import 'package:nbtour/services/models/tracking_station_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
@@ -27,14 +28,15 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SubmitBookingScreen extends StatefulWidget {
-  const SubmitBookingScreen({super.key, required this.tour});
-  final Tour tour;
+  const SubmitBookingScreen({super.key, required this.schedule});
+  final TourSchedule schedule;
   @override
   State<SubmitBookingScreen> createState() => _SubmitBookingScreenState();
 }
 
 List<TrackingStations>? futureList;
 List<TrackingStations> stationList = [];
+int totalTickets = 0;
 TrackingStations? selectedStation;
 String? bookingId;
 
@@ -51,9 +53,10 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
     return userId ?? ''; // Return an empty string if userName is null
   }
 
-  Future<List<TrackingStations>?> fetchStations(String tourId) async {
+  Future<List<TrackingStations>?> fetchStations(String scheduleId) async {
     try {
-      futureList = await TrackingServices.getTrackingStationsByTourId(tourId);
+      futureList =
+          await TrackingServices.getTrackingStationsByScheduleId(scheduleId);
       if (futureList!.isNotEmpty) {
         stationList = [];
         for (var i = 0; i < futureList!.length - 1; i++) {
@@ -64,18 +67,18 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
           }
         }
         stationList.removeAt(futureList!.length - 1);
+        getSelectedStation();
         return stationList;
       } else {
         return [];
       }
     } catch (e) {
       futureList = [];
+      return [];
     }
   }
 
   final _form = GlobalKey<FormState>();
-  var _enteredEmail = '';
-  var _enteredPhone = '';
   var _enteredName = '';
   var price = 0;
   var checkoutPrice = 0;
@@ -105,7 +108,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
       animType: AnimType.scale,
       dialogType: DialogType.error,
       title: 'Thanh toán thất bại',
-      desc: 'Thanh toán thất bại, vui lòng kiểm tra lại thông tin!',
+      desc: response,
       btnOkOnPress: () {},
       btnOkText: 'Thực hiện lại',
       btnCancelText: 'Về trang chủ',
@@ -136,7 +139,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
   void pay(String bookingId) async {
     try {
       String paymentCheck = await PaymentServices.paymentOffline(bookingId);
-      if (paymentCheck == "Payment process successfully") {
+      if (paymentCheck == "Payment offline process successfully!") {
         Navigator.of(context).pop();
         showAlertSuccess();
       } else {
@@ -181,24 +184,6 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                           Row(
                             children: [
                               Text(
-                                'Email: ',
-                                style:
-                                    TextStyles.defaultStyle.subTitleTextColor,
-                              ),
-                              Flexible(
-                                child: Text(
-                                  _enteredEmail,
-                                  style: TextStyles.defaultStyle,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: kDefaultIconSize / 4),
-                          const Divider(),
-                          const SizedBox(height: kDefaultIconSize / 4),
-                          Row(
-                            children: [
-                              Text(
                                 'Họ và Tên: ',
                                 style:
                                     TextStyles.defaultStyle.subTitleTextColor,
@@ -206,25 +191,6 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                               Flexible(
                                 child: Text(
                                   _enteredName,
-                                  style: TextStyles.defaultStyle,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: kDefaultIconSize / 4),
-                          const Divider(),
-                          const SizedBox(height: kDefaultIconSize / 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Số điện thoại: ',
-                                style:
-                                    TextStyles.defaultStyle.subTitleTextColor,
-                              ),
-                              Flexible(
-                                child: Text(
-                                  _enteredPhone,
                                   style: TextStyles.defaultStyle,
                                 ),
                               ),
@@ -315,48 +281,75 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
 
   void _submit(BuildContext context) async {
     try {
+      totalTickets = 0;
       final isValid = _form.currentState!.validate();
 
       if (!isValid) {
         return;
       }
       _form.currentState!.save();
-      bookingId = await BookingServices.bookingOffline(
-          price,
-          selectedStation!,
-          widget.tour.tourId!,
-          _enteredEmail,
-          _enteredName,
-          _enteredPhone,
-          ticketList.toList());
-      checkoutPrice = price;
-      ticketCheckoutList = ticketList;
-      print(ticketCheckoutList.length);
-      price = 0;
-      ticketList = [];
-      if (bookingId != null) {
-        checkout(bookingId!);
+
+      for (var i = 0; i < ticketList.length; i++) {
+        totalTickets = (ticketList[i].quantity ?? 0) + totalTickets;
+      }
+      if (widget.schedule.availableSeats! >= totalTickets) {
+        bookingId = await BookingServices.bookingOffline(
+            price,
+            selectedStation!,
+            widget.schedule.scheduleId!,
+            _enteredName,
+            ticketList.toList());
+        checkoutPrice = price;
+        ticketCheckoutList = ticketList;
+        price = 0;
+        ticketList = [];
+        if (bookingId != null) {
+          checkout(bookingId!);
+        } else {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Fail')));
+        }
       } else {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Fail')));
+        checkoutPrice = price;
+        ticketCheckoutList = ticketList;
+        price = 0;
+        ticketList = [];
+        showAlertFail(
+            'Số vé còn lại của chuyến đi này không đủ (Số vé khả dụng: ${widget.schedule.availableSeats}, Số vé mua :$totalTickets)');
       }
     } catch (e) {
-      print(e.toString());
+      showAlertFail(e.toString());
     }
   }
 
   void fetchTicketList() {
-    for (var ticket in widget.tour.ticket) {
+    for (var ticket in widget.schedule.scheduleTour!.ticket!) {
       ticketList.add(ticket);
     }
+  }
+
+  void getSelectedStation() {
+    var arrivedStations =
+        stationList.where((station) => station.status == 'Arrived').toList();
+
+    var availableStations = stationList.where((station) =>
+        station.status == 'Active' || station.status == 'NotArrived');
+
+    TrackingStations? latestArrivedStation = arrivedStations.isNotEmpty
+        ? arrivedStations.last
+        : availableStations.first;
+
+    setState(() {
+      selectedStation = latestArrivedStation;
+    });
   }
 
   @override
   void initState() {
     super.initState();
     selectedStation = stationList.isNotEmpty ? stationList[0] : null;
-    fetchStations(widget.tour.tourId!);
+    fetchStations(widget.schedule.scheduleId!);
   }
 
   @override
@@ -373,14 +366,15 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: kMediumPadding / 2),
-              child: Text('Mua vé',
+              child: Text(
+                  'Mua vé (Còn lại ${widget.schedule.availableSeats.toString()} vé)',
                   style: TextStyles.regularStyle.subTitleTextColor),
             ),
             const SizedBox(height: kDefaultIconSize / 2),
             Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: kMediumPadding / 2),
-                child: Text(widget.tour.tourName!,
+                child: Text(widget.schedule.scheduleTour!.tourName!,
                     style: TextStyles.regularStyle.bold)),
             const SizedBox(height: kMediumPadding),
             Form(
@@ -431,131 +425,37 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                             horizontal: kMediumPadding / 2),
                         child: TextFormField(
                           cursorColor: ColorPalette.primaryColor,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.email_outlined),
-                            prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            hintText: 'Địa chỉ email (Không bắt buộc)',
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromARGB(26, 131, 131, 131),
+                            prefixIcon: const Icon(Icons.person_outline),
+                            prefixIconColor:
+                                const Color.fromARGB(255, 112, 111, 111),
+                            hintText: selectedStation!
+                                    .tourDetailStation!.stationName ??
+                                '',
                             hintStyle: TextStyles.defaultStyle,
-                            border: OutlineInputBorder(
+                            border: const OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 246, 243, 243)),
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(kMediumPadding / 2.5))),
-                            focusedBorder: OutlineInputBorder(
+                            focusedBorder: const OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 62, 62, 62)),
                                 borderRadius: BorderRadius.all(
                                     Radius.circular(kMediumPadding / 2.5))),
                           ),
                           keyboardType: TextInputType.emailAddress,
+                          readOnly: true,
                           autocorrect: false,
                           textCapitalization: TextCapitalization.none,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return null; // Allow empty input
-                            }
-
-                            if (!value.contains('@')) {
-                              return 'Vui lòng nhập đúng format của email';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _enteredEmail = value!;
-                          },
                         ),
                       ),
                       const SizedBox(height: kMediumPadding),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: kMediumPadding / 2),
-                        child: TextFormField(
-                          cursorColor: ColorPalette.primaryColor,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.phone_android_outlined),
-                            prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            hintText: 'Số điện thoại (Bắt buộc)',
-                            hintStyle: TextStyles.defaultStyle,
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Color.fromARGB(255, 246, 243, 243)),
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(kMediumPadding / 2.5))),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Color.fromARGB(255, 62, 62, 62)),
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(kMediumPadding / 2.5))),
-                          ),
-                          keyboardType: TextInputType.number,
-                          autocorrect: false,
-                          textCapitalization: TextCapitalization.none,
-                          validator: (value) {
-                            if (value == null || value.trim().length != 10) {
-                              return 'Số điện thoại phải có 10 chữ số';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _enteredPhone = value!;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: kMediumPadding),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: kMediumPadding / 2),
-                        child: DropdownButtonFormField<TrackingStations>(
-                          alignment: AlignmentDirectional.bottomCenter,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(FontAwesomeIcons.busSimple),
-                            prefixIconColor: Color.fromARGB(255, 112, 111, 111),
-                            labelText: 'Chọn trạm khởi hành',
-                            labelStyle: TextStyles.defaultStyle,
-                            hintText: 'Chọn trạm khởi hành',
-                            hintStyle: TextStyles.defaultStyle,
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Color.fromARGB(255, 246, 243, 243),
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(kMediumPadding / 2.5),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Color.fromARGB(255, 62, 62, 62),
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(kMediumPadding / 2.5),
-                              ),
-                            ),
-                          ),
-                          onSaved: (value) {
-                            // _enteredStation = value!;
-                          },
-                          items: stationList.map((station) {
-                            return DropdownMenuItem<TrackingStations>(
-                              value: station,
-                              child: Text(
-                                  station.tourDetailStation!.stationName!,
-                                  style: TextStyles.defaultStyle),
-                            );
-                          }).toList(),
-                          onChanged: (TrackingStations? newValue) {
-                            try {
-                              setState(() {
-                                selectedStation = newValue!;
-                              });
-                            } catch (e) {
-                              print(e.toString());
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: kMediumPadding),
-                      for (var i = 0; i < widget.tour.ticket.length; i++)
+                      for (var i = 0;
+                          i < widget.schedule.scheduleTour!.ticket!.length;
+                          i++)
                         Column(
                           children: [
                             Padding(
@@ -569,7 +469,7 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                                   prefixIconColor:
                                       const Color.fromARGB(255, 112, 111, 111),
                                   hintText:
-                                      'Nhập số lượng ${widget.tour.ticket[i].ticketType!.ticketTypeName}',
+                                      'Nhập số lượng ${widget.schedule.scheduleTour!.ticket![i].ticketType!.ticketTypeName}',
                                   hintStyle: TextStyles.defaultStyle,
                                   border: const OutlineInputBorder(
                                       borderSide: BorderSide(
@@ -590,14 +490,20 @@ class _SubmitBookingScreenState extends State<SubmitBookingScreen> {
                                 autocorrect: false,
                                 textCapitalization: TextCapitalization.none,
                                 onSaved: (value) {
-                                  widget.tour.ticket[i].quantity =
-                                      int.parse(value!);
-                                  ticketList.add(widget.tour.ticket[i]);
+                                  widget.schedule.scheduleTour!.ticket![i]
+                                      .quantity = int.parse(value!);
+                                  ticketList.add(
+                                      widget.schedule.scheduleTour!.ticket![i]);
 
                                   price = price +
                                       int.parse(value) *
-                                          widget.tour.ticket[i].ticketType!
-                                              .price!.amount!;
+                                          widget
+                                              .schedule
+                                              .scheduleTour!
+                                              .ticket![i]
+                                              .ticketType!
+                                              .price!
+                                              .amount!;
                                 },
                               ),
                             ),

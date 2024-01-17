@@ -6,8 +6,9 @@ import 'package:nbtour/main.dart';
 import 'package:nbtour/representation/screens/review_ride.dart';
 import 'package:nbtour/representation/screens/tour_guide/submit_booking_screen.dart';
 import 'package:nbtour/representation/widgets/button_widget/rectangle_button_widget.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
 import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
@@ -19,7 +20,7 @@ class BookingTourScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Tour? tour;
+    TourSchedule? schedule;
 
     String userId = sharedPreferences.getString('user_id')!;
 
@@ -32,13 +33,13 @@ class BookingTourScreen extends StatelessWidget {
         context: context,
         builder: (ctx) => SizedBox(
             height: MediaQuery.of(context).size.height * 0.8,
-            child: SubmitBookingScreen(tour: tour!)),
+            child: SubmitBookingScreen(schedule: schedule!)),
       );
     }
 
     Size screenSize = MediaQuery.of(context).size;
-    return FutureBuilder<List<Tour>?>(
-        future: TourService.getToursByTourGuideId(userId),
+    return FutureBuilder<List<TourSchedule>?>(
+        future: ScheduleService.getSchedulesByTourGuideId(userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -57,16 +58,16 @@ class BookingTourScreen extends StatelessWidget {
               ],
             ));
           } else {
-            List<Tour> filteredTours = snapshot.data!
-                .where((tour) =>
-                    tour.tourStatus == 'Started' ||
-                    tour.tourStatus == 'Available' &&
-                        (DateTime.parse(
-                                    tour.departureDate!.replaceAll('Z', '000'))
+            List<TourSchedule> filteredTours = snapshot.data!
+                .where((schedule) =>
+                    schedule.scheduleStatus == 'Started' ||
+                    schedule.scheduleStatus == 'Available' &&
+                        (DateTime.parse(schedule.departureDate!
+                                    .replaceAll('Z', '000'))
                                 .subtract(const Duration(minutes: 30))
                                 .isBefore(DateTime.now()) &&
                             DateTime.now().isBefore(DateTime.parse(
-                                tour.endDate!.replaceAll('Z', '000')))))
+                                schedule.endDate!.replaceAll('Z', '000')))))
                 .toList();
 
             print(filteredTours.length);
@@ -75,7 +76,7 @@ class BookingTourScreen extends StatelessWidget {
                   child:
                       Text('Không có tour nào đang chạy trong thời gian này'));
             } else {
-              tour = filteredTours[0];
+              schedule = filteredTours[0];
             }
             return SizedBox(
               width: double.maxFinite,
@@ -90,7 +91,8 @@ class BookingTourScreen extends StatelessWidget {
                         height: screenSize.height / 2.2,
                         decoration: BoxDecoration(
                             image: DecorationImage(
-                                image: NetworkImage(tour!.tourImage![0].image!),
+                                image: NetworkImage(schedule!
+                                    .scheduleTour!.tourImage![0].image!),
                                 fit: BoxFit.cover)),
                       )),
                   // Positioned(
@@ -116,7 +118,7 @@ class BookingTourScreen extends StatelessWidget {
                   //       )),
                   // ),
                   Positioned(
-                    top: screenSize.height / 7,
+                    top: screenSize.height / 5,
                     child: Container(
                       width: screenSize.width,
                       height: screenSize.height,
@@ -134,7 +136,7 @@ class BookingTourScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              tour!.tourName!,
+                              schedule!.scheduleTour!.tourName!,
                               style: TextStyles.defaultStyle.fontHeader.bold,
                             ),
                             SizedBox(
@@ -157,8 +159,7 @@ class BookingTourScreen extends StatelessWidget {
                                           width: kDefaultIconSize / 1.5,
                                         ),
                                         Text(
-                                          tour!
-                                              .tourRoute!
+                                          schedule!
                                               .routeSegment![0]
                                               .segmentDepartureStation!
                                               .stationName!,
@@ -182,7 +183,7 @@ class BookingTourScreen extends StatelessWidget {
                                         Text(
                                           DateFormat.yMMMd().format(
                                               DateTime.parse(
-                                                  tour!.departureDate!)),
+                                                  schedule!.departureDate!)),
                                           style: const TextStyle(fontSize: 18),
                                         ),
                                       ],
@@ -207,9 +208,17 @@ class BookingTourScreen extends StatelessWidget {
                                     const SizedBox(
                                       height: kDefaultIconSize / 1.5,
                                     ),
+                                    Text(
+                                      'Số vé còn lại: ${schedule!.availableSeats!} vé',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(
+                                      height: kDefaultIconSize / 1.5,
+                                    ),
                                     Wrap(
                                       children: List.generate(
-                                          tour!.ticket.length, (index) {
+                                          schedule!.scheduleTour!.ticket!
+                                              .length, (index) {
                                         return Container(
                                           margin: const EdgeInsets.only(
                                               right: 5, bottom: 5),
@@ -227,8 +236,9 @@ class BookingTourScreen extends StatelessWidget {
                                                   MainAxisAlignment.center,
                                               children: [
                                                 Text(
-                                                  tour!
-                                                      .ticket[index]
+                                                  schedule!
+                                                      .scheduleTour!
+                                                      .ticket![index]
                                                       .ticketType!
                                                       .ticketTypeName!,
                                                   style:
@@ -243,7 +253,8 @@ class BookingTourScreen extends StatelessWidget {
                                     const SizedBox(
                                       height: kDefaultIconSize,
                                     ),
-                                    for (var ticket in tour!.ticket)
+                                    for (var ticket
+                                        in schedule!.scheduleTour!.ticket!)
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -270,11 +281,11 @@ class BookingTourScreen extends StatelessWidget {
                                       height: kDefaultIconSize / 2,
                                     ),
                                     Text(
-                                      tour!.description!,
+                                      schedule!.scheduleTour!.description!,
                                       style: const TextStyle(fontSize: 16),
                                     ),
                                     const SizedBox(
-                                      height: kDefaultIconSize / 2,
+                                      height: kDefaultPadding * 3.2,
                                     ),
                                   ],
                                 ),
@@ -309,7 +320,7 @@ class BookingTourScreen extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                       builder: (ctx) => ReviewRideScreen(
-                                            tour: tour!,
+                                            schedule: schedule!,
                                           )));
                             },
                             buttonColor: ColorPalette.primaryColor,

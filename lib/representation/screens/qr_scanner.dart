@@ -4,6 +4,7 @@ import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
 import 'package:nbtour/services/api/booking_service.dart';
 import 'package:nbtour/services/models/booking_model.dart';
 import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
@@ -12,9 +13,9 @@ import 'package:nbtour/utils/helper/image_helper.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRScanner extends StatefulWidget {
-  const QRScanner({super.key, required this.tour});
+  const QRScanner({super.key, required this.schedule});
 
-  final Tour tour;
+  final TourSchedule schedule;
 
   @override
   State<QRScanner> createState() => _QRScannerState();
@@ -95,8 +96,8 @@ class _QRScannerState extends State<QRScanner> {
 
   void checkin(String id) async {
     try {
-      String msg =
-          await BookingServices.checkInCustomer(id, widget.tour.tourId!);
+      String msg = await BookingServices.checkInCustomer(
+          id, widget.schedule.scheduleId!);
       if (msg == "Check-in success") {
         showAlertSuccess();
       } else if (msg == "Check-in fail") {

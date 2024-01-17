@@ -1,4 +1,5 @@
 import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/services/models/user_model.dart';
 
 List<RescheduleForm> rescheduleFormsFromJson(dynamic str) =>
@@ -9,8 +10,8 @@ class RescheduleForm {
     required this.formId,
     required this.userId,
     required this.changeEmployee,
-    required this.currentTour,
-    required this.desireTour,
+    required this.currentSchedule,
+    required this.desireSchedule,
     required this.status,
     required this.formUser,
     required this.createdAt,
@@ -18,8 +19,8 @@ class RescheduleForm {
   late String? formId;
   late String? userId;
   late String? changeEmployee;
-  late Tour? currentTour;
-  late Tour? desireTour;
+  late TourSchedule? currentSchedule;
+  late TourSchedule? desireSchedule;
   late String? status;
   late UserModel? formUser;
   late String? createdAt;
@@ -28,10 +29,12 @@ class RescheduleForm {
     formId = json['formId'];
     userId = json['userId'];
     changeEmployee = json['changeEmployee'];
-    currentTour =
-        json['currentTour'] != null ? Tour.fromJson(json['currentTour']) : null;
-    desireTour =
-        json['desireTour'] != null ? Tour.fromJson(json['desireTour']) : null;
+    currentSchedule = json['currentSchedule'] != null
+        ? TourSchedule.fromJson(json['currentSchedule'])
+        : null;
+    desireSchedule = json['desireSchedule'] != null
+        ? TourSchedule.fromJson(json['desireSchedule'])
+        : null;
     status = json['status'];
     formUser = json['form_user'] != null
         ? UserModel.fromJson(json['form_user'])
@@ -44,40 +47,28 @@ class RescheduleForm {
     data['formId'] = formId;
     data['userId'] = userId;
     data['changeEmployee'] = changeEmployee;
-    if (currentTour != null) {
-      data['form_user'] = {
-        'tourId': currentTour?.tourId,
-        'tourName': currentTour?.tourName,
-        'description': currentTour?.description,
-        'note': currentTour?.note,
-        'beginBookingDate': currentTour?.beginBookingDate,
-        'endBookingDate': currentTour?.endBookingDate,
-        'departureDate': currentTour?.departureDate,
-        'duration': currentTour?.duration,
-        'routeId': currentTour?.tourRoute?.routeId,
-        'tourGuideId': currentTour?.tourGuide?.id,
-        'driverId': currentTour?.driver?.id,
-        'busId': currentTour?.tourBus?.busId,
-        'tourStatus': currentTour?.tourStatus,
-        'status': currentTour?.status,
+    if (currentSchedule != null) {
+      data['currentSchedule'] = {
+        'scheduleId': currentSchedule?.scheduleId,
+        'departureDate': currentSchedule?.departureDate,
+        'endDate': currentSchedule?.endDate,
+        'departureStation': currentSchedule?.station,
+        'isScheduled': currentSchedule?.isScheduled,
+        'scheduleStatus': currentSchedule?.scheduleStatus,
+        'status': currentSchedule?.status,
+        'schedule_tour': currentSchedule?.scheduleTour,
       };
     }
-    if (desireTour != null) {
-      data['form_user'] = {
-        'tourId': desireTour?.tourId,
-        'tourName': desireTour?.tourName,
-        'description': desireTour?.description,
-        'note': desireTour?.note,
-        'beginBookingDate': desireTour?.beginBookingDate,
-        'endBookingDate': desireTour?.endBookingDate,
-        'departureDate': desireTour?.departureDate,
-        'duration': desireTour?.duration,
-        'routeId': desireTour?.tourRoute?.routeId,
-        'tourGuideId': desireTour?.tourGuide?.id,
-        'driverId': desireTour?.driver?.id,
-        'busId': desireTour?.tourBus?.busId,
-        'tourStatus': desireTour?.tourStatus,
-        'status': desireTour?.status,
+    if (desireSchedule != null) {
+      data['desireSchedule'] = {
+        'scheduleId': desireSchedule?.scheduleId,
+        'departureDate': desireSchedule?.departureDate,
+        'endDate': desireSchedule?.endDate,
+        'departureStation': desireSchedule?.station,
+        'isScheduled': desireSchedule?.isScheduled,
+        'scheduleStatus': desireSchedule?.scheduleStatus,
+        'status': desireSchedule?.status,
+        'schedule_tour': desireSchedule?.scheduleTour,
       };
     }
     data['status'] = status;

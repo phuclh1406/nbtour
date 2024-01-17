@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nbtour/representation/screens/tab_screen.dart';
 import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
 import 'package:nbtour/services/api/booking_service.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
@@ -24,9 +25,9 @@ String userId = '';
 String tourId = '';
 
 class BookingListCustomerScreen extends StatefulWidget {
-  const BookingListCustomerScreen({super.key, required this.tour});
+  const BookingListCustomerScreen({super.key, required this.schedule});
 
-  final Tour? tour;
+  final TourSchedule? schedule;
 
   @override
   State<BookingListCustomerScreen> createState() =>
@@ -65,7 +66,7 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
   Future<List<Booking>?> fetchBooking() async {
     try {
       final updatedBookingList =
-          await BookingServices.getUserList(widget.tour!.tourId!);
+          await BookingServices.getUserList(widget.schedule!.scheduleId!);
       print(updatedBookingList!.length);
       return updatedBookingList;
     } catch (e) {
@@ -335,8 +336,8 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
 
   void _onCheckIn(i, id) async {
     try {
-      String check =
-          await BookingServices.checkInCustomer(id, widget.tour!.tourId!);
+      String check = await BookingServices.checkInCustomer(
+          id, widget.schedule!.scheduleId!);
       if (check == 'Check-in success') {
         showAlertSuccess();
         setState(() {
@@ -577,7 +578,7 @@ class _BookingListCustomerScreenState extends State<BookingListCustomerScreen> {
           IconButton(
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (ctx) => QRScanner(tour: widget.tour!)));
+                  builder: (ctx) => QRScanner(schedule: widget.schedule!)));
             },
             icon: const Icon(
               Icons.qr_code_scanner,

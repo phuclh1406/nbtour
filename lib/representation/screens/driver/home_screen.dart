@@ -15,7 +15,7 @@ import 'package:nbtour/representation/screens/sent_request.dart';
 import 'package:nbtour/representation/screens/tour_detail_screen.dart';
 import 'package:nbtour/services/api/auth_service.dart';
 import 'package:nbtour/services/api/notification_service.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
 import 'package:nbtour/services/models/notification.dart';
 import 'package:nbtour/services/models/reschedule_form_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
@@ -176,15 +176,17 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                                     kMediumPadding / 2,
                                 70)),
                         onPressed: () async {
-                          String tourId =
-                              sharedPreferences.getString("running_tour_id") ??
-                                  '';
-                          var tour = await TourService.getTourByTourId(tourId);
-                          if (tour != null) {
+                          String scheduleId = sharedPreferences
+                                  .getString("running_schedule_id") ??
+                              '';
+                          var schedule =
+                              await ScheduleService.getScheduleByScheduleId(
+                                  scheduleId);
+                          if (schedule != null) {
                             if (context.mounted) {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (ctx) =>
-                                      TourDetailScreen(scheduleTour: tour)));
+                                  builder: (ctx) => TourDetailScreen(
+                                      scheduleTour: schedule)));
                             }
                           }
                         },
@@ -222,15 +224,17 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                                   kMediumPadding,
                               70)),
                       onPressed: () async {
-                        String tourId =
-                            sharedPreferences.getString("running_tour_id") ??
-                                '';
-                        var tour = await TourService.getTourByTourId(tourId);
-                        if (tour != null) {
+                        String scheduleId = sharedPreferences
+                                .getString("running_schedule_id") ??
+                            '';
+                        var schedule =
+                            await ScheduleService.getScheduleByScheduleId(
+                                scheduleId);
+                        if (schedule != null) {
                           if (context.mounted) {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (ctx) =>
-                                    TourDetailScreen(scheduleTour: tour)));
+                                    TourDetailScreen(scheduleTour: schedule)));
                           }
                         }
                       },

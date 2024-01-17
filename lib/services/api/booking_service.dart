@@ -9,11 +9,11 @@ import 'package:nbtour/services/models/tracking_station_model.dart';
 
 class BookingServices {
   static var client = http.Client();
-  static Future<List<Booking>?> getUserList(String tourId) async {
+  static Future<List<Booking>?> getUserList(String scheduleId) async {
     try {
       List<Booking>? listBooking = [];
       var url = Uri.parse(
-          'https://${Config.apiURL}${Config.getBookingUserList}?page=1&limit=60&tourId=$tourId');
+          'https://${Config.apiURL}${Config.getBookingUserList}?page=1&limit=60&scheduleId=$scheduleId');
       String token = sharedPreferences.getString('accesstoken')!;
       final headers = {
         'Content-Type': 'application/json',
@@ -40,10 +40,10 @@ class BookingServices {
     }
   }
 
-  static Future<String> checkInCustomer(String id, String tourId) async {
+  static Future<String> checkInCustomer(String id, String scheduleId) async {
     try {
       var url = Uri.parse(
-          'https://${Config.apiURL}${Config.checkInQr}/$id/checkin?tourId=$tourId');
+          'https://${Config.apiURL}${Config.checkInQr}/$id/checkin?scheduleId=$scheduleId');
       String token = sharedPreferences.getString('accesstoken')!;
       final headers = {
         'Content-Type': 'application/json',
@@ -93,10 +93,8 @@ class BookingServices {
   static Future<String> bookingOffline(
       int price,
       TrackingStations departureStation,
-      String tourId,
-      String email,
+      String scheduleId,
       String userName,
-      String phone,
       List<Tickets> ticketList) async {
     try {
       var url = Uri.parse('https://${Config.apiURL}${Config.bookingOffline}');
@@ -109,20 +107,18 @@ class BookingServices {
       final body = json.encode({
         'totalPrice': price,
         'departureStationId': departureStation.tourDetailStation!.stationId,
-        'user': {'email': email, 'userName': userName, 'phone': phone},
+        'user': {'email': '', 'userName': userName, 'phone': ''},
         'tickets': [
           for (var i = 0; i < ticketList.length; i++)
             {
               "ticketId": ticketList[i].ticketId,
               "ticketTypeId": ticketList[i].ticketType!.ticketTypeId,
-              "tourId": tourId,
+              "scheduleId": scheduleId,
               "priceId": ticketList[i].ticketType!.price!.priceId,
               "quantity": ticketList[i].quantity
             }
         ]
       });
-
-      print(body);
 
       final response = await client.post(url, headers: headers, body: body);
       print(response.body);

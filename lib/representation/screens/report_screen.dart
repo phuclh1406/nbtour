@@ -59,24 +59,6 @@ class _ReportScreenState extends State<ReportScreen>
     }
   }
 
-  void openAddExpenseOverlay() {
-    showModalBottomSheet(
-      showDragHandle: true,
-      elevation: 0,
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
-      context: context,
-      builder: (ctx) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.8,
-        child: SendReportScreen(
-          onReportSent: () {
-            setState(() {});
-          },
-        ),
-      ),
-    );
-  }
-
   void openReportOverlay(Reports report) {
     showModalBottomSheet(
       showDragHandle: true,
@@ -300,12 +282,6 @@ class _ReportScreenState extends State<ReportScreen>
                       Icons.search_outlined,
                     ),
                   ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                openAddExpenseOverlay();
-              },
-            )
           ],
         ),
         body: SizedBox(

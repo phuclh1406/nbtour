@@ -1,11 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:nbtour/services/models/report_model.dart';
 import 'package:nbtour/services/models/reschedule_form_model.dart';
 import 'package:nbtour/services/models/tour_model.dart';
-
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/services/models/tracking_station_model.dart';
 
 import 'package:nbtour/utils/constant/dimension.dart';
@@ -14,11 +10,11 @@ import 'package:nbtour/utils/constant/text_style.dart';
 class RescheduleDetailScreen extends StatefulWidget {
   const RescheduleDetailScreen(
       {super.key,
-      required this.currentTour,
-      required this.desireTour,
+      required this.currentSchedule,
+      required this.desireSchedule,
       required this.rescheduleForm});
-  final Tour? currentTour;
-  final Tour? desireTour;
+  final TourSchedule? currentSchedule;
+  final TourSchedule? desireSchedule;
   final RescheduleForm? rescheduleForm;
   @override
   State<RescheduleDetailScreen> createState() => _RescheduleDetailScreenState();
@@ -59,8 +55,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                       Text('Chuyến mới: ', style: TextStyles.regularStyle.bold),
                       const SizedBox(height: kDefaultIconSize / 2),
                       Text(
-                        widget.currentTour?.tourName != null
-                            ? widget.currentTour!.tourName!
+                        widget.currentSchedule!.scheduleTour!.tourName != null
+                            ? widget.currentSchedule!.scheduleTour!.tourName!
                             : "",
                         style: TextStyles.regularStyle,
                         maxLines: 3,
@@ -75,8 +71,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                                   style: TextStyles
                                       .defaultStyle.subTitleTextColor),
                               Text(
-                                  widget.currentTour?.departureDate != null
-                                      ? widget.currentTour!.departureDate!
+                                  widget.currentSchedule!.departureDate != null
+                                      ? widget.currentSchedule!.departureDate!
                                           .substring(11, 19)
                                       : "",
                                   style: TextStyles.defaultStyle),
@@ -91,8 +87,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                                   style: TextStyles
                                       .defaultStyle.subTitleTextColor),
                               Text(
-                                  widget.currentTour?.endDate != null
-                                      ? widget.currentTour!.endDate!
+                                  widget.currentSchedule!.departureDate != null
+                                      ? widget.currentSchedule!.departureDate!
                                           .substring(11, 19)
                                       : "",
                                   style: TextStyles.defaultStyle),
@@ -100,19 +96,19 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: kDefaultIconSize / 2),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Tuyến: ',
-                              style: TextStyles.defaultStyle.subTitleTextColor),
-                          Text(
-                              widget.currentTour?.tourRoute != null
-                                  ? widget.currentTour!.tourRoute!.routeName!
-                                  : "",
-                              style: TextStyles.defaultStyle),
-                        ],
-                      ),
+                      // const SizedBox(height: kDefaultIconSize / 2),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.start,
+                      //   children: [
+                      //     Text('Tuyến: ',
+                      //         style: TextStyles.defaultStyle.subTitleTextColor),
+                      //     Text(
+                      //         widget.currentTour?.tourSchedule![0].departureDate != null
+                      //             ? widget.currentTour!.tourSchedule![0].departureDate!.routeName!
+                      //             : "",
+                      //         style: TextStyles.defaultStyle),
+                      //   ],
+                      // ),
                       const SizedBox(height: kDefaultIconSize / 2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -120,8 +116,10 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Biển số xe: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.currentTour?.tourBus != null
-                                  ? widget.currentTour!.tourBus!.busPlate!
+                              widget.currentSchedule!.scheduleBus!.busPlate !=
+                                      null
+                                  ? widget
+                                      .currentSchedule!.scheduleBus!.busPlate!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -133,8 +131,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Ngày khởi hành: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.currentTour?.departureDate != null
-                                  ? widget.currentTour!.departureDate!
+                              widget.currentSchedule!.departureDate != null
+                                  ? widget.currentSchedule!.departureDate!
                                       .substring(0, 10)
                                   : "",
                               style: TextStyles.defaultStyle),
@@ -147,8 +145,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Hướng dẫn viên: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.currentTour?.tourGuide != null
-                                  ? widget.currentTour!.tourGuide!.name!
+                              widget.currentSchedule!.tourGuide != null
+                                  ? widget.currentSchedule!.tourGuide!.name!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -160,8 +158,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Email: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.currentTour?.tourGuide != null
-                                  ? widget.currentTour!.tourGuide!.email!
+                              widget.currentSchedule!.tourGuide != null
+                                  ? widget.currentSchedule!.tourGuide!.email!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -173,8 +171,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Tài xế: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.currentTour?.driver != null
-                                  ? widget.currentTour!.driver!.name!
+                              widget.currentSchedule?.driver != null
+                                  ? widget.currentSchedule!.driver!.name!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -186,8 +184,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Email: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.currentTour?.driver != null
-                                  ? widget.currentTour!.driver!.email!
+                              widget.currentSchedule?.driver != null
+                                  ? widget.currentSchedule!.driver!.email!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -198,8 +196,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                       Text('Chuyến cũ: ', style: TextStyles.regularStyle.bold),
                       const SizedBox(height: kDefaultIconSize / 2),
                       Text(
-                        widget.desireTour?.tourName != null
-                            ? widget.desireTour!.tourName!
+                        widget.desireSchedule!.scheduleTour!.tourName != null
+                            ? widget.desireSchedule!.scheduleTour!.tourName!
                             : "",
                         style: TextStyles.regularStyle,
                         maxLines: 3,
@@ -214,8 +212,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                                   style: TextStyles
                                       .defaultStyle.subTitleTextColor),
                               Text(
-                                  widget.desireTour?.departureDate != null
-                                      ? widget.desireTour!.departureDate!
+                                  widget.desireSchedule!.departureDate != null
+                                      ? widget.desireSchedule!.departureDate!
                                           .substring(11, 19)
                                       : "",
                                   style: TextStyles.defaultStyle),
@@ -230,8 +228,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                                   style: TextStyles
                                       .defaultStyle.subTitleTextColor),
                               Text(
-                                  widget.desireTour?.endDate != null
-                                      ? widget.desireTour!.endDate!
+                                  widget.desireSchedule!.endDate != null
+                                      ? widget.desireSchedule!.endDate!
                                           .substring(11, 19)
                                       : "",
                                   style: TextStyles.defaultStyle),
@@ -243,24 +241,12 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text('Tuyến: ',
-                              style: TextStyles.defaultStyle.subTitleTextColor),
-                          Text(
-                              widget.desireTour?.tourRoute != null
-                                  ? widget.desireTour!.tourRoute!.routeName!
-                                  : "",
-                              style: TextStyles.defaultStyle),
-                        ],
-                      ),
-                      const SizedBox(height: kDefaultIconSize / 2),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
                           Text('Biển số xe: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.desireTour?.tourBus != null
-                                  ? widget.desireTour!.tourBus!.busPlate!
+                              widget.desireSchedule!.scheduleBus != null
+                                  ? widget
+                                      .desireSchedule!.scheduleBus!.busPlate!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -272,8 +258,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Ngày khởi hành: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.desireTour?.departureDate != null
-                                  ? widget.desireTour!.departureDate!
+                              widget.desireSchedule?.departureDate != null
+                                  ? widget.desireSchedule!.departureDate!
                                       .substring(0, 10)
                                   : "",
                               style: TextStyles.defaultStyle),
@@ -286,8 +272,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Hướng dẫn viên: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.desireTour?.tourGuide != null
-                                  ? widget.desireTour!.tourGuide!.name!
+                              widget.desireSchedule?.tourGuide != null
+                                  ? widget.desireSchedule!.tourGuide!.name!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -299,8 +285,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Email: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.desireTour?.tourGuide != null
-                                  ? widget.desireTour!.tourGuide!.email!
+                              widget.desireSchedule?.tourGuide != null
+                                  ? widget.desireSchedule!.tourGuide!.email!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -312,8 +298,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Tài xế: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.desireTour?.driver != null
-                                  ? widget.desireTour!.driver!.name!
+                              widget.desireSchedule?.driver != null
+                                  ? widget.desireSchedule!.driver!.name!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],
@@ -325,8 +311,8 @@ class _RescheduleDetailScreenState extends State<RescheduleDetailScreen> {
                           Text('Email: ',
                               style: TextStyles.defaultStyle.subTitleTextColor),
                           Text(
-                              widget.desireTour?.driver != null
-                                  ? widget.desireTour!.driver!.email!
+                              widget.desireSchedule?.driver != null
+                                  ? widget.desireSchedule!.driver!.email!
                                   : "",
                               style: TextStyles.defaultStyle),
                         ],

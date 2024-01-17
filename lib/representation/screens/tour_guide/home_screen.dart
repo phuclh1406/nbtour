@@ -10,10 +10,12 @@ import 'package:nbtour/representation/screens/profile_screen.dart';
 import 'package:nbtour/representation/screens/request_screen.dart';
 import 'package:nbtour/representation/screens/schedule_screen.dart';
 import 'package:nbtour/representation/screens/sent_request.dart';
+import 'package:nbtour/representation/screens/tour_guide/invoice_list_screen.dart';
 import 'package:nbtour/representation/screens/tour_guide/tour_screen.dart';
 import 'package:nbtour/services/api/auth_service.dart';
+import 'package:nbtour/services/api/invoice_service.dart';
 import 'package:nbtour/services/api/notification_service.dart';
-import 'package:nbtour/services/api/payment_stripe_service.dart';
+import 'package:nbtour/services/models/invoice_model.dart';
 import 'package:nbtour/services/models/notification.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
@@ -28,7 +30,6 @@ class TourGuideHomeScreen extends StatefulWidget {
 }
 
 class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
-  Map<String, dynamic>? paymentIntent;
   String avatar = '';
   String userName = '';
   OverlayEntry? entry;
@@ -38,16 +39,7 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
   Offset offset = const Offset(14, 610);
   int notiCount = 0;
   int formCount = 0;
-  String userId = sharedPreferences.getString("user_id")!;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    fetchUserName();
-    fetchNotification(userId);
-  }
-
+  int invoiceCount = 0;
   Future<void> fetchNotification(String userId) async {
     try {
       List<NotificationModel>? notiList =
@@ -57,6 +49,31 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
         setState(() {
           listNoti = notiList;
           notiCount = notiList.length;
+        });
+      }
+    } catch (e) {
+      Text(e.toString());
+    }
+  }
+
+  String userId = sharedPreferences.getString("user_id")!;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    fetchUserName();
+    fetchNotification(userId);
+    fetchInvoice(userId);
+  }
+
+  Future<void> fetchInvoice(String userId) async {
+    try {
+      List<Invoices>? invoiceList =
+          await InvoiceServices.getInvoiceList(userId, false);
+      if (invoiceList!.isNotEmpty) {
+        setState(() {
+          invoiceCount = invoiceList.length;
         });
       }
     } catch (e) {
@@ -89,34 +106,6 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
     } catch (e) {
       print(e.toString());
     }
-  }
-
-  void makePayment() async {
-    try {
-      paymentIntent = await PaymentStripeServices.paymentStripe("30000");
-      var gPay = const PaymentSheetGooglePay(
-          merchantCountryCode: "SG", currencyCode: "VND", testEnv: true);
-      await Stripe.instance.initPaymentSheet(
-          paymentSheetParameters: SetupPaymentSheetParameters(
-              paymentIntentClientSecret: paymentIntent!["client_secret"],
-              style: ThemeMode.dark,
-              customFlow: true,
-              allowsDelayedPaymentMethods: true,
-              merchantDisplayName: "Phuc",
-              googlePay: gPay));
-      displayPaymentSheet();
-    } catch (e) {
-      print('FAIL');
-    }
-  }
-
-  void displayPaymentSheet() async {
-    // try {
-    await Stripe.instance.presentPaymentSheet();
-    print('Done');
-    // } catch (e) {
-    //   print('Fail');
-    // }
   }
 
   @override
@@ -173,12 +162,37 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                                   },
                                 ),
                                 PopupMenuItem(
-                                  child: const Text(
-                                    'Thanh toán',
-                                    style: TextStyles.defaultStyle,
+                                  child: Row(
+                                    children: [
+                                      const Text(
+                                        'Hóa đơn của bạn',
+                                        style: TextStyles.defaultStyle,
+                                      ),
+                                      const Spacer(),
+                                      invoiceCount != 0
+                                          ? Container(
+                                              width: 20,
+                                              height: 20,
+                                              decoration: const BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  invoiceCount.toString(),
+                                                  style: TextStyles.defaultStyle
+                                                      .whiteTextColor,
+                                                ),
+                                              ))
+                                          : const SizedBox.shrink(),
+                                    ],
                                   ),
                                   onTap: () {
-                                    makePayment();
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (ctx) =>
+                                                const InvoiceListScreen()));
                                   },
                                 ),
                                 PopupMenuItem(
@@ -203,15 +217,30 @@ class _TourGuideHomeScreenState extends State<TourGuideHomeScreen> {
                                   const RelativeRect.fromLTRB(0, 0, 0, 100),
                             );
                           },
-                          child: ClipRRect(
-                            borderRadius:
-                                BorderRadius.circular(kMediumPadding * 2),
-                            child: Image.network(
-                              sharedPreferences.getString('avatar') ?? '',
-                              height: 50,
-                              width: 50,
-                            ),
-                          ),
+                          child: invoiceCount != 0
+                              ? Badge(
+                                  backgroundColor: Colors.red,
+                                  label: Text(invoiceCount.toString()),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                        kMediumPadding * 2),
+                                    child: Image.network(
+                                      sharedPreferences.getString('avatar') ??
+                                          '',
+                                      height: 50,
+                                      width: 50,
+                                    ),
+                                  ),
+                                )
+                              : ClipRRect(
+                                  borderRadius:
+                                      BorderRadius.circular(kMediumPadding * 2),
+                                  child: Image.network(
+                                    sharedPreferences.getString('avatar') ?? '',
+                                    height: 50,
+                                    width: 50,
+                                  ),
+                                ),
                         ),
                         IconButton(
                           onPressed: () {

@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:nbtour/representation/screens/schedule_screen.dart';
 import 'package:nbtour/representation/screens/send_report_screen.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
@@ -24,7 +25,7 @@ String tourId = '';
 
 class TourDetailScreen extends StatelessWidget {
   const TourDetailScreen({super.key, required this.scheduleTour});
-  final Tour scheduleTour;
+  final TourSchedule scheduleTour;
 
   // final String tourId;
   @override
@@ -38,7 +39,7 @@ class TourDetailScreen extends StatelessWidget {
         context: context,
         builder: (ctx) => SizedBox(
             height: MediaQuery.of(context).size.height * 0.8,
-            child: RescheduleScreen(tour: scheduleTour)),
+            child: RescheduleScreen(schedule: scheduleTour)),
       );
     }
 
@@ -51,7 +52,8 @@ class TourDetailScreen extends StatelessWidget {
         context: context,
         builder: (ctx) => SizedBox(
           height: MediaQuery.of(context).size.height * 0.8,
-          child: SendReportScreen(onReportSent: () {}, tour: scheduleTour),
+          child: SendReportScreen(onReportSent: () {}, schedule: scheduleTour),
+          // child: Container(),
         ),
       );
     }
@@ -79,11 +81,11 @@ class TourDetailScreen extends StatelessWidget {
                             icon: const Icon(Icons.close))
                       ],
                     ),
-                    content: SizedBox(
-                      child: QrImageView(
-                          data:
-                              'https://walletfpt.com/view-route?id=${scheduleTour.tourRoute!.routeId}&tourId=${scheduleTour.tourId}'),
-                    ),
+                    // content: SizedBox(
+                    //   child: QrImageView(
+                    //       data:
+                    //           'https://walletfpt.com/view-route?id=${scheduleTour.tourRoute!.routeId}&tourId=${scheduleTour.tourId}'),
+                    // ),
                   ),
                   onWillPop: () async => false,
                 );
@@ -111,11 +113,13 @@ class TourDetailScreen extends StatelessWidget {
 
     // scheduleTour.scheduleTour!.tourRoute!.routeId!;
     final size = MediaQuery.of(context).size;
-    Widget loadTour() {
+    Widget loadSchedule() {
       try {
-        return FutureBuilder<Tour?>(
-          future: TourService.getTourByTourId(scheduleTour.tourId!),
-          builder: (BuildContext context, AsyncSnapshot<Tour?> snapshot) {
+        return FutureBuilder<TourSchedule?>(
+          future:
+              ScheduleService.getScheduleByScheduleId(scheduleTour.scheduleId!),
+          builder:
+              (BuildContext context, AsyncSnapshot<TourSchedule?> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                   child: Padding(
@@ -124,10 +128,10 @@ class TourDetailScreen extends StatelessWidget {
                     CircularProgressIndicator(color: ColorPalette.primaryColor),
               ));
             } else if (snapshot.hasData) {
-              Tour? tour = snapshot.data!;
+              TourSchedule? schedule = snapshot.data!;
 
-              print(tour);
-              if (tour != null) {
+              print(schedule);
+              if (schedule != null) {
                 return Stack(
                   children: [
                     SizedBox(
@@ -137,10 +141,11 @@ class TourDetailScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (tour.tourImage != null)
-                              tour.tourImage!.isNotEmpty
+                            if (schedule.scheduleTour!.tourImage != null)
+                              schedule.scheduleTour!.tourImage!.isNotEmpty
                                   ? Image.network(
-                                      tour.tourImage![0].image!,
+                                      schedule
+                                          .scheduleTour!.tourImage![0].image!,
                                       width: size.width,
                                       fit: BoxFit.fitWidth,
                                       loadingBuilder:
@@ -170,7 +175,7 @@ class TourDetailScreen extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(tour.tourName!,
+                                  Text(schedule.scheduleTour!.tourName!,
                                       style: const TextStyle(fontSize: 25)),
                                   const Divider(),
                                   const SizedBox(
@@ -201,17 +206,19 @@ class TourDetailScreen extends StatelessWidget {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            if (tour.departureDate != null)
+                                            if (scheduleTour.departureDate !=
+                                                null)
                                               Text(
-                                                  '${DateFormat.yMMMd().format(DateTime.parse(tour.departureDate!))} - ${DateFormat.yMMMd().format(DateTime.parse(tour.endDate!))}',
+                                                  '${DateFormat.yMMMd().format(DateTime.parse(scheduleTour.departureDate!))} - ${DateFormat.yMMMd().format(DateTime.parse(scheduleTour.endDate!))}',
                                                   style: TextStyles
                                                       .regularStyle.bold),
                                             const SizedBox(
                                               height: kDefaultIconSize / 4,
                                             ),
-                                            if (tour.departureDate != null)
+                                            if (scheduleTour.departureDate !=
+                                                null)
                                               Text(
-                                                  '${DateFormat.Hm().format(DateTime.parse(tour.departureDate!))} - ${DateFormat.Hm().format(DateTime.parse(tour.endDate!))}',
+                                                  '${DateFormat.Hm().format(DateTime.parse(scheduleTour.departureDate!))} - ${DateFormat.Hm().format(DateTime.parse(scheduleTour.endDate!))}',
                                                   style:
                                                       TextStyles.defaultStyle),
                                             const SizedBox(
@@ -226,11 +233,10 @@ class TourDetailScreen extends StatelessWidget {
                                                 ontap: () {
                                                   Navigator.of(context).push(
                                                       MaterialPageRoute(
-                                                          builder: (ctx) =>
-                                                              ScheduleScreen(
-                                                                  initDate: DateTime
-                                                                      .parse(tour
-                                                                          .departureDate!))));
+                                                          builder: (ctx) => ScheduleScreen(
+                                                              initDate: DateTime
+                                                                  .parse(schedule
+                                                                      .departureDate!))));
                                                 },
                                                 buttonColor:
                                                     ColorPalette.primaryColor,
@@ -278,15 +284,9 @@ class TourDetailScreen extends StatelessWidget {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            if (tour.tourRoute!.routeSegment![0]
-                                                    .segmentDepartureStation !=
-                                                null)
+                                            if (schedule.station != null)
                                               Text(
-                                                tour
-                                                    .tourRoute!
-                                                    .routeSegment![0]
-                                                    .segmentDepartureStation!
-                                                    .stationName!,
+                                                schedule.station!.stationName!,
                                                 style: TextStyles
                                                     .regularStyle.bold,
                                                 maxLines: 3,
@@ -294,15 +294,9 @@ class TourDetailScreen extends StatelessWidget {
                                             const SizedBox(
                                               height: kDefaultIconSize / 4,
                                             ),
-                                            if (tour.tourRoute!.routeSegment![0]
-                                                    .segmentDepartureStation !=
-                                                null)
+                                            if (schedule.station != null)
                                               Text(
-                                                tour
-                                                    .tourRoute!
-                                                    .routeSegment![0]
-                                                    .segmentDepartureStation!
-                                                    .description!,
+                                                schedule.station!.description!,
                                                 style: TextStyles.defaultStyle,
                                                 overflow: TextOverflow.clip,
                                               ),
@@ -339,21 +333,23 @@ class TourDetailScreen extends StatelessWidget {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            if (scheduleTour.tourBus != null)
+                                            if (scheduleTour.scheduleBus !=
+                                                null)
                                               Text(
                                                   scheduleTour
-                                                      .tourBus!.busPlate!,
+                                                      .scheduleBus!.busPlate!,
                                                   style: TextStyles
                                                       .regularStyle.bold),
                                             const SizedBox(
                                               height: kDefaultIconSize / 4,
                                             ),
-                                            if (scheduleTour.tourBus != null)
+                                            if (scheduleTour.scheduleBus !=
+                                                null)
                                               Text(
-                                                  scheduleTour.tourBus!
+                                                  scheduleTour.scheduleBus!
                                                           .isDoubleDecker!
-                                                      ? 'Xe bus 2 tầng (${scheduleTour.tourBus!.numberSeat} ghế ngồi)'
-                                                      : 'Xe bus 1 tầng (${scheduleTour.tourBus!.numberSeat} ghế ngồi)',
+                                                      ? 'Xe bus 2 tầng (${scheduleTour.scheduleBus!.numberSeat} ghế ngồi)'
+                                                      : 'Xe bus 1 tầng (${scheduleTour.scheduleBus!.numberSeat} ghế ngồi)',
                                                   style:
                                                       TextStyles.defaultStyle),
                                           ],
@@ -482,7 +478,7 @@ class TourDetailScreen extends StatelessWidget {
                                   Text('Mô tả',
                                       style: TextStyles.regularStyle.bold),
                                   const SizedBox(height: kDefaultPadding / 2),
-                                  Text(tour.description!,
+                                  Text(schedule.scheduleTour!.description!,
                                       style: const TextStyle(
                                         fontSize: 16,
                                         height: 1.5,
@@ -542,7 +538,7 @@ class TourDetailScreen extends StatelessWidget {
                                         context,
                                         MaterialPageRoute(
                                             builder: (ctx) => ReviewRideScreen(
-                                                  tour: tour,
+                                                  schedule: schedule,
                                                 )));
                                   },
                                   buttonColor: ColorPalette.primaryColor,
@@ -643,6 +639,6 @@ class TourDetailScreen extends StatelessWidget {
                     ])
           ],
         ),
-        body: loadTour());
+        body: loadSchedule());
   }
 }

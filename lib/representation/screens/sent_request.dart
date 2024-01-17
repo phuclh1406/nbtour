@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nbtour/services/api/form_service.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
@@ -36,7 +35,7 @@ class _SentRequestScreenState extends State<SentRequestScreen>
   List<RescheduleForm> filteredSchedule = [];
   String _searchValue = '';
   String userId = sharedPreferences.getString('user_id')!;
-  Tour? oldTour;
+  TourSchedule? oldSchedule;
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
   Stream<List<RescheduleForm>?>? requestStream;
@@ -61,10 +60,10 @@ class _SentRequestScreenState extends State<SentRequestScreen>
     }
   }
 
-  Future<String>? fetchRequestTour(String tourId) async {
-    oldTour = await TourService.getTourByTourId(tourId);
-    if (oldTour != null) {
-      return oldTour!.tourName!;
+  Future<String>? fetchRequestSchedule(String scheduleId) async {
+    oldSchedule = await ScheduleService.getScheduleByScheduleId(scheduleId);
+    if (oldSchedule != null) {
+      return oldSchedule!.scheduleTour!.tourName!;
     } else {
       return "";
     }
@@ -190,10 +189,10 @@ class _SentRequestScreenState extends State<SentRequestScreen>
                     children: [
                       RequestListWidget(
                         onTap: () {
-                          // setState(() {
-                          //   isSearching = false;
-                          //   filteredSchedule = listScheduledTour;
-                          // });
+                          setState(() {
+                            isSearching = false;
+                            filteredSchedule = listScheduledTour;
+                          });
                           // Navigator.push(
                           //     context,
                           //     MaterialPageRoute(
@@ -209,8 +208,11 @@ class _SentRequestScreenState extends State<SentRequestScreen>
 
                         // announcementImage: Image.network(),
                         email: filteredSchedule[i].formUser!.email!,
-                        tour: filteredSchedule[i].currentTour != null
-                            ? filteredSchedule[i].currentTour!.tourName!
+                        tour: filteredSchedule[i].currentSchedule != null
+                            ? filteredSchedule[i]
+                                .currentSchedule!
+                                .scheduleTour!
+                                .tourName!
                             : "",
                         name: filteredSchedule[i].formUser!.name != null
                             ? filteredSchedule[i].formUser!.name!

@@ -8,7 +8,7 @@ import 'package:nbtour/services/models/report_model.dart';
 class ReportServices {
   static var client = http.Client();
 
-  static Future<String> sendReport(String? tourId, String? userId,
+  static Future<String> sendReport(String? scheduleId, String? userId,
       String? title, String? description) async {
     try {
       var url = Uri.parse('https://${Config.apiURL}${Config.report}');
@@ -20,12 +20,15 @@ class ReportServices {
       };
 
       final body = json.encode({
-        'tourId': tourId,
+        'scheduleId': scheduleId,
         'reportUserId': userId,
         'title': title,
         'description': description
       });
       var response = await client.post(url, headers: headers, body: body);
+
+      print(response.body);
+      print(response.statusCode);
       if (response.statusCode == 201 || response.statusCode == 200) {
         return 'Send report successfully';
       } else {
@@ -36,7 +39,7 @@ class ReportServices {
     }
   }
 
-  static Future<String> sendReportWithoutTourId(
+  static Future<String> sendReportWithoutScheduleId(
       String? userId, String? title, String? description) async {
     try {
       var url = Uri.parse('https://${Config.apiURL}${Config.report}');
@@ -50,6 +53,8 @@ class ReportServices {
       final body = json.encode(
           {'reportUserId': userId, 'title': title, 'description': description});
       var response = await client.post(url, headers: headers, body: body);
+      print(response.body);
+      print(response.statusCode);
       if (response.statusCode == 201 || response.statusCode == 200) {
         return 'Send report successfully';
       } else {

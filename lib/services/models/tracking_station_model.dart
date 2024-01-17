@@ -1,5 +1,6 @@
 import 'package:nbtour/services/models/station_model.dart';
 import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 
 List<TrackingStations> trackingStationsFromJson(dynamic str) =>
     List<TrackingStations>.from((str).map((x) => TrackingStations.fromJson(x)));
@@ -8,19 +9,20 @@ class TrackingStations {
   TrackingStations({
     required this.tourDetailId,
     required this.status,
-    required this.tourDetail,
+    required this.detailSchedule,
     required this.tourDetailStation,
   });
   late String? tourDetailId;
   late String? status;
-  late Tour? tourDetail;
+  late TourSchedule? detailSchedule;
   late Stations? tourDetailStation;
 
   TrackingStations.fromJson(Map<String, dynamic> json) {
     tourDetailId = json['tourDetailId'];
     status = json['status'];
-    tourDetail =
-        json['detail_tour'] != null ? Tour.fromJson(json['detail_tour']) : null;
+    detailSchedule = json['detail_schedule'] != null
+        ? TourSchedule.fromJson(json['detail_schedule'])
+        : null;
     tourDetailStation = json['tour_detail_station'] != null
         ? Stations.fromJson(json['tour_detail_station'])
         : null;
@@ -30,20 +32,18 @@ class TrackingStations {
     final data = <String, dynamic>{};
     data['tourDetailId'] = tourDetailId;
     data['status'] = status;
-    if (tourDetail != null) {
+    if (detailSchedule != null) {
       data['detail_tour'] = {
-        'tourId': tourDetail?.tourId,
-        'tourName': tourDetail?.tourName,
-        'description': tourDetail?.description,
-        'beginBookingDate': tourDetail?.beginBookingDate,
-        'endBookingDate': tourDetail?.endBookingDate,
-        'departureDate': tourDetail?.departureDate,
-        'duration': tourDetail?.duration,
-        'routeId': tourDetail?.tourRoute?.routeId,
-        'tourGuideId': tourDetail?.tourGuide?.id,
-        'driverId': tourDetail?.driver?.id,
-        'busId': tourDetail?.tourBus?.busId,
-        'tourStatus': tourDetail?.tourStatus,
+        'scheduleId': detailSchedule?.scheduleId,
+        'departureDate': detailSchedule?.departureDate,
+        'endDate': detailSchedule?.endDate,
+        'isScheduled': detailSchedule?.isScheduled,
+        'tourId': detailSchedule?.tourId,
+        'tourGuideId': detailSchedule?.tourGuide?.id,
+        'driverId': detailSchedule?.driver?.id,
+        'busId': detailSchedule?.scheduleBus?.busId,
+        'scheduleStatus': detailSchedule?.scheduleStatus,
+        'schedule_tour': detailSchedule?.scheduleTour,
       };
     }
     if (tourDetailStation != null) {

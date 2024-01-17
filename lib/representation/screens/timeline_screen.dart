@@ -7,9 +7,11 @@ import 'package:nbtour/main.dart';
 import 'package:nbtour/representation/screens/driver/navigation.dart';
 import 'package:nbtour/representation/widgets/button_widget/rectangle_button_widget.dart';
 import 'package:nbtour/representation/widgets/timeline_widget.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
 
 import 'package:nbtour/services/api/tracking_service.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
+import 'package:nbtour/services/models/tracking_model.dart';
 
 import 'package:nbtour/services/models/tracking_station_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
@@ -23,8 +25,8 @@ import 'package:vietmap_flutter_navigation/models/way_point.dart';
 
 class TimelinesScreen extends StatefulWidget {
   const TimelinesScreen(
-      {super.key, required this.tour, required this.wayPoints});
-  final Tour tour;
+      {super.key, required this.schedule, required this.wayPoints});
+  final TourSchedule schedule;
   final List<WayPoint> wayPoints;
   @override
   State<TimelinesScreen> createState() => _TimelinesScreenState();
@@ -40,7 +42,7 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
   Timer? timer;
   // Future<Tracking?> loadStations() async {
   //   try {
-  //     Tracking? tracking = await TrackingServices.getTrackingStationsByTourId(
+  //     Tracking? tracking = await TrackingServices.getTrackingStationsByScheduleId(
   //         widget.tour.tourId!);
   //     if (tracking != null) {
   //       return tracking;
@@ -74,8 +76,8 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
   Future<List<TrackingStations>?> fetchTrackingStation() async {
     try {
       final updatedTrackingList =
-          await TrackingServices.getTrackingStationsByTourId(
-              widget.tour.tourId!);
+          await TrackingServices.getTrackingStationsByScheduleId(
+              widget.schedule.scheduleId!);
       return updatedTrackingList;
     } catch (e) {
       // Handle error as needed
@@ -85,9 +87,9 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
 
   bool isRightTime() {
     DateTime departureDate =
-        DateTime.parse(widget.tour.departureDate!.replaceAll('Z', '000'));
-    DateTime endDate =
-        DateTime.parse(widget.tour.endDate!.replaceAll('Z', '000'));
+        DateTime.parse(widget.schedule.departureDate!.replaceAll('Z', '000'));
+    // DateTime endDate = DateTime.parse(
+    //     widget.schedule.endDate!.replaceAll('Z', '000'));
     DateTime now = DateTime.now();
 
     print('Departure Date: $departureDate');
@@ -107,7 +109,7 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
       context: context,
       animType: AnimType.scale,
       dialogType: DialogType.warning,
-      title: 'Khởi hành thất bại',
+      title: 'Có gì đó xảy ra',
       desc: response,
       btnOkOnPress: () {},
       btnOkText: 'Thực hiện lại',
@@ -118,24 +120,23 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
     AwesomeDialog(
       context: context,
       animType: AnimType.scale,
-      dialogType: DialogType.warning,
+      dialogType: DialogType.success,
       title: 'Hoàn thành',
-      desc: 'Chuyến đi đã hoàn thành',
+      desc: 'Cập nhật trạng thái chuyến đi thành công',
       btnOkOnPress: () {},
       btnOkText: 'Thực hiện lại',
     ).show();
   }
 
-  void showConfirmDialog(String tourId, String tourName) {
+  void showConfirmDialog(String scheduleId) {
     AwesomeDialog(
             context: context,
             animType: AnimType.scale,
             dialogType: DialogType.question,
             title: 'Xác nhận khởi hành',
-            desc:
-                'Sau khi bấm xác nhận, bạn không thể hoàn thành chuyến đi cho tới khi cập bến tất cả các trạm!',
+            desc: 'Sau khi bấm xác nhận, bạn không thể hoàn tác tác vụ này!',
             btnOkOnPress: () {
-              _onStartTour(tourId, tourName);
+              _onStartSchedule(scheduleId);
             },
             btnOkText: 'Xác nhận',
             btnCancelText: 'Quay lại',
@@ -143,16 +144,34 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
         .show();
   }
 
-  void _onStartTour(String tourId, String tourName) async {
+  void showConfirmFinishDialog(String scheduleId) {
+    AwesomeDialog(
+            context: context,
+            animType: AnimType.scale,
+            dialogType: DialogType.question,
+            title: 'Xác nhận kết thúc',
+            desc: 'Sau khi bấm xác nhận, bạn không thể hoàn tác tác vụ này!',
+            btnOkOnPress: () {
+              _onFinishSchedule(scheduleId);
+            },
+            btnOkText: 'Xác nhận',
+            btnCancelText: 'Quay lại',
+            btnCancelOnPress: () {})
+        .show();
+  }
+
+  void _onStartSchedule(String scheduleId) async {
     try {
-      var tour = await TourService.getTourByTourStatusAndDriverId(
-          sharedPreferences.getString('user_id'), "Started");
-      if (tour!.isEmpty) {
+      var schedule =
+          await ScheduleService.getScheduleByScheduleStatusAndDriverId(
+              sharedPreferences.getString('user_id'), "Started");
+      if (schedule!.isEmpty) {
         String response =
-            await TourService.updateTourStatus(tourId, "Started", tourName);
+            await ScheduleService.updateScheduleStatus(scheduleId, "Started");
         if (response == "Update success") {
-          sharedPreferences.remove("tracking_tour_id");
-          sharedPreferences.setString("tracking_tour_id", tourId);
+          sharedPreferences.remove("tracking_schedule_id");
+          sharedPreferences.setString("tracking_schedule_id", scheduleId);
+          showSuccessDialog();
         } else {
           showAlertFail('Không thể bắt đầu');
         }
@@ -165,17 +184,18 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
     }
   }
 
-  void _onFinishTour(String tourId, String tourName) async {
+  void _onFinishSchedule(String scheduleId) async {
     try {
       List<TrackingStations>? trackingList =
-          await TrackingServices.getTrackingStationsByTourId(tourId);
+          await TrackingServices.getTrackingStationsByScheduleId(scheduleId);
       if (trackingList != []) {
         String response =
-            await TourService.updateTourStatus(tourId, "Finished", tourName);
+            await ScheduleService.updateScheduleStatus(scheduleId, "Finished");
         if (response == "Update success") {
-          sharedPreferences.remove("tracking_tour_id");
+          sharedPreferences.remove("tracking_schedule_id");
+          showSuccessDialog;
         } else {
-          showSuccessDialog();
+          showAlertFail(response);
         }
       } else {
         showAlertFail('Không thể hoàn thành tour');
@@ -223,11 +243,13 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget.tour.tourName!,
+                            Text(widget.schedule.scheduleTour!.tourName!,
                                 style: TextStyles.regularStyle.bold),
                             const SizedBox(height: kDefaultIconSize),
                             trackingList!.isNotEmpty
-                                ? trackingList[0].tourDetail!.tourStatus ==
+                                ? trackingList[0]
+                                            .detailSchedule!
+                                            .scheduleStatus ==
                                         "Started"
                                     ? Center(
                                         child: Lottie.asset(
@@ -279,43 +301,43 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                                         MediaQuery.of(context).size.width / 2 -
                                             kMediumPadding / 1.7,
                                     title: trackingList[0]
-                                                .tourDetail!
-                                                .tourStatus !=
+                                                .detailSchedule!
+                                                .scheduleStatus !=
                                             "Started"
                                         ? "Bắt đầu"
                                         : "Hoàn thành",
                                     ontap: () {
                                       if (isTime) {
                                         if (trackingList[0]
-                                                    .tourDetail!
-                                                    .tourStatus ==
+                                                    .detailSchedule!
+                                                    .scheduleStatus ==
                                                 'Available' ||
                                             trackingList[0]
-                                                    .tourDetail!
-                                                    .tourStatus ==
+                                                    .detailSchedule!
+                                                    .scheduleStatus ==
                                                 'Started') {
                                           trackingList[0]
-                                                      .tourDetail!
-                                                      .tourStatus ==
+                                                      .detailSchedule!
+                                                      .scheduleStatus ==
                                                   'Available'
                                               ? showConfirmDialog(
-                                                  widget.tour.tourId!,
-                                                  widget.tour.tourName!)
-                                              : _onFinishTour(
-                                                  widget.tour.tourId!,
-                                                  widget.tour.tourName!);
+                                                  widget.schedule.scheduleId!,
+                                                )
+                                              : showConfirmFinishDialog(
+                                                  widget.schedule.scheduleId!,
+                                                );
                                         }
                                         if (trackingList[0]
-                                                .tourDetail!
-                                                .tourStatus ==
+                                                .detailSchedule!
+                                                .scheduleStatus ==
                                             'Finished') {
                                           showAlertFail(
                                               'Chuyến đi này đã hoàn thành');
                                         }
 
                                         if (trackingList[0]
-                                                .tourDetail!
-                                                .tourStatus ==
+                                                .detailSchedule!
+                                                .scheduleStatus ==
                                             'Canceled') {
                                           showAlertFail(
                                               'Chuyến đi này đã bị hủy');
@@ -326,12 +348,12 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                                       }
                                     },
                                     buttonColor: (trackingList[0]
-                                                        .tourDetail!
-                                                        .tourStatus ==
+                                                        .detailSchedule!
+                                                        .scheduleStatus ==
                                                     'Available' ||
                                                 trackingList[0]
-                                                        .tourDetail!
-                                                        .tourStatus ==
+                                                        .detailSchedule!
+                                                        .scheduleStatus ==
                                                     'Started') &&
                                             isTime
                                         ? ColorPalette.primaryColor
@@ -340,19 +362,19 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                                         TextStyles.defaultStyle.whiteTextColor,
                                     isIcon: true,
                                     borderColor: (trackingList[0]
-                                                        .tourDetail!
-                                                        .tourStatus ==
+                                                        .detailSchedule!
+                                                        .scheduleStatus ==
                                                     'Available' ||
                                                 trackingList[0]
-                                                        .tourDetail!
-                                                        .tourStatus ==
+                                                        .detailSchedule!
+                                                        .scheduleStatus ==
                                                     'Started') &&
                                             isTime
                                         ? ColorPalette.primaryColor
                                         : ColorPalette.subTitleColor,
                                     icon: trackingList[0]
-                                                .tourDetail!
-                                                .tourStatus !=
+                                                .detailSchedule!
+                                                .scheduleStatus !=
                                             "Started"
                                         ? const Icon(
                                             Icons.play_arrow_rounded,
@@ -370,8 +392,8 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                                         MediaQuery.of(context).size.width / 2 -
                                             kMediumPadding / 1.7,
                                     title: trackingList[0]
-                                                .tourDetail!
-                                                .tourStatus !=
+                                                .detailSchedule!
+                                                .scheduleStatus !=
                                             "Started"
                                         ? "Bắt đầu"
                                         : "Hoàn thành",
@@ -382,8 +404,8 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                                     isIcon: true,
                                     borderColor: ColorPalette.subTitleColor,
                                     icon: trackingList[0]
-                                                .tourDetail!
-                                                .tourStatus !=
+                                                .detailSchedule!
+                                                .scheduleStatus !=
                                             "Started"
                                         ? const Icon(
                                             Icons.play_arrow_rounded,
@@ -404,7 +426,8 @@ class _TimelinesScreenState extends State<TimelinesScreen> {
                               ontap: () {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (ctx) => VietMapNavigationScreen(
-                                          tourId: widget.tour.tourId!,
+                                          scheduleId:
+                                              widget.schedule.scheduleId!,
                                           wayPoints: widget.wayPoints,
                                         )));
                               },

@@ -7,6 +7,7 @@ import 'package:nbtour/representation/screens/driver/tour_screen.dart';
 
 import 'package:nbtour/services/api/report_service.dart';
 import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 
 import 'package:nbtour/services/models/tracking_station_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
@@ -16,9 +17,9 @@ import 'package:nbtour/representation/widgets/button_widget/button_widget.dart';
 import 'package:quickalert/quickalert.dart';
 
 class SendReportScreen extends StatefulWidget {
-  const SendReportScreen({super.key, this.onReportSent, this.tour});
+  const SendReportScreen({super.key, this.onReportSent, this.schedule});
   final Function()? onReportSent;
-  final Tour? tour;
+  final TourSchedule? schedule;
   @override
   State<SendReportScreen> createState() => _SendReportScreenState();
 }
@@ -82,17 +83,17 @@ class _SendReportScreenState extends State<SendReportScreen> {
       return;
     }
     _form.currentState!.save();
-    if (widget.tour != null) {
-      if (widget.tour!.tourId != '') {
+    if (widget.schedule != null) {
+      if (widget.schedule!.scheduleId != '') {
         reportResult = await ReportServices.sendReport(
-          widget.tour!.tourId,
+          widget.schedule!.scheduleId,
           userId,
           _enteredTitle,
           _enteredDescription,
         );
       }
     } else {
-      reportResult = await ReportServices.sendReportWithoutTourId(
+      reportResult = await ReportServices.sendReportWithoutScheduleId(
         userId,
         _enteredTitle,
         _enteredDescription,
@@ -138,7 +139,7 @@ class _SendReportScreenState extends State<SendReportScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      widget.tour != null
+                      widget.schedule != null
                           ? Column(
                               children: [
                                 Padding(
@@ -156,7 +157,8 @@ class _SendReportScreenState extends State<SendReportScreen> {
                                           const Icon(Icons.email_outlined),
                                       prefixIconColor: const Color.fromARGB(
                                           255, 112, 111, 111),
-                                      hintText: widget.tour!.tourName,
+                                      hintText: widget
+                                          .schedule!.scheduleTour!.tourName,
                                       hintStyle: TextStyles.defaultStyle,
                                       border: const OutlineInputBorder(
                                           borderSide: BorderSide(

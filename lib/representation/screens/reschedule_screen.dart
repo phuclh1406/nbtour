@@ -2,7 +2,8 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:nbtour/representation/screens/tab_screen.dart';
 import 'package:nbtour/services/api/form_service.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
@@ -16,19 +17,20 @@ import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class RescheduleScreen extends StatefulWidget {
-  const RescheduleScreen({super.key, required this.tour});
-  final Tour tour;
+  const RescheduleScreen({super.key, required this.schedule});
+  final TourSchedule schedule;
   @override
   State<RescheduleScreen> createState() => _RescheduleScreenState();
 }
 
-Tour? rescheduleTour;
-List<Tour>? thisUserTours;
-List<Tour>? otherUserTours;
+TourSchedule? rescheduleSchedule;
+List<TourSchedule>? thisUserSchedules;
+List<TourSchedule>? otherUserSchedules;
 
-Future<List<Tour>?> loadAvailableTour() async {
+Future<List<TourSchedule>?> loadAvailableSchedule() async {
   try {
-    List<Tour>? listScheduledTour = await TourService.getAllTours();
+    List<TourSchedule>? listScheduledTour =
+        await ScheduleService.getAllSchedules();
     if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
       return listScheduledTour;
     } else {
@@ -41,62 +43,68 @@ Future<List<Tour>?> loadAvailableTour() async {
 }
 
 class _RescheduleScreenState extends State<RescheduleScreen> {
-  late Future<List<Tour>?> _toursFuture;
+  late Future<List<TourSchedule>?> _scheduleFuture;
   String roleName = sharedPreferences.getString('role_name')!;
   @override
   void initState() {
     super.initState();
-    rescheduleTour = null;
+    rescheduleSchedule = null;
     if (sharedPreferences.getString("role_name") == "TourGuide") {
-      fetchTourOfUser(widget.tour.tourGuide!.id!);
+      fetchScheduleOfUser(widget.schedule.tourGuide!.id!);
     } else {
-      fetchTourOfUser(widget.tour.driver!.id!);
+      fetchScheduleOfUser(widget.schedule.driver!.id!);
     }
 
-    _toursFuture = loadAvailableTour();
+    _scheduleFuture = loadAvailableSchedule();
   }
 
-  Future<List<Tour>?> fetchTourOfOtherUser(String userId) async {
+  Future<List<TourSchedule>?> fetchScheduleOfOtherUser(String userId) async {
     if (sharedPreferences.getString("role_name") == "TourGuide") {
-      otherUserTours = await TourService.getToursByTourGuideId(userId);
+      otherUserSchedules =
+          await ScheduleService.getSchedulesByTourGuideId(userId);
     } else {
-      otherUserTours = await TourService.getToursByDriverId(userId);
+      otherUserSchedules = await ScheduleService.getSchedulesByDriverId(userId);
     }
-    if (otherUserTours!.isNotEmpty) {
-      print('${otherUserTours!.length}');
-      return otherUserTours;
+    if (otherUserSchedules!.isNotEmpty) {
+      print('${otherUserSchedules!.length}');
+      return otherUserSchedules;
     } else {
       return [];
     }
   }
 
-  Future<List<Tour>?> fetchTourOfUser(String userId) async {
+  Future<List<TourSchedule>?> fetchScheduleOfUser(String userId) async {
     if (sharedPreferences.getString("role_name") == "TourGuide") {
-      thisUserTours = await TourService.getToursByTourGuideId(userId);
+      thisUserSchedules =
+          await ScheduleService.getSchedulesByTourGuideId(userId);
     } else {
-      thisUserTours = await TourService.getToursByDriverId(userId);
+      thisUserSchedules = await ScheduleService.getSchedulesByDriverId(userId);
     }
-    thisUserTours?.removeWhere((tour) => tour.tourId == widget.tour.tourId);
-    if (thisUserTours!.isNotEmpty) {
-      print('${thisUserTours!.length}');
-      return thisUserTours;
+    thisUserSchedules?.removeWhere(
+        (schedule) => schedule.scheduleId == widget.schedule.scheduleId);
+    if (thisUserSchedules!.isNotEmpty) {
+      print('${thisUserSchedules!.length}');
+      return thisUserSchedules;
     } else {
       return [];
     }
   }
 
-  bool hasSchedulingConflict(Tour selectedTour, Tour otherTour) {
+  bool hasSchedulingConflict(
+      TourSchedule selectedSchedule, TourSchedule otherSchedule) {
     // Convert the tour's departure and end times to DateTime objects
-    DateTime selectedTourStartTime =
-        DateTime.parse(selectedTour.departureDate!);
-    DateTime selectedTourEndTime = DateTime.parse(selectedTour.endDate!);
+    DateTime selectedScheduleStartTime =
+        DateTime.parse(selectedSchedule.departureDate!);
+    DateTime selectedScheduleEndTime =
+        DateTime.parse(selectedSchedule.endDate!);
 
-    DateTime otherTourStartTime = DateTime.parse(otherTour.departureDate!);
-    DateTime otherTourEndTime = DateTime.parse(otherTour.endDate!);
+    DateTime otherScheduleStartTime =
+        DateTime.parse(otherSchedule.departureDate!);
+    DateTime otherScheduleEndTime = DateTime.parse(otherSchedule.endDate!);
 
     // Check for conflicts
-    if (selectedTourStartTime.isBefore(otherTourEndTime) &&
-        selectedTourEndTime.isAfter(otherTourStartTime)) {
+    if (selectedScheduleStartTime.isBefore(otherScheduleEndTime) &&
+        selectedScheduleEndTime.isAfter(otherScheduleStartTime)) {
       // There is a scheduling conflict
       return true;
     }
@@ -105,10 +113,11 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
     return false;
   }
 
-  bool isTourInPast(Tour tour) {
+  bool isScheduleInPast(TourSchedule schedule) {
     // Convert the tour's departure and end times to DateTime objects
 
-    DateTime tourEndTime = DateTime.parse(tour.endDate!.replaceAll('Z', '000'));
+    DateTime tourEndTime =
+        DateTime.parse(schedule.endDate!.replaceAll('Z', '000'));
 
     // Check for conflicts
     if (tourEndTime.isBefore(DateTime.now())) {
@@ -120,21 +129,24 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
     return false;
   }
 
-  void _submit(String desireTour, String employee) async {
+  void _submit(String desireSchedule, String employee) async {
     try {
-      List<Tour>? otherTours;
+      List<TourSchedule>? otherSchedules;
       bool shouldSendForm = true;
-      otherTours = [];
+      otherSchedules = [];
       if (roleName == 'TourGuide') {
-        otherTours = await TourService.getToursByTourGuideId(employee);
+        otherSchedules =
+            await ScheduleService.getSchedulesByTourGuideId(employee);
       } else {
-        otherTours = await TourService.getToursByDriverId(employee);
+        otherSchedules = await ScheduleService.getSchedulesByDriverId(employee);
       }
 
-      otherTours?.removeWhere((tour) => tour.tourId == desireTour);
+      otherSchedules
+          ?.removeWhere((schedule) => schedule.scheduleId == desireSchedule);
 
-      for (var tour in otherTours!) {
-        bool isSchedulingConflict = hasSchedulingConflict(widget.tour, tour);
+      for (var schedule in otherSchedules!) {
+        bool isSchedulingConflict =
+            hasSchedulingConflict(widget.schedule, schedule);
         if (isSchedulingConflict == true) {
           showAlertFail(
               'Ca làm việc này gây trùng lịch cho một nhân viên khác. Vui lòng chọn ca khác!');
@@ -144,7 +156,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
       }
       if (shouldSendForm) {
         String check = await RescheduleServices.sendForm(
-            widget.tour.tourId, desireTour, employee);
+            widget.schedule.scheduleId, desireSchedule, employee);
         if (check == "Send form success") {
           showAlertSuccess();
         } else {
@@ -172,7 +184,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
     ).show();
   }
 
-  void showConfirmDialog(String desireTour, String employee) {
+  void showConfirmDialog(String desireSchedule, String employee) {
     AwesomeDialog(
             context: context,
             animType: AnimType.scale,
@@ -181,7 +193,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
             desc:
                 'Xác nhận đã kiểm tra thông tin của tour này! Hành động này không thể hoàn tác sau khi bấm Xác nhận',
             btnOkOnPress: () {
-              _submit(desireTour, employee);
+              _submit(desireSchedule, employee);
             },
             btnOkText: 'Xác nhận',
             btnCancelText: 'Quay lại',
@@ -208,12 +220,12 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Tour> filteredTour = [];
-    List<String> addedTourIds = [];
+    List<TourSchedule> filteredSchedule = [];
+    List<String> addedScheduleId = [];
     try {
-      final tour = widget.tour;
-      return FutureBuilder<List<Tour>?>(
-          future: _toursFuture,
+      final schedule = widget.schedule;
+      return FutureBuilder<List<TourSchedule>?>(
+          future: _scheduleFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -235,76 +247,82 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                 ],
               ));
             } else {
-              final tourList = snapshot.data ?? [];
+              final scheduleList = snapshot.data ?? [];
 
-              print('${tourList.length} lengtthhhhhhhhhhhh');
+              print('${scheduleList.length} lengtthhhhhhhhhhhh');
               if (sharedPreferences.getString("role_name") == "TourGuide") {
-                tourList.removeWhere((tour) {
-                  thisUserTours ?? [];
-                  return thisUserTours!.any((userTour) {
+                scheduleList.removeWhere((schedule) {
+                  thisUserSchedules = thisUserSchedules ?? [];
+                  return thisUserSchedules!.any((userTour) {
                     // Customize this condition based on how you want to compare the Tour objects
 
-                    return tour.tourGuide?.id == userTour.tourGuide?.id;
+                    return schedule.tourGuide?.id == userTour.tourGuide?.id;
 
                     // Assuming tourId is unique
                   });
                 });
 
-                tourList.removeWhere((tour) => tour.tourStatus != "Available");
-                print(tourList.length);
+                scheduleList.removeWhere(
+                    (schedule) => schedule.scheduleStatus != "Available");
+                print(scheduleList.length);
               } else {
-                thisUserTours ?? [];
-                tourList.removeWhere((tour) {
-                  return thisUserTours!.any((userTour) {
+                thisUserSchedules ?? [];
+                scheduleList.removeWhere((schedule) {
+                  return thisUserSchedules!.any((userSchedule) {
                     // Customize this condition based on how you want to compare the Tour objects
-                    return tour.driver?.id ==
-                        userTour.driver?.id; // Assuming tourId is unique
+                    return schedule.driver?.id ==
+                        userSchedule.driver?.id; // Assuming tourId is unique
                   });
                 });
-                tourList.removeWhere((tour) => tour.tourStatus != "Available");
+                scheduleList.removeWhere(
+                    (schedule) => schedule.scheduleStatus != "Available");
               }
-              tourList.removeWhere((tour) =>
-                  tour.tourId == widget.tour.tourId! ||
-                  DateTime.parse(tour.departureDate!.replaceAll('Z', '000'))
+              scheduleList.removeWhere((schedule) =>
+                  schedule.scheduleId == widget.schedule.scheduleId! ||
+                  DateTime.parse(schedule.departureDate!.replaceAll('Z', '000'))
                       .subtract(const Duration(hours: 24))
                       .isBefore(DateTime.now()));
               if (DateTime.parse(
-                      widget.tour.departureDate!.replaceAll('Z', '000'))
+                      widget.schedule.departureDate!.replaceAll('Z', '000'))
                   .subtract(const Duration(hours: 24))
                   .isBefore(DateTime.now())) {
-                tourList.clear();
+                scheduleList.clear();
               }
-              for (var i = 0; i < tourList.length; i++) {
-                bool isCurrentTourPast = isTourInPast(widget.tour);
-                bool isDesireTourInPast = isTourInPast(tourList[i]);
-                bool isTourListScheduled = tourList[i].isScheduled! != true;
-                bool shouldAddTour = true;
+              for (var i = 0; i < scheduleList.length; i++) {
+                bool isCurrentScheduleInPast =
+                    isScheduleInPast(widget.schedule);
+                bool isDesireScheduleInPast = isScheduleInPast(scheduleList[i]);
+                bool isscheduleListScheduled =
+                    scheduleList[i].isScheduled! != true;
+                bool shouldAddSchedule = true;
 
-                for (var j = 0; j < thisUserTours!.length; j++) {
+                for (var j = 0; j < thisUserSchedules!.length; j++) {
                   bool isSameEmployeeId =
                       sharedPreferences.getString("role_name") == "TourGuide"
-                          ? tourList[i].tourGuide?.id! ==
-                              thisUserTours![j].tourGuide?.id!
-                          : tourList[i].driver?.id! ==
-                              thisUserTours![j].driver?.id!;
-                  bool isTourConflictWithThisUserTours =
-                      hasSchedulingConflict(tourList[i], thisUserTours![j]);
+                          ? scheduleList[i].tourGuide?.id! ==
+                              thisUserSchedules![j].tourGuide?.id!
+                          : scheduleList[i].driver?.id! ==
+                              thisUserSchedules![j].driver?.id!;
+                  bool isScheduleConflictWithThisUserSchedules =
+                      hasSchedulingConflict(
+                          scheduleList[i], thisUserSchedules![j]);
 
-                  if (isCurrentTourPast ||
-                      isTourListScheduled ||
-                      isTourConflictWithThisUserTours ||
-                      isDesireTourInPast ||
+                  if (isCurrentScheduleInPast ||
+                      isscheduleListScheduled ||
+                      isScheduleConflictWithThisUserSchedules ||
+                      isDesireScheduleInPast ||
                       isSameEmployeeId) {
-                    shouldAddTour = false; // Don't add this tour
+                    shouldAddSchedule = false; // Don't add this tour
                     break; // No need to check other user tours, so break the inner loop
                   }
                 }
 
-                // Add the tour to filteredTour if it should be added and hasn't been added before
-                if (shouldAddTour &&
-                    !addedTourIds.contains(tourList[i].tourId)) {
-                  filteredTour.add(tourList[i]);
-                  addedTourIds.add(tourList[i].tourId!); // Track this tour ID
+                // Add the tour to filteredSchedule if it should be added and hasn't been added before
+                if (shouldAddSchedule &&
+                    !addedScheduleId.contains(scheduleList[i].scheduleId)) {
+                  filteredSchedule.add(scheduleList[i]);
+                  addedScheduleId
+                      .add(scheduleList[i].scheduleId!); // Track this tour ID
                 }
               }
 
@@ -318,14 +336,15 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                       Text('Chuyển lịch',
                           style: TextStyles.defaultStyle.subTitleTextColor),
                       const SizedBox(height: kDefaultIconSize / 2),
-                      Text(tour.tourName!, style: TextStyles.regularStyle.bold),
+                      Text(schedule.scheduleTour!.tourName!,
+                          style: TextStyles.regularStyle.bold),
                       const SizedBox(height: kMediumPadding),
                       Expanded(
                         child: Column(
                           children: [
                             SizedBox(
                               child: SingleChildScrollView(
-                                child: DropdownButtonFormField<Tour>(
+                                child: DropdownButtonFormField<TourSchedule>(
                                   alignment: AlignmentDirectional.bottomCenter,
                                   isExpanded: true,
                                   decoration: const InputDecoration(
@@ -358,17 +377,18 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                   onSaved: (value) {
                                     // _enteredEmail = value!;
                                   },
-                                  items: filteredTour.map((tour) {
-                                    return DropdownMenuItem<Tour>(
-                                      value: tour,
-                                      child: Text(tour.tourName!,
+                                  items: filteredSchedule.map((schedule) {
+                                    return DropdownMenuItem<TourSchedule>(
+                                      value: schedule,
+                                      child: Text(
+                                          schedule.scheduleTour!.tourName!,
                                           style: TextStyles.defaultStyle),
                                     );
                                   }).toList(),
-                                  onChanged: (Tour? newValue) {
+                                  onChanged: (TourSchedule? newValue) {
                                     try {
                                       setState(() {
-                                        rescheduleTour = newValue!;
+                                        rescheduleSchedule = newValue!;
                                       });
                                     } catch (e) {
                                       print(e.toString());
@@ -377,7 +397,7 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                 ),
                               ),
                             ),
-                            rescheduleTour != null
+                            rescheduleSchedule != null
                                 ? Expanded(
                                     child: SingleChildScrollView(
                                         physics: const BouncingScrollPhysics(),
@@ -396,10 +416,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                             .defaultStyle
                                                             .subTitleTextColor),
                                                     Text(
-                                                        rescheduleTour
+                                                        rescheduleSchedule
                                                                     ?.departureDate !=
                                                                 null
-                                                            ? rescheduleTour!
+                                                            ? rescheduleSchedule!
                                                                 .departureDate!
                                                                 .substring(
                                                                     11, 19)
@@ -424,10 +444,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                             .defaultStyle
                                                             .subTitleTextColor),
                                                     Text(
-                                                        rescheduleTour
+                                                        rescheduleSchedule
                                                                     ?.endDate !=
                                                                 null
-                                                            ? rescheduleTour!
+                                                            ? rescheduleSchedule!
                                                                 .endDate!
                                                                 .substring(
                                                                     11, 19)
@@ -447,39 +467,17 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,
                                               children: [
-                                                Text('Tuyến: ',
-                                                    style: TextStyles
-                                                        .defaultStyle
-                                                        .subTitleTextColor),
-                                                Text(
-                                                    rescheduleTour?.tourRoute !=
-                                                            null
-                                                        ? rescheduleTour!
-                                                            .tourRoute!
-                                                            .routeName!
-                                                        : "",
-                                                    style: TextStyles
-                                                        .defaultStyle),
-                                              ],
-                                            ),
-                                            const SizedBox(
-                                                height: kDefaultIconSize / 4),
-                                            const Divider(),
-                                            const SizedBox(
-                                                height: kDefaultIconSize / 4),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
                                                 Text('Biển số xe: ',
                                                     style: TextStyles
                                                         .defaultStyle
                                                         .subTitleTextColor),
                                                 Text(
-                                                    rescheduleTour?.tourBus !=
+                                                    rescheduleSchedule
+                                                                ?.scheduleBus !=
                                                             null
-                                                        ? rescheduleTour!
-                                                            .tourBus!.busPlate!
+                                                        ? rescheduleSchedule!
+                                                            .scheduleBus!
+                                                            .busPlate!
                                                         : "",
                                                     style: TextStyles
                                                         .defaultStyle),
@@ -499,10 +497,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                         .defaultStyle
                                                         .subTitleTextColor),
                                                 Text(
-                                                    rescheduleTour
+                                                    rescheduleSchedule
                                                                 ?.departureDate !=
                                                             null
-                                                        ? rescheduleTour!
+                                                        ? rescheduleSchedule!
                                                             .departureDate!
                                                             .substring(0, 10)
                                                         : "",
@@ -524,9 +522,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                         .defaultStyle
                                                         .subTitleTextColor),
                                                 Text(
-                                                    rescheduleTour?.tourGuide !=
+                                                    rescheduleSchedule
+                                                                ?.tourGuide !=
                                                             null
-                                                        ? rescheduleTour!
+                                                        ? rescheduleSchedule!
                                                             .tourGuide!.name!
                                                         : "",
                                                     style: TextStyles
@@ -544,9 +543,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                         .defaultStyle
                                                         .subTitleTextColor),
                                                 Text(
-                                                    rescheduleTour?.tourGuide !=
+                                                    rescheduleSchedule
+                                                                ?.tourGuide !=
                                                             null
-                                                        ? rescheduleTour!
+                                                        ? rescheduleSchedule!
                                                             .tourGuide!.email!
                                                         : "",
                                                     style: TextStyles
@@ -567,9 +567,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                         .defaultStyle
                                                         .subTitleTextColor),
                                                 Text(
-                                                    rescheduleTour?.driver !=
+                                                    rescheduleSchedule
+                                                                ?.driver !=
                                                             null
-                                                        ? rescheduleTour!
+                                                        ? rescheduleSchedule!
                                                             .driver!.name!
                                                         : "",
                                                     style: TextStyles
@@ -587,9 +588,10 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                         .defaultStyle
                                                         .subTitleTextColor),
                                                 Text(
-                                                    rescheduleTour?.driver !=
+                                                    rescheduleSchedule
+                                                                ?.driver !=
                                                             null
-                                                        ? rescheduleTour!
+                                                        ? rescheduleSchedule!
                                                             .driver!.email!
                                                         : "",
                                                     style: TextStyles
@@ -612,9 +614,12 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                             Align(
                                               alignment: Alignment.topLeft,
                                               child: Text(
-                                                rescheduleTour?.description !=
+                                                rescheduleSchedule
+                                                            ?.scheduleTour!
+                                                            .description !=
                                                         null
-                                                    ? rescheduleTour!
+                                                    ? rescheduleSchedule!
+                                                        .scheduleTour!
                                                         .description!
                                                     : "",
                                                 style: const TextStyle(
@@ -633,12 +638,14 @@ class _RescheduleScreenState extends State<RescheduleScreen> {
                                                             "role_name") ==
                                                         "TourGuide"
                                                     ? showConfirmDialog(
-                                                        rescheduleTour!.tourId!,
-                                                        rescheduleTour!
+                                                        rescheduleSchedule!
+                                                            .scheduleId!,
+                                                        rescheduleSchedule!
                                                             .tourGuide!.id!)
                                                     : showConfirmDialog(
-                                                        rescheduleTour!.tourId!,
-                                                        rescheduleTour!
+                                                        rescheduleSchedule!
+                                                            .scheduleId!,
+                                                        rescheduleSchedule!
                                                             .driver!.id!);
                                               },
                                               color: ColorPalette.primaryColor,

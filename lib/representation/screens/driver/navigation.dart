@@ -925,9 +925,9 @@ import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
 
 class VietMapNavigationScreen extends StatefulWidget {
   const VietMapNavigationScreen(
-      {super.key, required this.wayPoints, required this.tourId});
+      {super.key, required this.wayPoints, required this.scheduleId});
   final List<WayPoint> wayPoints;
-  final String tourId;
+  final String scheduleId;
   @override
   State<VietMapNavigationScreen> createState() =>
       _VietMapNavigationScreenState();

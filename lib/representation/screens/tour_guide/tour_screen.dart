@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
@@ -22,14 +23,14 @@ class TourGuideTourScreen extends StatefulWidget {
   State<TourGuideTourScreen> createState() => _TourGuideTourScreenState();
 }
 
-late Tour scheduleTour;
+late TourSchedule scheduleTour;
 
 class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
   bool isSearching = false;
   bool isLoading = true;
-  List<Tour> filteredSchedule = [];
+  List<TourSchedule> filteredSchedule = [];
   String _searchValue = '';
-  List<Tour> listTour = [];
+  List<TourSchedule> listTour = [];
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
   final List<Season> seasonList = [
@@ -71,10 +72,10 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
     }
   }
 
-  bool isRightTime(Tour tour) {
+  bool isRightTime(TourSchedule schedule) {
     DateTime departureDate =
-        DateTime.parse(tour.departureDate!.replaceAll('Z', '000'));
-    DateTime endDate = DateTime.parse(tour.endDate!.replaceAll('Z', '000'));
+        DateTime.parse(schedule.departureDate!.replaceAll('Z', '000'));
+    DateTime endDate = DateTime.parse(schedule.endDate!.replaceAll('Z', '000'));
     DateTime now = DateTime.now();
 
     if (now.isAfter(departureDate.subtract(const Duration(minutes: 30))) &&
@@ -103,14 +104,15 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
     return isInSeason; // Return isInSeason after the loop has completed
   }
 
-  List<Tour> filteredTours = []; // Store the filtered tours
+  List<TourSchedule> filteredTours = []; // Store the filtered tours
 
   List<Season> selectedCategories = [];
   Widget loadScheduledTour() {
     try {
-      return FutureBuilder<List<Tour>?>(
-        future: TourService.getToursByTourGuideId(userId),
-        builder: (BuildContext context, AsyncSnapshot<List<Tour>?> snapshot) {
+      return FutureBuilder<List<TourSchedule>?>(
+        future: ScheduleService.getSchedulesByTourGuideId(userId),
+        builder: (BuildContext context,
+            AsyncSnapshot<List<TourSchedule>?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
                 child: Padding(
@@ -119,7 +121,7 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                   CircularProgressIndicator(color: ColorPalette.primaryColor),
             ));
           } else if (snapshot.hasData) {
-            List<Tour>? listScheduledTour = snapshot.data!;
+            List<TourSchedule>? listScheduledTour = snapshot.data!;
             listScheduledTour
                 .sort((a, b) => b.departureDate!.compareTo(a.departureDate!));
             listScheduledTour.sort((a, b) {
@@ -134,8 +136,8 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                 return b.departureDate!.compareTo(a.departureDate!);
               }
             });
-            List<Tour> filteredSchedule = listScheduledTour
-                .where((schedule) => schedule.tourName!
+            List<TourSchedule> filteredSchedule = listScheduledTour
+                .where((schedule) => schedule.scheduleTour!.tourName!
                     .toLowerCase()
                     .contains(_searchValue.toLowerCase()))
                 .toList();
@@ -169,15 +171,18 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                       },
 
                       announcementImage: filteredSchedule[i]
+                              .scheduleTour!
                               .tourImage!
                               .isNotEmpty
                           ? Image.network(
-                              filteredSchedule[i].tourImage![0].image!,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) =>
-                                      (loadingProgress == null)
-                                          ? child
-                                          : const Text(''),
+                              filteredSchedule[i]
+                                  .scheduleTour!
+                                  .tourImage![0]
+                                  .image!,
+                              loadingBuilder: (context, child, loadingProgress) =>
+                                  (loadingProgress == null)
+                                      ? child
+                                      : const Text(''),
                               errorBuilder: (context, error, stackTrace) =>
                                   ImageHelper.loadFromAsset(
                                       AssetHelper.announcementImage,
@@ -185,13 +190,12 @@ class _TourGuideTourScreenState extends State<TourGuideTourScreen> {
                                       height: kMediumPadding * 5),
                               width: kMediumPadding * 3,
                               height: kMediumPadding * 5)
-                          : ImageHelper.loadFromAsset(
-                              AssetHelper.announcementImage,
+                          : ImageHelper.loadFromAsset(AssetHelper.announcementImage,
                               width: kMediumPadding * 3,
                               height: kMediumPadding * 5),
 
                       // announcementImage: Image.network(),
-                      title: filteredSchedule[i].tourName!,
+                      title: filteredSchedule[i].scheduleTour!.tourName!,
                       departureDate: filteredSchedule[i].departureDate != null
                           ? filteredSchedule[i].departureDate!
                           : "",

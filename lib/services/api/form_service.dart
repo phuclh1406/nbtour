@@ -8,8 +8,8 @@ import 'package:nbtour/services/models/reschedule_form_model.dart';
 class RescheduleServices {
   static var client = http.Client();
 
-  static Future<String> sendForm(
-      String? currentTour, String? desireTour, String? changeEmployee) async {
+  static Future<String> sendForm(String? currentSchedule,
+      String? desireSchedule, String? changeEmployee) async {
     try {
       var url = Uri.parse('https://${Config.apiURL}${Config.form}');
       String token = sharedPreferences.getString('accesstoken')!;
@@ -19,11 +19,14 @@ class RescheduleServices {
       };
 
       final body = json.encode({
-        'currentTour': currentTour,
-        'desireTour': desireTour,
+        'currentSchedule': currentSchedule,
+        'desireSchedule': desireSchedule,
         'changeEmployee': changeEmployee,
       });
       var response = await client.post(url, headers: headers, body: body);
+
+      print(response.body);
+      print(response.statusCode);
       if (response.statusCode == 200) {
         return "Send form success";
       } else {

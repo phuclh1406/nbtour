@@ -8,7 +8,7 @@ import 'package:nbtour/services/models/tracking_station_model.dart';
 class TrackingServices {
   static var client = http.Client();
   static Future<String> trackingWithCoordinates(
-      String tourId, double lat, double long) async {
+      String scheduleId, double lat, double long) async {
     var url = Uri.https(Config.apiURL, Config.trackingCoordinates);
     String token = sharedPreferences.getString("accesstoken")!;
     final headers = {
@@ -16,7 +16,7 @@ class TrackingServices {
       'Authorization': 'Bearer $token'
     };
     final body = json.encode({
-      'tourId': tourId,
+      'scheduleId': scheduleId,
       'latitude': lat,
       'longitude': long,
     });
@@ -31,10 +31,10 @@ class TrackingServices {
     }
   }
 
-  static Future<Tracking?> getTrackingByTourId(String tourId) async {
+  static Future<Tracking?> getTrackingByScheduleId(String scheduleId) async {
     try {
       var url = Uri.parse(
-          'https://${Config.apiURL}${Config.trackingCoordinates}?tourId=$tourId');
+          'https://${Config.apiURL}${Config.trackingCoordinates}?scheduleId=$scheduleId');
       String token = sharedPreferences.getString('accesstoken')!;
       final headers = {
         'Content-Type': 'application/json',
@@ -52,10 +52,10 @@ class TrackingServices {
     }
   }
 
-  static Future<List<TrackingStations>?> getTrackingStationsByTourId(
-      String tourId) async {
+  static Future<List<TrackingStations>?> getTrackingStationsByScheduleId(
+      String scheduleId) async {
     var url = Uri.parse(
-        'https://${Config.apiURL}${Config.trackingStations}?tourId=$tourId');
+        'https://${Config.apiURL}${Config.trackingStations}?scheduleId=$scheduleId');
     final headers = {
       'Content-Type': 'application/json',
     };
@@ -63,6 +63,8 @@ class TrackingServices {
     final response = await client.get(url, headers: headers);
     final responseData = json.decode(response.body);
 
+    print(response.body);
+    print(response.statusCode);
     if (response.statusCode == 200) {
       return trackingStationsFromJson(responseData['tourDetails']);
     } else {
@@ -111,10 +113,10 @@ class TrackingServices {
     }
   }
 
-  static Future<List<Tracking>?> getListTrackingWithTourId(
-      String tourId) async {
+  static Future<List<Tracking>?> getListTrackingWithScheduleId(
+      String scheduleId) async {
     var url = Uri.https(
-        'https://${Config.apiURL}${Config.trackingCoordinates}?tourId=$tourId');
+        'https://${Config.apiURL}${Config.trackingCoordinates}?scheduleId=$scheduleId');
     String token = sharedPreferences.getString('accesstoken')!;
     final headers = {
       'Content-Type': 'application/json',

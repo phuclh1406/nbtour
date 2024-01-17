@@ -14,6 +14,9 @@ class Config {
   static const String booking = "/api/v1/bookings/";
   static const String bookingOffline = "/api/v1/bookings/offline";
   static const String paymentOffline = "/api/v1/payments/offline";
+  static const String paidBackToManager =
+      "/api/v1/payments/schedule-transaction";
   static const String report = "/api/v1/reports";
   static const String notification = "/api/v1/notifications";
+  static const String invoices = "/api/v1/schedules/transaction";
 }

@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:nbtour/main.dart';
-import 'package:nbtour/services/api/tour_service.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
 
 import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'dart:math' as math;
@@ -24,8 +25,8 @@ Future<List<Appointment>> loadScheduledTour() async {
     String userId = sharedPreferences.getString("user_id")!;
     meetings = [];
     if (role == "TourGuide") {
-      List<Tour>? listScheduledTour =
-          await TourService.getToursByTourGuideId(userId);
+      List<TourSchedule>? listScheduledTour =
+          await ScheduleService.getSchedulesByTourGuideId(userId);
       if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
         for (var i = 0; i < listScheduledTour.length; i++) {
           final isAlreadyInclude = meetings.any((meetings) =>
@@ -33,7 +34,7 @@ Future<List<Appointment>> loadScheduledTour() async {
                   DateTime.parse(listScheduledTour[i].departureDate!) &&
               (meetings.endTime ==
                   DateTime.parse(listScheduledTour[i].endDate!)) &&
-              meetings.subject == listScheduledTour[i].tourName);
+              meetings.subject == listScheduledTour[i].scheduleTour!.tourName);
 
           if (!isAlreadyInclude) {
             meetings.add(Appointment(
@@ -41,7 +42,7 @@ Future<List<Appointment>> loadScheduledTour() async {
               endTimeZone: "SE Asia Standard Time",
               startTime: DateTime.parse(listScheduledTour[i].departureDate!),
               endTime: DateTime.parse(listScheduledTour[i].endDate!),
-              subject: listScheduledTour[i].tourName!,
+              subject: listScheduledTour[i].scheduleTour!.tourName!,
               color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0),
             ));
@@ -54,8 +55,8 @@ Future<List<Appointment>> loadScheduledTour() async {
         return [];
       }
     } else {
-      List<Tour>? listScheduledTour =
-          await TourService.getToursByDriverId(userId);
+      List<TourSchedule>? listScheduledTour =
+          await ScheduleService.getSchedulesByDriverId(userId);
       print('$userId 456');
       if (listScheduledTour != null && listScheduledTour.isNotEmpty) {
         for (var i = 0; i < listScheduledTour.length; i++) {
@@ -64,7 +65,7 @@ Future<List<Appointment>> loadScheduledTour() async {
                   DateTime.parse(listScheduledTour[i].departureDate!) &&
               (meetings.endTime ==
                   DateTime.parse(listScheduledTour[i].endDate!)) &&
-              meetings.subject == listScheduledTour[i].tourName);
+              meetings.subject == listScheduledTour[i].scheduleTour!.tourName);
 
           if (!isAlreadyInclude) {
             meetings.add(Appointment(
@@ -72,7 +73,7 @@ Future<List<Appointment>> loadScheduledTour() async {
               endTimeZone: "SE Asia Standard Time",
               startTime: DateTime.parse(listScheduledTour[i].departureDate!),
               endTime: DateTime.parse(listScheduledTour[i].endDate!),
-              subject: listScheduledTour[i].tourName!,
+              subject: listScheduledTour[i].scheduleTour!.tourName!,
               color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0),
             ));

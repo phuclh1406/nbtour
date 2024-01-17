@@ -3,21 +3,17 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:location/location.dart';
 import 'package:nbtour/representation/screens/timeline_screen.dart';
-import 'package:nbtour/services/api/route_service.dart';
-import 'package:nbtour/services/api/tracking_service.dart';
-import 'package:nbtour/services/models/tour_model.dart';
+import 'package:nbtour/services/api/schedule_service.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/utils/constant/colors.dart';
 import 'package:nbtour/utils/constant/dimension.dart';
 import 'package:nbtour/utils/constant/text_style.dart';
 import 'package:nbtour/main.dart';
 import 'package:nbtour/services/models/point_of_interest_model.dart';
-import 'package:nbtour/services/models/route_model.dart';
 import 'package:nbtour/services/models/station_model.dart';
-import 'package:nbtour/services/models/tracking_model.dart';
 import 'package:nbtour/utils/helper/asset_helper.dart';
 import 'package:nbtour/utils/helper/image_helper.dart';
 
@@ -26,9 +22,9 @@ import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'dart:math' as math;
 
 class ReviewRideScreen extends StatefulWidget {
-  const ReviewRideScreen({Key? key, required this.tour}) : super(key: key);
+  const ReviewRideScreen({Key? key, required this.schedule}) : super(key: key);
 
-  final Tour tour;
+  final TourSchedule schedule;
 
   @override
   State<ReviewRideScreen> createState() => _ReviewRideScreenState();
@@ -92,7 +88,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
     initializeLocationAndSave();
   }
 
-  void openStationsOverlay(Tour tour) {
+  void openStationsOverlay(TourSchedule schedule) {
     showModalBottomSheet(
       showDragHandle: true,
       elevation: 0,
@@ -104,7 +100,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
 
           // child: TimelinesScreen(route: route)),
           child: TimelinesScreen(
-            tour: tour,
+            schedule: schedule,
             wayPoints: wayPoints,
           )),
     );
@@ -114,30 +110,31 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
     this.controller = controller;
   }
 
-  // _onSymboltapped(Stations station) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(station.stationName!),
-  //         content: Text(station.description!),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text("Close"),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+  _onSymboltapped(Stations station) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(station.stationName!),
+          content: Text(station.description!),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget loadRoute() {
-    return FutureBuilder<Routes?>(
-      future: RouteService.getRouteByRouteId(widget.tour.tourRoute!.routeId!),
-      builder: (BuildContext context, AsyncSnapshot<Routes?> snapshot) {
+    return FutureBuilder<TourSchedule?>(
+      future:
+          ScheduleService.getScheduleByScheduleId(widget.schedule.scheduleId),
+      builder: (BuildContext context, AsyncSnapshot<TourSchedule?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
               child: Padding(
@@ -145,33 +142,38 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
             child: CircularProgressIndicator(color: ColorPalette.primaryColor),
           ));
         } else if (snapshot.hasData) {
-          Routes? route = snapshot.data;
+          print(
+              '${widget.schedule.scheduleTour!.routeSegment!.length} segmentt');
+          // TourSchedule? schedule = snapshot.data;
+
           wayPoints = [];
           Map<String, dynamic> geoJsonData =
-              Map<String, Object>.from(route!.geoJson!);
+              Map<String, Object>.from(widget.schedule.scheduleTour!.geoJson!);
 
           List<LatLng> coordinates =
               (geoJsonData['geometry']['coordinates'] as List)
-                  .map((coord) => LatLng(coord[1], coord[0]))
+                  .map((coord) =>
+                      LatLng(double.parse(coord[1]), double.parse(coord[0])))
                   .toList();
 
           geometry = coordinates;
           _kTripStations = [];
           targetPoint = LatLng(
-              double.parse(
-                  route.routeSegment![0].segmentDepartureStation!.latitude!),
-              double.parse(
-                  route.routeSegment![0].segmentDepartureStation!.longitude!));
+              double.parse(widget.schedule.routeSegment![0]
+                  .segmentDepartureStation!.latitude!),
+              double.parse(widget.schedule.routeSegment![0]
+                  .segmentDepartureStation!.longitude!));
           wayPoints.add(WayPoint(
-              name: route.routeSegment![0].segmentDepartureStation!.stationName,
-              latitude: double.parse(
-                  route.routeSegment![0].segmentDepartureStation!.latitude!),
-              longitude: double.parse(
-                  route.routeSegment![0].segmentDepartureStation!.longitude!)));
-          if (route != null) {
-            if (route.routeSegment != null) {
-              _kTripStations
-                  .add(route.routeSegment![0].segmentDepartureStation!);
+              name: widget.schedule.routeSegment![0].segmentDepartureStation!
+                  .stationName,
+              latitude: double.parse(widget.schedule.routeSegment![0]
+                  .segmentDepartureStation!.latitude!),
+              longitude: double.parse(widget.schedule.routeSegment![0]
+                  .segmentDepartureStation!.longitude!)));
+          if (widget.schedule != null) {
+            if (widget.schedule.routeSegment != null) {
+              _kTripStations.add(
+                  widget.schedule.routeSegment![0].segmentDepartureStation!);
               // wayPoints.add(WayPoint(
               //     name: route
               //         .routeSegment![0].segmentDepartureStation!.stationName,
@@ -179,7 +181,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
               //         .routeSegment![0].segmentDepartureStation!.latitude!),
               //     longitude: double.parse(route
               //         .routeSegment![0].segmentDepartureStation!.longitude!)));
-              for (var segment in route.routeSegment!) {
+              for (var segment in widget.schedule.routeSegment!) {
                 if (segment.segmentRoutePoiDetail != null) {
                   for (var poi in segment.segmentRoutePoiDetail!) {
                     pointList!.add(poi.routePoiDetailPoi!);
@@ -213,7 +215,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
               }
             }
 
-            if (route != null) {
+            if (widget.schedule != null) {
               return SafeArea(
                 child: Stack(
                   children: [
@@ -259,7 +261,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
                       right: kDefaultIconSize / 2,
                       child: FloatingActionButton.small(
                         onPressed: () {
-                          openStationsOverlay(widget.tour);
+                          openStationsOverlay(widget.schedule);
                         },
                         backgroundColor: ColorPalette.primaryColor,
                         focusColor: const Color.fromARGB(255, 220, 216, 216),
@@ -269,31 +271,6 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
                         ),
                       ),
                     ),
-                    // Positioned(
-                    //     bottom: kDefaultIconSize / 2,
-                    //     left: kDefaultIconSize / 2,
-                    //     right: kDefaultIconSize / 2,
-                    //     child: Container(
-                    //       padding: const EdgeInsets.all(kMediumPadding / 2),
-                    //       decoration: BoxDecoration(
-                    //           color: Colors.white,
-                    //           borderRadius: BorderRadius.circular(5)),
-                    //       height: kMediumPadding * 5,
-                    //       child: SingleChildScrollView(
-                    //         child: Wrap(
-                    //           direction: Axis.vertical,
-                    //           spacing: kDefaultIconSize / 2,
-                    //           children: [
-                    //             for (var i = 0; i < _kTripStations.length; i++)
-                    //               Text(
-                    //                 'Station ${i + 1}: ${_kTripStations[i].stationName!}',
-                    //                 style: TextStyles
-                    //                     .defaultStyle.bold.subTitleTextColor,
-                    //               ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     )),
                     Positioned(
                         top: kMediumPadding,
                         left: kMediumPadding / 2,
@@ -311,45 +288,6 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
                                 size: kDefaultIconSize,
                               )),
                         )),
-                    // Positioned(
-                    //     top: kMediumPadding,
-                    //     right: kMediumPadding / 2,
-                    //     child: FloatingActionButton(
-                    //         backgroundColor: Colors.white,
-                    //         shape: const CircleBorder(),
-                    //         onPressed: () {
-                    //           if (isPlay) {
-                    //             player.pause();
-                    //           } else {
-                    //             player.play();
-                    //           }
-                    //           setState(() {
-                    //             isPlay = !isPlay;
-                    //           });
-                    //         },
-                    //         child: isPlay
-                    //             ? const Icon(
-                    //                 Icons.stop,
-                    //                 size: kDefaultIconSize * 1.5,
-                    //                 color: Colors.black,
-                    //               )
-                    //             : const Icon(
-                    //                 Icons.play_arrow_rounded,
-                    //                 size: kDefaultIconSize * 1.5,
-                    //                 color: Colors.black,
-                    //               ))),
-                    // Positioned(
-                    //     top: kMediumPadding + kDefaultIconSize * 3.5,
-                    //     right: kMediumPadding / 2,
-                    //     child: FloatingActionButton(
-                    //         backgroundColor: Colors.white,
-                    //         shape: const CircleBorder(),
-                    //         onPressed: () {},
-                    //         child: const Icon(
-                    //           Icons.language_outlined,
-                    //           size: kDefaultIconSize * 2,
-                    //           color: Colors.black,
-                    //         ))),
                   ],
                 ),
               );
@@ -383,16 +321,16 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
     geometry = geometry;
     print('This is geometry $geometry');
 
-    // for (int i = 0; i < geometry.length; i++) {
-    //   controller?.addSymbol(
-    //     SymbolOptions(
-    //       geometry: LatLng(geometry[i].latitude, geometry[i].longitude),
-    //       iconSize: 0.15,
-    //       iconImage: "assets/icons/station.png",
-    //       textSize: 20,
-    //     ),
-    //   );
-    // }
+    for (int i = 0; i < geometry.length; i++) {
+      controller?.addSymbol(
+        SymbolOptions(
+          geometry: LatLng(geometry[i].latitude, geometry[i].longitude),
+          iconSize: 0.15,
+          iconImage: "assets/icons/station.png",
+          textSize: 20,
+        ),
+      );
+    }
 
     for (int i = 0; i < geometry.length; i++) {
       if (i < geometry.length - 1) {
@@ -518,9 +456,7 @@ class _ReviewRideScreenState extends State<ReviewRideScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: loadRoute(),
-    );
+    return Scaffold(body: loadRoute());
   }
 
   @override

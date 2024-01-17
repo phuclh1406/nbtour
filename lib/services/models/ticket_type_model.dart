@@ -25,7 +25,9 @@ class TicketTypes {
     ticketTypeId = json['ticketTypeId'];
     ticketTypeName = json['ticketTypeName'];
     description = json['description'];
-    price = json['price'] != null ? Price.fromJson(json['price']) : null;
+    price = json['ticket_type_price'] != null
+        ? Price.fromJson(json['ticket_type_price'])
+        : null;
     status = json['status'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
@@ -37,7 +39,7 @@ class TicketTypes {
     data['ticketTypeName'] = ticketTypeName;
     data['description'] = description;
     if (price != null) {
-      data['price'] = {
+      data['ticket_type_price'] = {
         'priceId': price?.priceId,
         'amount': price?.amount,
         'day': price?.day,

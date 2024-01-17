@@ -7,69 +7,46 @@ import 'package:nbtour/services/models/route_model.dart';
 import 'package:nbtour/services/models/station_model.dart';
 import 'package:nbtour/services/models/ticket_model.dart';
 import 'package:nbtour/services/models/ticket_type_model.dart';
+import 'package:nbtour/services/models/tour_schedule_model.dart';
 import 'package:nbtour/services/models/user_model.dart';
 
 List<Tour> toursFromJson(dynamic str) =>
     List<Tour>.from((str).map((x) => Tour.fromJson(x)));
 
 class Tour {
-  Tour({
-    required this.tourId,
-    required this.tourName,
-    required this.description,
-    required this.note,
-    required this.beginBookingDate,
-    required this.endBookingDate,
-    required this.departureDate,
-    required this.endDate,
-    required this.isScheduled,
-    required this.tourStatus,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.tourImage,
-    required this.tourRoute,
-    required this.tourTicket,
-    required this.ticket,
-    required this.tourGuide,
-  });
+  Tour(
+      {required this.tourId,
+      required this.tourName,
+      required this.description,
+      required this.status,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.tourImage,
+      required this.tourTicket,
+      required this.ticket,
+      required this.geoJson,
+      required this.routeSegment});
   late String? tourId;
   late String? tourName;
   late String? description;
-  late String? note;
-  late String? beginBookingDate;
-  late String? endBookingDate;
-  late bool? isScheduled;
-  late String? departureDate;
-  late String? endDate;
-  late String? tourStatus;
   late String? status;
   late String? createdAt;
   late String? updatedAt;
   late List<ImageModel>? tourImage;
-  late Buses? tourBus;
-  late String? duration;
-  late Routes? tourRoute;
   late List<BookingTickets>? tourTicket;
-  late List<Tickets> ticket;
-  late UserModel? tourGuide;
-  late UserModel? driver;
+  late List<Tickets>? ticket;
+  late List<TourSchedule>? tourSchedule;
+  late Map<String, dynamic>? geoJson;
+  late List<RouteSegment>? routeSegment;
 
   Tour.fromJson(Map<String, dynamic> json) {
     tourId = json['tourId'];
     tourName = json['tourName'];
     description = json['description'];
-    note = json['note'];
-    isScheduled = json['isScheduled'];
-    beginBookingDate = json['beginBookingDate'];
-    endBookingDate = json['endBookingDate'];
-    departureDate = json['departureDate'];
-    endDate = json['endDate'];
-    tourStatus = json['tourStatus'];
-    duration = json['duration'];
     status = json['status'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
+    geoJson = json['geoJson'];
     if (json['tour_image'] != null && json['tour_image'] is List) {
       tourImage = List<ImageModel>.from(
         json['tour_image'].map((x) => ImageModel.fromJson(x)),
@@ -78,16 +55,14 @@ class Tour {
       tourImage = [];
     }
 
-    tourGuide = json['tour_tourguide'] != null
-        ? UserModel.fromJson(json['tour_tourguide'])
-        : null;
-    driver = json['tour_driver'] != null
-        ? UserModel.fromJson(json['tour_driver'])
-        : null;
-    tourBus =
-        json['tour_bus'] != null ? Buses.fromJson(json['tour_bus']) : null;
-    tourRoute =
-        json['tour_route'] != null ? Routes.fromJson(json['tour_route']) : null;
+    if (json['tour_schedule'] != null && json['tour_schedule'] is List) {
+      tourSchedule = List<TourSchedule>.from(
+        json['tour_schedule'].map((x) => TourSchedule.fromJson(x)),
+      );
+    } else {
+      tourSchedule = [];
+    }
+
     if (json['tour_ticket'] != null && json['tour_ticket'] is List) {
       tourTicket = List<BookingTickets>.from(
         json['tour_ticket'].map((x) => BookingTickets.fromJson(x)),
@@ -102,6 +77,14 @@ class Tour {
     } else {
       ticket = [];
     }
+
+    if (json['route_segment'] != null && json['route_segment'] is List) {
+      routeSegment = List<RouteSegment>.from(
+        json['route_segment'].map((x) => RouteSegment.fromJson(x)),
+      );
+    } else {
+      routeSegment = [];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -109,71 +92,43 @@ class Tour {
     data['tourId'] = tourId;
     data['tourName'] = tourName;
     data['description'] = description;
-    data['note'] = note;
-    data['isScheduled'] = isScheduled;
-    data['beginBookingDate'] = beginBookingDate;
-    data['endBookingDate'] = endBookingDate;
-    data['departureDate'] = departureDate;
-    data['endDate'] = endDate;
-    data['tourStatus'] = tourStatus;
     data['status'] = status;
-    data['duration'] = duration;
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
     if (tourImage != null) {
       data['tour_image'] = tourImage?.map((x) => x.toJson()).toList();
     }
-
-    if (tourBus != null) {
-      data['departure_station'] = {
-        'busId': tourBus?.busId,
-        'busPlate': tourBus?.busPlate,
-        'numberSeat': tourBus?.numberSeat,
-        'isDoubleDecker': tourBus?.isDoubleDecker,
-      };
-    }
-    if (tourRoute != null) {
-      data['tour_route'] = {
-        'routeId': tourRoute?.routeId,
-        'routeName': tourRoute?.routeName,
-        'distance': tourRoute?.distance,
-        'geoJson': tourRoute?.geoJson
-      };
-    }
-    if (tourGuide != null) {
-      data['tour_tourguide'] = {
-        'userId': tourGuide?.id,
-        'userName': tourGuide?.name,
-        'email': tourGuide?.email,
-        'birthday': tourGuide?.yob,
-        'avatar': tourGuide?.avatar,
-        'address': tourGuide?.address,
-        'phone': tourGuide?.phone,
-        'maxTour': tourGuide?.maxTour,
-        'roleId': tourGuide?.roleModel?.roleId,
-        'accessChangePassword': tourGuide?.accessChangePassword,
-      };
-    }
-
-    if (driver != null) {
-      data['tour_driver'] = {
-        'userId': driver?.id,
-        'userName': driver?.name,
-        'email': driver?.email,
-        'birthday': driver?.yob,
-        'avatar': driver?.avatar,
-        'address': driver?.address,
-        'phone': driver?.phone,
-        'maxTour': driver?.maxTour,
-        'roleId': driver?.roleModel?.roleId,
-        'accessChangePassword': driver?.accessChangePassword,
-      };
+    if (tourSchedule != null && tourSchedule!.isNotEmpty) {
+      data['tour_schedule'] = tourSchedule!.map((schedule) {
+        return {
+          "scheduleId": schedule.scheduleId,
+          "departureDate": schedule.departureDate,
+          "endDate": schedule.departureDate,
+          "isScheduled": schedule.isScheduled,
+          "scheduleStatus": schedule.scheduleStatus,
+          "schedule_bus": schedule.scheduleBus,
+          "schedule_tourguide": schedule.tourGuide,
+          "schedule_driver": schedule.driver,
+          "schedule_departure_station": schedule.station,
+        };
+      }).toList();
     }
     if (tourTicket != null && tourTicket!.isNotEmpty) {
       data['tour_ticket'] = tourTicket!.map((ticket) {
         return {
           'ticketId': ticket.ticketId,
           'ticket_type': ticket.bookingDetailTicket,
+        };
+      }).toList();
+    }
+
+    if (routeSegment != null && routeSegment!.isNotEmpty) {
+      data['route_segment'] = routeSegment!.map((routeSegment) {
+        return {
+          'routeSegmentId': routeSegment.routeSegmentId,
+          'index': routeSegment.index,
+          'geoJson': routeSegment.geoJson,
+          'route_detail_station': routeSegment.segmentDepartureStation,
         };
       }).toList();
     }

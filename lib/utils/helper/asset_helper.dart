@@ -22,6 +22,7 @@ class AssetHelper {
   static const String noData = 'assets/images/empty.png';
   static const String error = 'assets/images/error.png';
   static const String mapImage = 'assets/images/map_background.jpg';
+  static const String payment = 'assets/images/payment.png';
 
   static const String busIcon = 'assets/icons/bus_icon.png';
   static const String notificationIcon = 'assets/icons/notification_icon.png';
